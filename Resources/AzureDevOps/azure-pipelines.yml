@@ -9,23 +9,68 @@ resources:
   - repository: dfc-devops
     type: github
     name: SkillsFundingAgency/dfc-devops
-    ref: refs/tags/v1.11.1
+    ref: refs/tags/v1.1.1
     endpoint: 'GitHub (CDH)'
 
-stages:
-- stage: Build
-  displayName: Build, Test and Analyze
-  jobs:
-  - job: BuildTestAndAnalyze
-    pool:
-      name: NCS - CI and CD
-      demands:
-      - msbuild
-      - visualstudio
-    steps:
-    - template: AzureDevOpsTemplates\Build\StepTemplates\dfc-dotnetcore-build-sonar.yml@dfc-devops
+jobs:
+# Test the branch name, the output of this job will satisfy the condition of one or neither of the subsequent jobs
+- job: TestBranchName
+  displayName: TestBranchName
+  pool: NCS - CI and CD
+      
+  variables:
+    TestBranchNameScriptUrl: https://raw.githubusercontent.com/SkillsFundingAgency/dss-devops/master/Scripts/Test-BranchName.ps1
+    TestBranchNameScriptFilePath: $(System.DefaultWorkingDirectory)\Test-BranchName.ps1
+      
+  steps:
+    - task: PowerShell@2
+      name: DownloadTestBranchNameScript
+      displayName: 'Download Test-BranchName script'
+      inputs:
+        targetType: 'inline'
+        script: Invoke-WebRequest -Uri $(TestBranchNameScriptUrl) -OutFile $(TestBranchNameScriptFilePath)
+    - task: PowerShell@2
+      name: ExecuteTestBranchNameScript
+      displayName: Test-BranchName
+      inputs:
+        targetType: 'filePath'
+        filePath: $(TestBranchNameScriptFilePath)
+        arguments: '-BranchName $(Build.SourceBranchName) -PullRequestBranchName $(if ("$(Build.SourceBranchName)" -eq "merge") { "$(System.PullRequest.SourceBranch)" } else { "NotAPullRequest" } ) -PipelineType Build -Verbose'
+      
+# Build the app with the dfc-dotnetframework-build template.  Runs if the output of TestBranchName is Version1
+- job: BuildDotNetFramework
+  displayName: Build-DotNetFramework
+  dependsOn: TestBranchName
+  condition: and(succeeded(), eq(dependencies.TestBranchName.outputs['ExecuteTestBranchNameScript.FunctionAppVersion'], 'Version1'))
+  pool:
+    name: NCS - CI and CD
+    demands:
+    - msbuild
+    - visualstudio
+      
+  steps:
+  - template: AzureDevOpsTemplates/Build/dfc-dotnetframework-build.yml@dfc-devops
+    parameters:
+      SolutionBaseName: $(SolutionBaseName)
+      BuildPlatform: $(BuildPlatform)
+      BuildConfiguration: $(BuildConfiguration)
+      DotNetCoreVersion: '3.1.100'
+
+# Build the app with the dfc-dotnetcore-build template.  Runs if the output of TestBranchName is Version2+
+- job: BuildDotNetStandard
+  displayName: Build-DotNetStandard
+  dependsOn: TestBranchName
+  condition: and(succeeded(), eq(dependencies.TestBranchName.outputs['ExecuteTestBranchNameScript.FunctionAppVersion'], 'Version2+'))
+  pool:
+    name: NCS - CI and CD
+    demands:
+    - msbuild
+    - visualstudio
+      
+  steps:
+    - template: AzureDevOpsTemplates/Build/dfc-dotnetcorefunctionapp-build-notests.yml@dfc-devops
       parameters:
         SolutionBaseName: $(SolutionBaseName)
-        BuildPlatform: 'any cpu'
-        BuildConfiguration: 'release'
+        BuildPlatform: $(BuildPlatform)
+        BuildConfiguration: $(BuildConfiguration)
         DotNetCoreVersion: '3.1.100'
