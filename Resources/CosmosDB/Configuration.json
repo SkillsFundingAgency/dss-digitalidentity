@@ -1,0 +1,14 @@
+{
+    "Databases": [
+      {
+        "DatabaseName": "digitalidentities",
+        "Collections": [
+          {
+            "CollectionName": "digitalidentities",
+            "OfferThroughput": 1000,
+            "StoredProcedures": []
+          }
+        ]
+      }
+    ]
+  }
