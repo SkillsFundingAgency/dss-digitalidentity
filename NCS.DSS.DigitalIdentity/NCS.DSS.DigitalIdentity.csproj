@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AzureFunctionsVersion>
     </AzureFunctionsVersion>
     <ProjectGuid>{B229004F-C6B1-4962-AC89-748972990912}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.29" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.6" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
