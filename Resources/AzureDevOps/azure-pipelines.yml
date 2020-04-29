@@ -9,14 +9,14 @@ resources:
   - repository: dfc-devops
     type: github
     name: SkillsFundingAgency/dfc-devops
-    ref: refs/tags/v1.11.1
+    ref: refs/tags/v1.1.0
     endpoint: 'GitHub (CDH)'
 
 jobs:
 # Test the branch name, the output of this job will satisfy the condition of one or neither of the subsequent jobs
 - job: TestBranchName
   displayName: TestBranchName
-  pool: NCS - CI and CD
+  pool: Continuous Integration 02 - SSD - 160ACU
       
   variables:
     TestBranchNameScriptUrl: https://raw.githubusercontent.com/SkillsFundingAgency/dss-devops/master/Scripts/Test-BranchName.ps1
@@ -43,7 +43,7 @@ jobs:
   dependsOn: TestBranchName
   condition: and(succeeded(), eq(dependencies.TestBranchName.outputs['ExecuteTestBranchNameScript.FunctionAppVersion'], 'Version1'))
   pool:
-    name: NCS - CI and CD
+    name: Continuous Integration 02 - SSD - 160ACU
     demands:
     - msbuild
     - visualstudio
@@ -62,7 +62,7 @@ jobs:
   dependsOn: TestBranchName
   condition: and(succeeded(), eq(dependencies.TestBranchName.outputs['ExecuteTestBranchNameScript.FunctionAppVersion'], 'Version2+'))
   pool:
-    name: NCS - CI and CD
+    name: Continuous Integration 02 - SSD - 160ACU
     demands:
     - msbuild
     - visualstudio
