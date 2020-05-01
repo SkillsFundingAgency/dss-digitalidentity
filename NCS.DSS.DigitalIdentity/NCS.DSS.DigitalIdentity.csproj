@@ -1,11 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AzureFunctionsVersion>
-    </AzureFunctionsVersion>
+    <AzureFunctionsVersion>v3</AzureFunctionsVersion>
+	<RuntimeFrameworkVersion>3.1</RuntimeFrameworkVersion>
     <ProjectGuid>{B229004F-C6B1-4962-AC89-748972990912}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="DFC.Common.Standard" Version="0.1.4" />
+    <PackageReference Include="DFC.HTTP.Standard" Version="0.1.11" />
+    <PackageReference Include="DFC.Swagger.Standard" Version="0.1.20" />
+    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.10.3" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.6" />
   </ItemGroup>
   <ItemGroup>
@@ -16,5 +20,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="AppInsights\" />
+    <Folder Include="GetDigitalIdentityByCustomerIdHttpTrigger\Function\" />
+    <Folder Include="Helpers\" />
+    <Folder Include="ServiceBus\" />
+    <Folder Include="Validation\" />
   </ItemGroup>
 </Project>
