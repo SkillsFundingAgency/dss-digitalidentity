@@ -20,7 +20,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Func
 {
     public static class GetDigitalIdentityByCustomerIdHttpTrigger
     {
-        [FunctionName("GetByCustomerId")]
+        [FunctionName("GetById")]
         [ResponseType(typeof(Models.DigitalIdentity))]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity found", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Digital Identity does not exist", ShowSchema = false)]
