@@ -1,0 +1,19 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "name": "req",
+      "type": "httpTrigger",
+      "direction": "in",
+      "methods": [ "delete" ]
+    },
+    {
+      "name": "$return",
+      "type": "http",
+      "direction": "out"
+    }
+  ],
+  "disabled": false,
+  "entryPoint": "NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Run",
+  "scriptFile": "..\\bin\\NCS.DSS.DigitalIdentity.dll"
+} 
