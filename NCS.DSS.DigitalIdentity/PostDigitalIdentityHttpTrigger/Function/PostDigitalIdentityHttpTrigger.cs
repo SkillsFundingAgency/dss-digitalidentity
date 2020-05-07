@@ -15,6 +15,7 @@ using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
 using DFC.Common.Standard.Logging;
+using NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service;
 
 namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
 {
@@ -30,7 +31,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Conflict, Description = "Digital Identity already exists for customer", ShowSchema = false)]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "/identity")]HttpRequest req, ILogger log, string customerId,
             //[Inject]IResourceHelper resourceHelper,
-            [Inject]IGetDigitalIdentityByCustomerIdHttpTriggerService identityGetService,
+            [Inject]IPostDigitalIdentityTriggerService identityPostService,
             [Inject]ILoggerHelper loggerHelper,
             [Inject]IHttpRequestHelper httpRequestHelper,
             [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,
