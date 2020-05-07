@@ -31,5 +31,21 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 
             return digitalIdentity?.FirstOrDefault();
         }
+
+        public async Task<ResourceResponse<Document>> CreateContactDetailsAsync(Models.DigitalIdentity digitalIdentity)
+        {
+
+            var collectionUri = DocumentDBHelper.CreateDocumentCollectionUri();
+
+            var client = DocumentDBClient.CreateDocumentClient();
+
+            if (client == null)
+                return null;
+
+            var response = await client.CreateDocumentAsync(collectionUri, digitalIdentity);
+
+            return response;
+
+        }
     }
 }
