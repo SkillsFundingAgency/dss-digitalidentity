@@ -67,7 +67,6 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Function
                 loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Unable to parse 'identityId' to a Guid: {0}", identityId));
                 return httpResponseMessageHelper.BadRequest(identityGuid);
             }
-            //Do I validate if record exists first?
 
             var identityDeleted = await identityDeleteService.DeleteIdentityAsync(identityGuid);
 
