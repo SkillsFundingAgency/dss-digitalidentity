@@ -10,31 +10,31 @@ using System.Web.Http.Description;
 using Microsoft.Extensions.Logging;
 using DFC.Swagger.Standard.Annotations;
 using DFC.Functions.DI.Standard.Attributes;
-using NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Service;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
 using DFC.Common.Standard.Logging;
+using NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Service;
 
-namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Function
+namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Function
 {
-    public static class GetDigitalIdentityByCustomerIdHttpTrigger
+    public static class DeleteDigitalIdentityHttpTrigger
     {
-        [FunctionName("GetById")]
+        [FunctionName("Delete")]
         [ResponseType(typeof(Models.DigitalIdentity))]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity found", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Digital Identity does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request was malformed", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
-        [Display(Name = "GetById", Description = "Ability to retrieve an individual digital identity for the given customer")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}")]HttpRequest req, ILogger log, string customerId,
-            //[Inject]IResourceHelper resourceHelper,
-            [Inject]IGetDigitalIdentityByCustomerIdHttpTriggerService identityGetService,
-            [Inject]ILoggerHelper loggerHelper,
-            [Inject]IHttpRequestHelper httpRequestHelper,
-            [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,
-            [Inject]IJsonHelper jsonHelper)
+        [Display(Name = "Delete", Description = "Ability to delete an individual digital identity")]
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "identity/{identityId}")]HttpRequest req, ILogger log, string identityId,
+         //[Inject]IResourceHelper resourceHelper,
+         [Inject]IDeleteDigitalIdentityHttpTriggerService identityDeleteService,
+         [Inject]ILoggerHelper loggerHelper,
+         [Inject]IHttpRequestHelper httpRequestHelper,
+         [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,
+         [Inject]IJsonHelper jsonHelper)
         {
 
             loggerHelper.LogMethodEnter(log);
@@ -62,31 +62,18 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Func
                 string.Format("Get Digital Identity By Id C# HTTP trigger function  processed a request. By Touchpoint: {0}",
                     touchpointId));
 
-            if (!Guid.TryParse(customerId, out var customerGuid))
+            if (!Guid.TryParse(identityId, out var identityGuid))
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Unable to parse 'customerId' to a Guid: {0}", customerId));
-                return httpResponseMessageHelper.BadRequest(customerGuid);
+                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Unable to parse 'identityId' to a Guid: {0}", identityId));
+                return httpResponseMessageHelper.BadRequest(identityGuid);
             }
+            //Do we check if customer and record exists first?
 
-            /*loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to see if customer exists {0}", customerGuid));
-            var doesCustomerExist = await resourceHelper.DoesCustomerExist(customerGuid);
+            var identityDeleted = await identityDeleteService.DeleteIdentityAsync(identityGuid);
 
-            if (!doesCustomerExist)
-            {
-                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Customer does not exist {0}", customerGuid));
-                return httpResponseMessageHelper.NoContent(customerGuid);
-            }*/
-
-
-
-            loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to identity for customer {0}", customerGuid));
-            var identity = await identityGetService.GetIdentityForCustomerAsync(customerGuid);
-
-            loggerHelper.LogMethodExit(log);
-
-            return identity == null ?
-                httpResponseMessageHelper.NoContent(customerGuid) :
-                httpResponseMessageHelper.Ok(jsonHelper.SerializeObjectAndRenameIdProperty(identity, "id", "DigitalIdentityId"));
+            return !identityDeleted ?
+                httpResponseMessageHelper.BadRequest(identityGuid) :
+                httpResponseMessageHelper.Ok();
         }
     }
 }
