@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Service
 {
-    public class DeleteDigitalIdentityByCustomerIdHttpTriggerService : IDeleteDigitalIdentityByCustomerIdHttpTriggerService
+    public class DeleteDigitalIdentityHttpTriggerService : IDeleteDigitalIdentityHttpTriggerService
     {
         private readonly IDocumentDBProvider _documentDbProvider;
 
-        public DeleteDigitalIdentityByCustomerIdHttpTriggerService(IDocumentDBProvider documentDbProvider)
+        public DeleteDigitalIdentityHttpTriggerService(IDocumentDBProvider documentDbProvider)
         {
             _documentDbProvider = documentDbProvider;
         }

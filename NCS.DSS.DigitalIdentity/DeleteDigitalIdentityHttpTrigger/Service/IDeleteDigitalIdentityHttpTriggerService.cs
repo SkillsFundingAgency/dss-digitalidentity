@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Service
 {
-    public interface IDeleteDigitalIdentityByCustomerIdHttpTriggerService
+    public interface IDeleteDigitalIdentityHttpTriggerService
     {
         Task<bool> DeleteIdentityAsync(Guid identityId);
     }

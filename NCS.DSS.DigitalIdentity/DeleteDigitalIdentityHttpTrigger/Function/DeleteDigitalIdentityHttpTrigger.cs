@@ -30,7 +30,7 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Function
         [Display(Name = "Delete", Description = "Ability to delete an individual digital identity")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "identity/{identityId}")]HttpRequest req, ILogger log, string identityId,
          //[Inject]IResourceHelper resourceHelper,
-         [Inject]IDeleteDigitalIdentityByCustomerIdHttpTriggerService identityDeleteService,
+         [Inject]IDeleteDigitalIdentityHttpTriggerService identityDeleteService,
          [Inject]ILoggerHelper loggerHelper,
          [Inject]IHttpRequestHelper httpRequestHelper,
          [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,
