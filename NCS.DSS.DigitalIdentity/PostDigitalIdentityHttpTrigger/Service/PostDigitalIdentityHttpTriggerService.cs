@@ -49,5 +49,10 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service
 
             return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : (Guid?)null;
         }
+
+        public async Task SendToServiceBusQueueAsync(Models.DigitalIdentity digitalIdentity, string reqUrl)
+        {
+            await _serviceBusClient.SendPostMessageAsync(digitalIdentity, reqUrl);
+        }
     }
 }
