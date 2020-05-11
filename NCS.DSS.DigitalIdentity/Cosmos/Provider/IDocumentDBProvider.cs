@@ -18,5 +18,7 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
         //Task<ResourceResponse<Document>> UpdateIdentityAsync(string action, Guid actionId);
 
         Task<ResourceResponse<Document>> CreateContactDetailsAsync(Models.DigitalIdentity digitalIdentity);
+
+        Task<bool> DoesCustomerResourceExist(Guid customerId);
     }
 }
