@@ -9,6 +9,7 @@ namespace NCS.DSS.DigitalIdentity.Models
         DateTime? LastLoggedInDateTime { get; set; }
         DateTime? LastModifiedDate { get; set; }
         string LastModifiedTouchpointId { get; set; }
+        Guid? CustomerId { get; set; }
 
         void SetDefaultValues();
     }

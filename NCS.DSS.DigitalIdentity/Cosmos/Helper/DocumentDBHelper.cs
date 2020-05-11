@@ -11,6 +11,10 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Helper
         private static readonly string DatabaseId = Environment.GetEnvironmentVariable("DatabaseId");
         private static readonly string CollectionId = Environment.GetEnvironmentVariable("CollectionId");
 
+        private static Uri _customerDocumentCollectionUri;
+        private static readonly string CustomerDatabaseId = Environment.GetEnvironmentVariable("CustomerDatabaseId");
+        private static readonly string CustomerCollectionId = Environment.GetEnvironmentVariable("CustomerCollectionId");
+
         public static Uri CreateDocumentCollectionUri()
         {
             if (_documentCollectionUri != null)
@@ -26,6 +30,11 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Helper
         public static Uri CreateDocumentUri(Guid outcomeId)
         {
             return UriFactory.CreateDocumentUri(DatabaseId, CollectionId, outcomeId.ToString());
+        }
+
+        public static Uri CreateCustomerDocumentUri(Guid customerId)
+        {
+            return UriFactory.CreateDocumentUri(CustomerDatabaseId, CustomerCollectionId, customerId.ToString());
         }
     }
 }
