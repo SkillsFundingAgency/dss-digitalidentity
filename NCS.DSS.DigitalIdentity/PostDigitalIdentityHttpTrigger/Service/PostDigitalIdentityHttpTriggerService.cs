@@ -1,4 +1,5 @@
 ﻿using NCS.DSS.DigitalIdentity.Cosmos.Provider;
+using NCS.DSS.DigitalIdentity.ServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -10,10 +11,12 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service
     public class PostDigitalIdentityHttpTriggerService : IPostDigitalIdentityTriggerService
     {
         private readonly IDocumentDBProvider _documentDbProvider;
+        private readonly IDigitalIdentityServiceBusClient _serviceBusClient;
 
-        public PostDigitalIdentityHttpTriggerService(IDocumentDBProvider documentDbProvider)
+        public PostDigitalIdentityHttpTriggerService(IDocumentDBProvider documentDbProvider, IDigitalIdentityServiceBusClient serviceBusClient)
         {
             _documentDbProvider = documentDbProvider;
+            _serviceBusClient = serviceBusClient;
         }
 
         public async Task<Models.DigitalIdentity> GetIdentityForCustomerAsync(Guid customerId)
@@ -35,6 +38,11 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service
             var response = await documentDbProvider.CreateContactDetailsAsync(digitalIdentity);
 
             return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : (Guid?)null;
+        }
+
+        public async Task SendToServiceBusQueueAsync(Models.DigitalIdentity digitalIdentity, string reqUrl)
+        {
+            await _serviceBusClient.SendPostMessageAsync(digitalIdentity, reqUrl);
         }
     }
 }
