@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Service
+namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.Service
 {
     public class DeleteDigitalIdentityByCustomerIdHttpTriggerService : IDeleteDigitalIdentityByCustomerIdHttpTriggerService
     {
@@ -13,6 +13,13 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Service
         public DeleteDigitalIdentityByCustomerIdHttpTriggerService(IDocumentDBProvider documentDbProvider)
         {
             _documentDbProvider = documentDbProvider;
+        }
+
+        public async Task<Models.DigitalIdentity> GetIdentityForCustomerAsync(Guid customerId)
+        {
+            var identity = await _documentDbProvider.GetIdentityForCustomerAsync(customerId);
+
+            return identity;
         }
 
         public async Task<bool> DeleteIdentityAsync(Guid identityId)

@@ -33,7 +33,7 @@ namespace NCS.DSS.DigitalIdentity.Ioc
             builder.Services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
             builder.Services.AddScoped<IGetDigitalIdentityByCustomerIdHttpTriggerService, GetDigitalIdentityByCustomerIdHttpTriggerService>();
             builder.Services.AddScoped<IGetDigitalIdentityHttpTriggerService, GetDigitalIdentityHttpTriggerService>();
-            builder.Services.AddScoped<IDeleteDigitalIdentityHttpTriggerService, DeleteDigitalIdentityHttpTriggerService>();
+            builder.Services.AddScoped<IDeleteDigitalIdentityByCustomerIdHttpTriggerService, DeleteDigitalIdentityByCustomerIdHttpTriggerService>();
         }
     }
 }

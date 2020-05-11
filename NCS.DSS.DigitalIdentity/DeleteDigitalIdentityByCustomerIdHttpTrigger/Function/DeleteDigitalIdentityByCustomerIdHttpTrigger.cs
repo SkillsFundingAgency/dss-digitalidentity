@@ -14,21 +14,21 @@ using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
 using DFC.Common.Standard.Logging;
-using NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.Service;
 
-namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Function
+namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.Function
 {
     public static class DeleteDigitalIdentityByCustomerIdHttpTrigger
     {
-        [FunctionName("Delete")]
+        [FunctionName("DeleteById")]
         [ResponseType(typeof(Models.DigitalIdentity))]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity found", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Digital Identity does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request was malformed", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
-        [Display(Name = "Delete", Description = "Ability to delete an individual digital identity")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "identity/{identityId}")]HttpRequest req, ILogger log, string identityId,
+        [Display(Name = "DeleteById", Description = "Ability to delete an individual digital identity by customer id")]
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "customer/{customerId}")]HttpRequest req, ILogger log, string identityId,
          //[Inject]IResourceHelper resourceHelper,
          [Inject]IDeleteDigitalIdentityByCustomerIdHttpTriggerService identityDeleteService,
          [Inject]ILoggerHelper loggerHelper,
