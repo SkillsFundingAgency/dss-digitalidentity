@@ -40,6 +40,15 @@
     },
     "templateBaseUrl": {
       "type": "string"
+    },    
+    "serviceBusConnectionString": {
+      "type": "securestring"
+    },
+    "storageAccountName": {
+      "type": "string"
+    },
+    "storageAccountKey": {
+      "type": "securestring"
     }
   },
     "variables": {
