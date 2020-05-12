@@ -24,13 +24,13 @@
       "type": "string"
     },
     "serviceBusConnectionString": {
-      "type": "securestring"
+      "type": "string"
     },
     "storageAccountName": {
       "type": "string"
     },
     "storageAccountKey": {
-      "type": "securestring"
+      "type": "string"
     },
     "sharedAppServicePlanName": {
       "type": "string"
