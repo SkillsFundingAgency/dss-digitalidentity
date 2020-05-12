@@ -35,6 +35,5 @@
   <ItemGroup>
     <Folder Include="AppInsights\" />
     <Folder Include="Helpers\" />
-    <Folder Include="PatchDigitalIdentityHttpTrigger\" />
   </ItemGroup>
 </Project>

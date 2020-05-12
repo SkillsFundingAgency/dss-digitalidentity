@@ -43,9 +43,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service
 
             digitalIdentity.SetDefaultValues();
 
-            var documentDbProvider = new DocumentDBProvider();
-
-            var response = await documentDbProvider.CreateContactDetailsAsync(digitalIdentity);
+            var response = await _documentDbProvider.CreateIdentityAsync(digitalIdentity);
 
             return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : (Guid?)null;
         }
