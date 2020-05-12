@@ -32,15 +32,6 @@
     "serviceBusQueueName": {
       "type": "string"
     },
-    "sharedAppServicePlanName": {
-      "type": "string"
-    },
-    "sharedAppServicePlanResourceGroup": {
-      "type": "string"
-    },
-    "templateBaseUrl": {
-      "type": "string"
-    },    
     "serviceBusConnectionString": {
       "type": "securestring"
     },
@@ -49,6 +40,15 @@
     },
     "storageAccountKey": {
       "type": "securestring"
+    },
+    "sharedAppServicePlanName": {
+      "type": "string"
+    },
+    "sharedAppServicePlanResourceGroup": {
+      "type": "string"
+    },
+    "templateBaseUrl": {
+      "type": "string"
     }
   },
     "variables": {
