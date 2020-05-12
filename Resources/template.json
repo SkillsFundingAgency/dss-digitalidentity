@@ -20,26 +20,17 @@
     "functionAppNames": {
       "type": "array"
     },
-    "serviceBusAccessKey": {
-      "type": "string"
-    },
-    "serviceBusAccessKeyName": {
-      "type": "string"
-    },
-    "serviceBusBaseAddress": {
-      "type": "string"
-    },
     "serviceBusQueueName": {
       "type": "string"
     },
     "serviceBusConnectionString": {
-      "type": "securestring"
+      "type": "string"
     },
     "storageAccountName": {
       "type": "string"
     },
     "storageAccountKey": {
-      "type": "securestring"
+      "type": "string"
     },
     "sharedAppServicePlanName": {
       "type": "string"
@@ -88,14 +79,14 @@
                 "cosmosDbKey": {
                   "value": "[parameters('cosmosDbKey')]"
                 },
-                "serviceBusAccessKey": {
-                  "value": "[parameters('serviceBusAccessKey')]"
+                "serviceBusConnectionString": {
+                  "value": "[parameters('serviceBusConnectionString')]"
                 },
-                "serviceBusAccessKeyName": {
-                  "value": "[parameters('serviceBusAccessKeyName')]"
+                "storageAccountName": {
+                  "value": "[parameters('storageAccountName')]"
                 },
-                "serviceBusBaseAddress": {
-                  "value": "[parameters('serviceBusBaseAddress')]"
+                "storageAccountKey": {
+                  "value": "[parameters('storageAccountKey')]"
                 },
                 "serviceBusQueueName": {
                   "value": "[parameters('serviceBusQueueName')]"
