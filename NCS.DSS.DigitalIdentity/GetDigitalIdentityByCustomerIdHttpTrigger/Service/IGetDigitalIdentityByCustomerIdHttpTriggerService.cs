@@ -6,5 +6,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Serv
     public interface IGetDigitalIdentityByCustomerIdHttpTriggerService
     {
         Task<Models.DigitalIdentity> GetIdentityForCustomerAsync(Guid customerId);
+
+        Task<Models.DigitalIdentity> GetIdentityByIdentityIdAsync(Guid identityGuid);
     }
 }

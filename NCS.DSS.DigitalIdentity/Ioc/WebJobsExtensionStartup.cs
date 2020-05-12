@@ -12,6 +12,7 @@ using NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Ioc;
+using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.ServiceBus;
 using NCS.DSS.DigitalIdentity.Validation;
@@ -32,7 +33,7 @@ namespace NCS.DSS.DigitalIdentity.Ioc
             builder.Services.AddSingleton<IHttpRequestHelper, HttpRequestHelper>();
             builder.Services.AddSingleton<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
             builder.Services.AddSingleton<IJsonHelper, JsonHelper>();
-            builder.Services.AddSingleton<IDocumentDBProvider, DocumentDBProvider>();
+            builder.Services.AddSingleton<IDocumentDBProvider, DocumentDbProvider>();
             builder.Services.AddSingleton<IDigitalIdentityServiceBusClient, DigitalIdentitServiceBusClient>();
 
             builder.Services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
@@ -41,6 +42,8 @@ namespace NCS.DSS.DigitalIdentity.Ioc
             builder.Services.AddScoped<IDeleteDigitalIdentityHttpTriggerService, DeleteDigitalIdentityHttpTriggerService>();
             builder.Services.AddScoped<IDeleteDigitalIdentityByCustomerIdHttpTriggerService, DeleteDigitalIdentityByCustomerIdHttpTriggerService>();
             builder.Services.AddScoped<IPostDigitalIdentityTriggerService, PostDigitalIdentityHttpTriggerService>();
+            builder.Services.AddScoped<IPostDigitalIdentityHttpTriggerService, PostDigitalIdentityHttpTriggerService>();
+            builder.Services.AddScoped<IPatchDigitalIdentityHttpTriggerService, PatchDigitalIdentityHttpTriggerService>();
         }
     }
 }

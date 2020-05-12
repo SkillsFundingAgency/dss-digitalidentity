@@ -10,7 +10,7 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Helper
     {
         public async Task<bool> DoesCustomerExist(Guid customerId)
         {
-            var documentDbProvider = new DocumentDBProvider();
+            var documentDbProvider = new DocumentDbProvider();
             var doesCustomerExist = await documentDbProvider.DoesCustomerResourceExist(customerId);
 
             return doesCustomerExist;

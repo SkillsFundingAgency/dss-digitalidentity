@@ -21,5 +21,12 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Serv
 
             return identity;
         }
+
+        public async Task<Models.DigitalIdentity> GetIdentityByIdentityIdAsync(Guid identityGuid)
+        {
+            var identity = await _documentDbProvider.GetIdentityByIdentityIdAsync(identityGuid);
+
+            return identity;
+        }
     }
 }
