@@ -37,7 +37,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "identity")]HttpRequest req, ILogger log,
             [Inject]IResourceHelper resourceHelper,
-            [Inject]IPostDigitalIdentityTriggerService identityPostService,
+            [Inject]IPostDigitalIdentityHttpTriggerService identityPostService,
             [Inject]ILoggerHelper loggerHelper,
             [Inject]IHttpRequestHelper httpRequestHelper,
             [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,
@@ -77,9 +77,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
 
             loggerHelper.LogInformationMessage(log, correlationGuid, "Apimurl:  " + apimUrl);
 
-            loggerHelper.LogInformationMessage(log, correlationGuid,
-                string.Format("Post Digital Identity C# HTTP trigger function requested by Touchpoint: {0}",
-                    touchpointId));
+            loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Post Digital Identity C# HTTP trigger function requested by Touchpoint: {0}", touchpointId));
 
             // Get request body
             Models.DigitalIdentity identityRequest;

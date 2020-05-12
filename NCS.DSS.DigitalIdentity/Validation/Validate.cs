@@ -17,7 +17,7 @@ namespace NCS.DSS.DigitalIdentity.Validation
             _documentDbProvider = documentDbProvider;
         }
 
-        public async Task<List<ValidationResult>> ValidateResource(IDigitalIdentity resource, bool validateModelForPost)
+        public async Task<List<ValidationResult>> ValidateResource(Models.IDigitalIdentity resource, bool validateModelForPost)
         {
             var context = new ValidationContext(resource, null, null);
             var results = new List<ValidationResult>();
@@ -29,11 +29,11 @@ namespace NCS.DSS.DigitalIdentity.Validation
             return results;
         }
 
-        private async Task ValidateCustomerRules(IDigitalIdentity resource, List<ValidationResult> results, bool validateModelForPost)
+        private async Task ValidateCustomerRules(Models.IDigitalIdentity resource, List<ValidationResult> results, bool validateModelForPost)
         {
-            var doesContactWithEmailExists = resource.CustomerId != null && await _documentDbProvider.DoesCustomerResourceExist(resource.CustomerId.Value);
+            var doesCustomerExists = resource.CustomerId != null && await _documentDbProvider.DoesCustomerResourceExist(resource.CustomerId.Value);
 
-            if (doesContactWithEmailExists)
+            if (doesCustomerExists)
                 results.Add(new ValidationResult($"Customer with CustomerId  {resource.CustomerId} does not exists.", new[] { "CustomerId" }));
         }
     }
