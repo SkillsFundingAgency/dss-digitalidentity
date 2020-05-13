@@ -6,14 +6,6 @@
     <ProjectGuid>{B229004F-C6B1-4962-AC89-748972990912}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
-    <COMReference Include="{bee4bfec-6683-3e67-9167-3c0cbc68f40a}">
-      <Guid>bee4bfec-6683-3e67-9167-3c0cbc68f40a</Guid>
-      <VersionMajor>2</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <WrapperTool>tlbimp</WrapperTool>
-    </COMReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="DFC.Common.Standard" Version="0.1.4" />
     <PackageReference Include="DFC.HTTP.Standard" Version="0.1.11" />
     <PackageReference Include="DFC.Swagger.Standard" Version="0.1.20" />
@@ -21,6 +13,7 @@
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.16" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.6" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="WindowsAzure.ServiceBus" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
