@@ -20,7 +20,7 @@
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.7" />
     <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.10.3" />
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.16" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.ServiceBus" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.ServiceBus" Version="2.2.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.6" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
