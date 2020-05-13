@@ -6,7 +6,6 @@ using Microsoft.Azure.WebJobs.Host;
 using System.Net.Http;
 using System.Net;
 using System.Threading.Tasks;
-using System.Web.Http.Description;
 using Microsoft.Extensions.Logging;
 using DFC.Swagger.Standard.Annotations;
 using DFC.Functions.DI.Standard.Attributes;
@@ -21,7 +20,6 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Function
     public static class DeleteDigitalIdentityByCustomerIdHttpTrigger
     {
         [FunctionName("Delete")]
-        [ResponseType(typeof(Models.DigitalIdentity))]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity found", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Digital Identity does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request was malformed", ShowSchema = false)]

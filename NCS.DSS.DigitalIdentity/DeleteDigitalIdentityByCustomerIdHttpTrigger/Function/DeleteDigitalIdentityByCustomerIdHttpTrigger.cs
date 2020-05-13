@@ -6,7 +6,6 @@ using Microsoft.Azure.WebJobs.Host;
 using System.Net.Http;
 using System.Net;
 using System.Threading.Tasks;
-using System.Web.Http.Description;
 using Microsoft.Extensions.Logging;
 using DFC.Swagger.Standard.Annotations;
 using DFC.Functions.DI.Standard.Attributes;
@@ -21,7 +20,6 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
     public static class DeleteDigitalIdentityByCustomerIdHttpTrigger
     {
         [FunctionName("DeleteById")]
-        [ResponseType(typeof(Models.DigitalIdentity))]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity found", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Digital Identity does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request was malformed", ShowSchema = false)]
@@ -67,6 +65,7 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
                 loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Unable to parse 'customerId' to a Guid: {0}", customerId));
                 return httpResponseMessageHelper.BadRequest(customerGuid);
             }
+
             //First get the identity from the customer id
             loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to get identity for customer {0}", customerGuid));
             var identity = await identityDeleteService.GetIdentityForCustomerAsync(customerGuid);
