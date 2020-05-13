@@ -11,7 +11,6 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Helper
         private static readonly string DatabaseId = Environment.GetEnvironmentVariable("DatabaseId");
         private static readonly string CollectionId = Environment.GetEnvironmentVariable("CollectionId");
 
-        private static Uri _customerDocumentCollectionUri;
         private static readonly string CustomerDatabaseId = Environment.GetEnvironmentVariable("CustomerDatabaseId");
         private static readonly string CustomerCollectionId = Environment.GetEnvironmentVariable("CustomerCollectionId");
 
