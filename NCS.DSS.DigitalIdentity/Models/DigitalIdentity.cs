@@ -36,10 +36,16 @@ namespace NCS.DSS.DigitalIdentity.Models
         [Display(Description = "Date and time of the last modification to the record.")]
         [Example(Description = "2018-06-20T13:45:00")]
         public DateTime? LastModifiedDate { get; set; }
+
         [StringLength(10, MinimumLength = 10)]
         [Display(Description = "Identifier of the touchpoint who made the last change to the record")]
         [Example(Description = "9000000000")]
         public string LastModifiedTouchpointId { get; set; }
+
+        [DataType(DataType.DateTime)]
+        [Display(Description = "Date and time the resource was terminated.")]
+        [Example(Description = "2018-06-20T13:45:00")]
+        public DateTime? DateOfTermination { get; set; }
 
         [JsonIgnoreOnSerialize]
         public string CreatedBy { get; set; }
