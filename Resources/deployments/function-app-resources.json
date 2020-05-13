@@ -1,0 +1,143 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appServicePlanId": {
+      "type": "string"
+    },
+    "configEnvironmentName": {
+      "type": "string"
+    },
+    "cosmosDbCollectionId": {
+      "type": "string"
+    },
+    "cosmosDbDatabaseId": {
+      "type": "string"
+    },
+    "cosmosDbEndpoint": {
+      "type": "string"
+    },
+    "cosmosDbKey": {
+      "type": "string"
+    },
+    "functionAppName": {
+      "type": "string"
+    },
+    "serviceBusConnectionString": {
+      "type": "string"
+    },
+    "serviceBusQueueName": {
+      "type": "string"
+    },
+    "storageAccountName": {
+      "type": "string"
+    },
+    "storageAccountKey": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "appInsightsName": "[concat('dss-', toLower(parameters('configEnvironmentName')), '-', split(parameters('functionAppName'), '-')[2], '-ai')]",
+    "storageAccountConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=', parameters('storageAccountKey'), ';EndpointSuffix=core.windows.net')]"
+  },
+  "resources": [
+    {
+      "name": "[parameters('functionAppName')]",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2016-08-01",
+      "dependsOn": [ "[variables('appInsightsName')]" ],
+      "location": "[resourceGroup().location]",
+      "kind": "functionapp",
+      "properties": {
+        "serverFarmId": "[parameters('appServicePlanId')]",
+        "siteConfig": {
+          "alwaysOn": true,
+          "appSettings": [
+            {
+              "name": "EnvironmentName",
+              "value": "[toUpper(parameters('configEnvironmentName'))]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~3"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "dotnet"
+            },
+            {
+              "name": "MSDEPLOY_RENAME_LOCKED_FILES",
+              "value": "1"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[variables('storageAccountConnectionString')]"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(concat('microsoft.insights/components/', variables('appInsightsName'))).InstrumentationKey]"
+            },
+            {
+              "name": "CollectionId",
+              "value": "[parameters('cosmosDbCollectionId')]"
+            },
+            {
+              "name": "DatabaseId",
+              "value": "[parameters('cosmosDbDatabaseId')]"
+            },
+            {
+              "name": "Endpoint",
+              "value": "[parameters('cosmosDbEndpoint')]"
+            },
+            {
+              "name": "Key",
+              "value": "[parameters('cosmosDbKey')]"
+            },
+            {
+              "name": "CustomerCollectionId",
+              "value": "customers"
+            },
+            {
+              "name": "CustomerDatabaseId",
+              "value": "customers"
+            },
+            {
+              "name": "LeaseCollectionName",
+              "value": "digitalidentities-lease"
+            },
+            {
+              "name": "LeaseCollectionPrefix",
+              "value": "digitalidentitiesChangeFeedPrefix"
+            },
+            {
+              "name": "ChangeFeedQueueName",
+              "value": "dss.changefeedqueue"
+            },
+            {
+              "name": "ServiceBusConnectionString",
+              "value": "[parameters('serviceBusConnectionString')]"
+            },
+            {
+              "name": "QueueName",
+              "value": "[parameters('serviceBusQueueName')]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-05-01",
+      "name": "[variables('appInsightsName')]",
+      "type": "Microsoft.Insights/components",
+      "location": "[resourceGroup().location]",
+      "kind": "web",
+      "tags": {
+        "[concat('hidden-link:', resourceId('Microsoft.Web/sites', parameters('functionAppName')))]": "Resource"
+      },
+      "properties": {
+        "Application_Type": "web"
+      }
+    }
+  ],
+  "outputs": {}
+}

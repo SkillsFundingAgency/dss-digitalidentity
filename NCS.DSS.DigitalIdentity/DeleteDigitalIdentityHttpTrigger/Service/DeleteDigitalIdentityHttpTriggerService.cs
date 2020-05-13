@@ -17,8 +17,7 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Service
 
         public async Task<bool> DeleteIdentityAsync(Guid identityId)
         {
-            var documentDbProvider = new DocumentDBProvider();
-            var identities = await documentDbProvider.DeleteIdentityAsync(identityId);
+            var identities = await _documentDbProvider.DeleteIdentityAsync(identityId);
 
             return identities;
         }

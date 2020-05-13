@@ -6,7 +6,6 @@ using Microsoft.Azure.WebJobs.Host;
 using System.Net.Http;
 using System.Net;
 using System.Threading.Tasks;
-using System.Web.Http.Description;
 using Microsoft.Extensions.Logging;
 using DFC.Swagger.Standard.Annotations;
 using DFC.Functions.DI.Standard.Attributes;
@@ -14,6 +13,7 @@ using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
 using DFC.Common.Standard.Logging;
+using Microsoft.AspNetCore.Mvc;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 
 namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
@@ -21,7 +21,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
     public static class GetDigitalIdentityHttpTrigger
     {
         [FunctionName("Get")]
-        [ResponseType(typeof(Models.DigitalIdentity))]
+        [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity found", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Digital Identity does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request was malformed", ShowSchema = false)]
