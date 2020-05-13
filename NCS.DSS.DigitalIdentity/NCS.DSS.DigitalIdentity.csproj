@@ -6,6 +6,14 @@
     <ProjectGuid>{B229004F-C6B1-4962-AC89-748972990912}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="DeleteDigitalIdentityByCustomerIdHttpTrigger\**" />
+    <Compile Remove="DeleteDigitalIdentityHttpTrigger\**" />
+    <EmbeddedResource Remove="DeleteDigitalIdentityByCustomerIdHttpTrigger\**" />
+    <EmbeddedResource Remove="DeleteDigitalIdentityHttpTrigger\**" />
+    <None Remove="DeleteDigitalIdentityByCustomerIdHttpTrigger\**" />
+    <None Remove="DeleteDigitalIdentityHttpTrigger\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="DFC.Common.Standard" Version="0.1.4" />
     <PackageReference Include="DFC.HTTP.Standard" Version="0.1.11" />
     <PackageReference Include="DFC.Swagger.Standard" Version="0.1.20" />
