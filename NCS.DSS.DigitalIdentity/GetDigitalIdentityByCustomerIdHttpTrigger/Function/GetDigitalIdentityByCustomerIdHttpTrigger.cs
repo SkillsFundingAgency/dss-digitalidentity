@@ -28,7 +28,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Func
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Display(Name = "GetById", Description = "Ability to retrieve an individual digital identity for the given customer")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Customers/{customerId}")]HttpRequest req, ILogger log, string customerId,
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "customers/{customerId}")]HttpRequest req, ILogger log, string customerId,
             //[Inject]IResourceHelper resourceHelper,
             [Inject]IGetDigitalIdentityByCustomerIdHttpTriggerService identityGetService,
             [Inject]ILoggerHelper loggerHelper,
