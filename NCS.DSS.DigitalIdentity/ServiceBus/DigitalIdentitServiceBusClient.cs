@@ -4,9 +4,8 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using DFC.Common.Standard.ServiceBusClient.Models;
-using Microsoft.ServiceBus;
-using Microsoft.ServiceBus.Messaging;
 using Newtonsoft.Json;
+using Microsoft.ServiceBus.Messaging;
 
 namespace NCS.DSS.DigitalIdentity.ServiceBus
 {
@@ -31,7 +30,7 @@ namespace NCS.DSS.DigitalIdentity.ServiceBus
 
         private async Task SendMessageAsync(Models.DigitalIdentity digitalIdentity, string reqUrl, string message)
         {
-            var tokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(KeyName, AccessKey);
+            var tokenProvider = Microsoft.ServiceBus.TokenProvider.CreateSharedAccessSignatureTokenProvider(KeyName, AccessKey);
             var messagingFactory = await MessagingFactory.CreateAsync(BaseAddress, tokenProvider);
             var sender = await messagingFactory.CreateMessageSenderAsync(QueueName);
 
