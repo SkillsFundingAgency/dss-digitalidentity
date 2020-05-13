@@ -22,7 +22,7 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 
             var identityForCustomerQuery = client
                 ?.CreateDocumentQuery<Models.DigitalIdentity>(collectionUri, new FeedOptions { MaxItemCount = 1 })
-                .Where(x => x.CustomerId == customerId)
+                .Where(x => x.CustomerId == customerId && x.IsDeleted == false)
                 .AsDocumentQuery();
 
             if (identityForCustomerQuery == null)
@@ -41,7 +41,7 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 
             var identityForCustomerQuery = client
                 ?.CreateDocumentQuery<Models.DigitalIdentity>(collectionUri, new FeedOptions { MaxItemCount = 1 })
-                .Where(x => x.IdentityID == identityId)
+                .Where(x => x.IdentityID == identityId && x.IsDeleted == false)
                 .AsDocumentQuery();
 
             if (identityForCustomerQuery == null)

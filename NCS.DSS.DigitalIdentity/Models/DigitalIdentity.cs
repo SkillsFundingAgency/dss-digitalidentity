@@ -1,4 +1,5 @@
-﻿using DFC.Swagger.Standard.Annotations;
+﻿using DFC.JSON.Standard.Attributes;
+using DFC.Swagger.Standard.Annotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -40,6 +41,11 @@ namespace NCS.DSS.DigitalIdentity.Models
         [Example(Description = "9000000000")]
         public string LastModifiedTouchpointId { get; set; }
 
+        [JsonIgnoreOnSerialize]
+        public string CreatedBy { get; set; }
+
+        [JsonIgnoreOnSerialize]
+        public bool IsDeleted { get; set; }
 
         public void SetDefaultValues()
         {
