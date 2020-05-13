@@ -41,7 +41,6 @@ namespace NCS.DSS.DigitalIdentity.Ioc
             builder.Services.AddScoped<IGetDigitalIdentityHttpTriggerService, GetDigitalIdentityHttpTriggerService>();
             builder.Services.AddScoped<IDeleteDigitalIdentityHttpTriggerService, DeleteDigitalIdentityHttpTriggerService>();
             builder.Services.AddScoped<IDeleteDigitalIdentityByCustomerIdHttpTriggerService, DeleteDigitalIdentityByCustomerIdHttpTriggerService>();
-            builder.Services.AddScoped<IPostDigitalIdentityTriggerService, PostDigitalIdentityHttpTriggerService>();
             builder.Services.AddScoped<IPostDigitalIdentityHttpTriggerService, PostDigitalIdentityHttpTriggerService>();
             builder.Services.AddScoped<IPatchDigitalIdentityHttpTriggerService, PatchDigitalIdentityHttpTriggerService>();
         }

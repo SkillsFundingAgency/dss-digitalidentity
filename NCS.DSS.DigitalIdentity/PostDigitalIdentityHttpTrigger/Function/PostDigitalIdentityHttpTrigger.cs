@@ -97,6 +97,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.UnprocessableEntity(errors);
 
             // Create digital Identity
+            identityRequest.CreatedBy = touchpointId;
             var createdIdentity = await identityPostService.CreateAsync(identityRequest);
 
 
