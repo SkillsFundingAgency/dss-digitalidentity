@@ -44,9 +44,6 @@ namespace NCS.DSS.DigitalIdentity.Models
         [JsonIgnoreOnSerialize]
         public string CreatedBy { get; set; }
 
-        [JsonIgnoreOnSerialize]
-        public bool IsDeleted { get; set; }
-
         public void SetDefaultValues()
         {
             if (!LastModifiedDate.HasValue)
