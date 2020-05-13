@@ -67,7 +67,6 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
             return response.StatusCode == HttpStatusCode.NoContent;
         }
 
-        public async Task<ResourceResponse<Document>> CreateContactDetailsAsync(Models.DigitalIdentity digitalIdentity)
         public async Task<Models.DigitalIdentity> GetIdentityByIdentityIdAsync(Guid identityGuid)
         {
             var collectionUri = DocumentDBHelper.CreateDocumentCollectionUri();
