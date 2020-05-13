@@ -79,7 +79,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Func
 
 
 
-            loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to identity for customer {0}", customerGuid));
+            loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to get identity for customer {0}", customerGuid));
             var identity = await identityGetService.GetIdentityForCustomerAsync(customerGuid);
 
             loggerHelper.LogMethodExit(log);

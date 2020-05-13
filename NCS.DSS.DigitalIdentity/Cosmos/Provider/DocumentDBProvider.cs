@@ -62,8 +62,8 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
                 return false;
 
             var response = await client.DeleteDocumentAsync(documentUri);
-
-            return response.StatusCode == HttpStatusCode.OK;
+            //204 means that our document has been removed successfully
+            return response.StatusCode == HttpStatusCode.NoContent;
         }
     }
 }

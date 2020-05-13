@@ -14,23 +14,23 @@ using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
 using DFC.Common.Standard.Logging;
-using NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.Service;
 
-namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Function
+namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.Function
 {
     public static class DeleteDigitalIdentityByCustomerIdHttpTrigger
     {
-        [FunctionName("Delete")]
+        [FunctionName("DeleteById")]
         [ResponseType(typeof(Models.DigitalIdentity))]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity found", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Digital Identity does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request was malformed", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
-        [Display(Name = "Delete", Description = "Ability to delete an individual digital identity")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "identity/{identityId}")]HttpRequest req, ILogger log, string identityId,
+        [Display(Name = "DeleteById", Description = "Ability to delete an individual digital identity by customer id")]
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "customer/{customerId}")]HttpRequest req, ILogger log, string customerId,
          //[Inject]IResourceHelper resourceHelper,
-         [Inject]IDeleteDigitalIdentityHttpTriggerService identityDeleteService,
+         [Inject]IDeleteDigitalIdentityByCustomerIdHttpTriggerService identityDeleteService,
          [Inject]ILoggerHelper loggerHelper,
          [Inject]IHttpRequestHelper httpRequestHelper,
          [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,
@@ -62,17 +62,21 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Function
                 string.Format("Get Digital Identity By Id C# HTTP trigger function  processed a request. By Touchpoint: {0}",
                     touchpointId));
 
-            if (!Guid.TryParse(identityId, out var identityGuid))
+            if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Unable to parse 'identityId' to a Guid: {0}", identityId));
-                return httpResponseMessageHelper.BadRequest(identityGuid);
+                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Unable to parse 'customerId' to a Guid: {0}", customerId));
+                return httpResponseMessageHelper.BadRequest(customerGuid);
             }
-            //Do we check if customer and record exists first?
+            //First get the identity from the customer id
+            loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to get identity for customer {0}", customerGuid));
+            var identity = await identityDeleteService.GetIdentityForCustomerAsync(customerGuid);
 
-            var identityDeleted = await identityDeleteService.DeleteIdentityAsync(identityGuid);
+            //Then delete using that id
+            loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to delete identity {0}", identity.IdentityID.Value));
+            var identityDeleted = await identityDeleteService.DeleteIdentityAsync(identity.IdentityID.Value);
 
             return !identityDeleted ?
-                httpResponseMessageHelper.BadRequest(identityGuid) :
+                httpResponseMessageHelper.BadRequest(customerGuid) :
                 httpResponseMessageHelper.Ok();
         }
     }

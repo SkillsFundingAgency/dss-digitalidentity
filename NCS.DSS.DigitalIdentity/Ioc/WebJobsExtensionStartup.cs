@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
+using NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.DeleteDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
@@ -34,6 +35,7 @@ namespace NCS.DSS.DigitalIdentity.Ioc
             builder.Services.AddScoped<IGetDigitalIdentityByCustomerIdHttpTriggerService, GetDigitalIdentityByCustomerIdHttpTriggerService>();
             builder.Services.AddScoped<IGetDigitalIdentityHttpTriggerService, GetDigitalIdentityHttpTriggerService>();
             builder.Services.AddScoped<IDeleteDigitalIdentityHttpTriggerService, DeleteDigitalIdentityHttpTriggerService>();
+            builder.Services.AddScoped<IDeleteDigitalIdentityByCustomerIdHttpTriggerService, DeleteDigitalIdentityByCustomerIdHttpTriggerService>();
         }
     }
 }
