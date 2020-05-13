@@ -133,9 +133,10 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to patch identity resource {0}", customerGuid));
             var patchedCustomer = await identityPatchService.UpdateIdentity(digitalIdentity, digitalPatchRequest);
 
+            // TODO : Enable this when service bus is created
             // Notify service bus
-            if (patchedCustomer != null)
-                await identityPatchService.SendToServiceBusQueueAsync(patchedCustomer, apimUrl);
+            //if (patchedCustomer != null)
+            //    await identityPatchService.SendToServiceBusQueueAsync(patchedCustomer, apimUrl);
 
             return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(new Models.DigitalIdentity(), "id", "DigitalIdentityId"));
         }
