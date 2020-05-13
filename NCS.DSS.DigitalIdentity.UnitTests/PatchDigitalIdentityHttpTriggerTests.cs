@@ -21,7 +21,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
     [TestFixture]
     public class PatchDigitalIdentityByIdentityIdHttpTriggerTests
     {
-        private const string ValidCustomerId = "7E467BDB-213F-407A-B86A-1954053D3C24";
+        private const string valid = "7E467BDB-213F-407A-B86A-1954053D3C24";
         private const string IdentityId = "1111111-2222-3333-4444-555555555555";
         private IResourceHelper _resourceHelper;
         private IPatchDigitalIdentityHttpTriggerService _patchDigitalIdentityHttpTriggerService;
@@ -58,9 +58,9 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         }
 
         [Fact]
-        public void GivenIdentityResourceExist_WhenValidPatchRequest_ThenResourceIsUpdated()
+        public void GivenIdentityResourceExists_WhenValidPatchRequest_ThenResourceIsUpdated()
         {
-
+            // 
         }
 
         private async Task<HttpResponseMessage> RunFunction(string identityId)
