@@ -138,42 +138,5 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 
             return false;
         }
-
-        public async Task<ResourceResponse<Document>> UpdateIdentityAsync(Models.DigitalIdentity digitalIdentity)
-        {
-            var documentUri = DocumentDBHelper.CreateDocumentUri(digitalIdentity.IdentityID.GetValueOrDefault());
-
-            var client = DocumentDBClient.CreateDocumentClient();
-
-            if (client == null)
-                return null;
-
-            var response = await client.ReplaceDocumentAsync(documentUri, digitalIdentity);
-
-            return response;
-        }
-
-        public async Task<bool> DoesCustomerResourceExist(Guid customerId)
-        {
-            var documentUri = DocumentDBHelper.CreateCustomerDocumentUri(customerId);
-
-            var client = DocumentDBClient.CreateDocumentClient();
-
-            if (client == null)
-                return false;
-
-            try
-            {
-                var response = await client.ReadDocumentAsync(documentUri);
-                if (response.Resource != null)
-                    return true;
-            }
-            catch (DocumentClientException)
-            {
-                return false;
-            }
-
-            return false;
-        }
     }
 }
