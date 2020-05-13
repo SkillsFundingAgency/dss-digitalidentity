@@ -116,7 +116,6 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.UnprocessableEntity(errors);
             }
 
-            // TODO : Should we check if Customer exists ??
 
             digitalPatchRequest.LastModifiedTouchpointId = touchpointId;
 
@@ -127,6 +126,13 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             if (digitalIdentity == null)
             {
                 loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Unable to get Digital Identity resource {0}", identityGuid));
+                return httpResponseMessageHelper.NoContent(identityGuid);
+            }
+
+            // Check if resource terminated
+            if (digitalIdentity.DateOfTermination.HasValue && digitalIdentity.DateOfTermination.Value  < DateTime.UtcNow)
+            {
+                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Patch requested on terminated resource {0}", identityGuid));
                 return httpResponseMessageHelper.NoContent(identityGuid);
             }
 
