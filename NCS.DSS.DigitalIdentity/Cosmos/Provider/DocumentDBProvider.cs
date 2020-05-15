@@ -34,25 +34,6 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
             return digitalIdentity?.FirstOrDefault();
         }
 
-        public async Task<Models.DigitalIdentity> GetIdentityAsync(Guid identityId)
-        {
-            var collectionUri = DocumentDBHelper.CreateDocumentCollectionUri();
-
-            var client = DocumentDBClient.CreateDocumentClient();
-
-            var identityForCustomerQuery = client
-                ?.CreateDocumentQuery<Models.DigitalIdentity>(collectionUri, new FeedOptions { MaxItemCount = 1 })
-                .Where(x => x.IdentityID == identityId)
-                .AsDocumentQuery();
-
-            if (identityForCustomerQuery == null)
-                return null;
-
-            var digitalIdentity = await identityForCustomerQuery.ExecuteNextAsync<Models.DigitalIdentity>();
-
-            return digitalIdentity?.FirstOrDefault();
-        }
-
         public async Task<bool> DeleteIdentityAsync(Guid identityId)
         {
             var documentUri = DocumentDBHelper.CreateDocumentUri(identityId);

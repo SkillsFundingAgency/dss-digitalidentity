@@ -33,7 +33,7 @@ namespace NCS.DSS.DigitalIdentity.Validation
         {
             var doesCustomerExists = resource.CustomerId != null && await _documentDbProvider.DoesCustomerResourceExist(resource.CustomerId.Value);
 
-            if (doesCustomerExists)
+            if (!doesCustomerExists)
                 results.Add(new ValidationResult($"Customer with CustomerId  {resource.CustomerId} does not exists.", new[] { "CustomerId" }));
         }
     }

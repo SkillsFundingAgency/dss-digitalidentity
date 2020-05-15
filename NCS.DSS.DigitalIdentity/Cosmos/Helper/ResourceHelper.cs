@@ -8,10 +8,16 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Helper
 {
     public class ResourceHelper : IResourceHelper
     {
+        private readonly IDocumentDBProvider _documentDbProvider;
+
+        public ResourceHelper(IDocumentDBProvider documentDbProvider)
+        {
+            _documentDbProvider = documentDbProvider;
+        }
+
         public async Task<bool> DoesCustomerExist(Guid customerId)
         {
-            var documentDbProvider = new DocumentDbProvider();
-            var doesCustomerExist = await documentDbProvider.DoesCustomerResourceExist(customerId);
+            var doesCustomerExist = await _documentDbProvider.DoesCustomerResourceExist(customerId);
 
             return doesCustomerExist;
         }
