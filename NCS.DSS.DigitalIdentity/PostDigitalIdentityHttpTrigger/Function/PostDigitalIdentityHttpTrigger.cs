@@ -1,33 +1,29 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
-using System.Net.Http;
-using System.Net;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using DFC.Swagger.Standard.Annotations;
+﻿using DFC.Common.Standard.Logging;
 using DFC.Functions.DI.Standard.Attributes;
-using NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Service;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
+using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
-using DFC.Common.Standard.Logging;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
 {
     public static class PostDigitalIdentityHttpTrigger
     {
         [FunctionName("POST")]
-
-        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity Added", ShowSchema = true)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity Created", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Resource Does Not Exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Post request is malformed", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]

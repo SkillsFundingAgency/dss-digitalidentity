@@ -1,32 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using DFC.Common.Standard.Logging;
-using DFC.Common.Standard.ServiceBusClient.Interfaces;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Logging;
+using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
+using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Models;
-using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function;
 using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
-using Moq;
-using NCS.DSS.DigitalIdentity.Cosmos.Provider;
-using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
-using NCS.DSS.DigitalIdentity.ServiceBus;
 using NUnit.Framework;
+using System;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.UnitTests
 {
@@ -206,6 +197,28 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             // Assert
             Assert.IsInstanceOf<HttpResponseMessage>(result);
             Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
+            Assert.IsNotEmpty(contentBody);
+        }
+
+        [Test]
+        public async Task GivenIdentityResourceExists_WhenIdentityDoesNotExists_ThenReturnUnprocessibleEntity()
+        {
+            // Arrange
+            var httpRequestBody = GenerateDefaultPatchRequestBody();
+            var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
+
+            _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
+                .Returns(Task.FromResult<bool>(true));
+            _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
+                .Returns(Task.FromResult<Models.DigitalIdentity>(null));
+
+            // Act
+            var result = await RunFunction(validCustomerId, httpRequest);
+            var contentBody = await result.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.IsInstanceOf<HttpResponseMessage>(result);
+            Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
             Assert.IsNotEmpty(contentBody);
         }
 
