@@ -102,7 +102,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             if (digitalPatchRequest == null)
             {
                 loggerHelper.LogInformationMessage(log, correlationGuid, "digital identity patch request is null");
-                return httpResponseMessageHelper.UnprocessableEntity(req);
+                return httpResponseMessageHelper.UnprocessableEntity();
             }
 
             // Validate patch body
@@ -142,7 +142,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             //if (patchedCustomer != null)
             //    await identityPatchService.SendToServiceBusQueueAsync(patchedCustomer, apimUrl);
 
-            return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(new Models.DigitalIdentity(), "id", "DigitalIdentityId"));
+            return httpResponseMessageHelper.Ok(jsonHelper.SerializeObjectAndRenameIdProperty(patchedCustomer, "id", "DigitalIdentityId"));
         }
     }
 }

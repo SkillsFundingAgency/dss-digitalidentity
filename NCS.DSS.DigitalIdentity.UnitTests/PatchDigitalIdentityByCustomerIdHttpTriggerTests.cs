@@ -31,14 +31,14 @@ using NUnit.Framework;
 namespace NCS.DSS.DigitalIdentity.UnitTests
 {
     [TestFixture]
-    public class PatchDigitalIdentityByIdentityIdHttpTriggerTests
+    public class PatchDigitalIdentityByCustomerIdHttpTriggerTests
     {
         private const string TouchpointIdHeaderParamKey = "touchpointId";
         private const string ApimUrlHeaderParameterKey = "apimurl";
 
         private string ApimUrlHeaderParameterValue = "http://localhost:7071/";
         private string TouchpointIdHeaderParamValue = "9000000000";
-        private string validIdentityId = "7acfc365-dfa0-6f84-46f3-eb767420aaaa";
+        private string validCustomerId = "7acfc365-dfa0-6f84-46f3-eb767420aaaa";
 
         private Mock<ILogger> _mockLog;
         private Mock<IDocumentDBProvider> _mockDocumentDbProvider;
@@ -46,7 +46,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private Mock<IPatchDigitalIdentityHttpTriggerService> _mockPatchDigitalIdentityHttpTriggerService;
 
         private IResourceHelper _resourceHelper;
-        private IGetDigitalIdentityHttpTriggerService _getDigitalIdentityHttpTriggerService;
+        private IGetDigitalIdentityByCustomerIdHttpTriggerService _getDigitalIdentityByCustomerIdHttpTriggerService;
         private IHttpRequestHelper _httpRequestHelper;
         private IHttpResponseMessageHelper _httpResponseMessageHelper;
         private IJsonHelper _jsonHelper;
@@ -68,7 +68,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _httpRequestHelper = new HttpRequestHelper();
             _httpResponseMessageHelper = new HttpResponseMessageHelper();
             _jsonHelper = new JsonHelper();
-            _getDigitalIdentityHttpTriggerService = new GetDigitalIdentityHttpTriggerService(_mockDocumentDbProvider.Object);
+            _getDigitalIdentityByCustomerIdHttpTriggerService = new GetDigitalIdentityByCustomerIdHttpTriggerService(_mockDocumentDbProvider.Object);
 
         }
 
@@ -80,7 +80,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
             var responsHttpBody = new Models.DigitalIdentity()
             {
-                IdentityID = Guid.Parse(validIdentityId),
+                IdentityID = Guid.Parse(validCustomerId),
                 CustomerId = httpRequestBody.CustomerId,
                 IdentityStoreId = httpRequestBody.IdentityStoreID,
                 LastLoggedInDateTime = httpRequestBody.LastLoggedInDateTime,
@@ -93,7 +93,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
                                                                         .Returns(Task.FromResult<bool>(true));
-            _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
+            _mockDocumentDbProvider.Setup(m => m.GetIdentityForCustomerAsync(It.IsAny<Guid>()))
                                                                         .Returns(Task.FromResult<Models.DigitalIdentity>(responsHttpBody));
             _mockPatchDigitalIdentityHttpTriggerService.Setup(m =>
                                                                         m.UpdateIdentity(It.IsAny<Models.DigitalIdentity>(),
@@ -101,7 +101,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                                                                         .Returns(Task.FromResult(responsHttpBody));
 
             // Act
-            var result = await RunFunction(validIdentityId, httpRequest);
+            var result = await RunFunction(validCustomerId, httpRequest);
             var actualResult = JsonConvert.DeserializeObject<Models.DigitalIdentity>(await result.Content.ReadAsStringAsync());
 
             // Assert
@@ -124,7 +124,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                                                                         .Returns(Task.FromResult<bool>(true));
 
             // Act
-            var result = await RunFunction(validIdentityId, httpRequest);
+            var result = await RunFunction(validCustomerId, httpRequest);
 
             // Assert
             Assert.IsInstanceOf<HttpResponseMessage>(result);
@@ -144,7 +144,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 .Returns(Task.FromResult<bool>(true));
 
             // Act
-            var result = await RunFunction(validIdentityId, httpRequest);
+            var result = await RunFunction(validCustomerId, httpRequest);
 
             // Assert
             Assert.IsInstanceOf<HttpResponseMessage>(result);
@@ -182,7 +182,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                                                                         .Returns(Task.FromResult<bool>(true));
 
             // Act
-            var result = await RunFunction(validIdentityId, httpRequest);
+            var result = await RunFunction(validCustomerId, httpRequest);
 
             // Assert
             Assert.IsInstanceOf<HttpResponseMessage>(result);
@@ -200,7 +200,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                                     .Returns(Task.FromResult<bool>(false));
 
             // Act
-            var result = await RunFunction(validIdentityId, httpRequest);
+            var result = await RunFunction(validCustomerId, httpRequest);
             var contentBody = await result.Content.ReadAsStringAsync();
 
             // Assert
@@ -223,13 +223,13 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
         private async Task<HttpResponseMessage> RunFunction(string identityId, HttpRequest request)
         {
-            return await PatchDigitalIdentityHttpTrigger.Function.PatchDigitalIdentityByIdentityIdHttpTrigger.RunAsync(
+            return await PatchDigitalIdentityHttpTrigger.Function.PatchDigitalIdentityByCustomerIdHttpTrigger.RunAsync(
                 request,
                 _mockLog.Object,
                 identityId,
                 _resourceHelper,
                 _mockPatchDigitalIdentityHttpTriggerService.Object,
-                _getDigitalIdentityHttpTriggerService,
+                _getDigitalIdentityByCustomerIdHttpTriggerService,
                 _loggerHelper.Object,
                 _httpRequestHelper,
                 _httpResponseMessageHelper,
