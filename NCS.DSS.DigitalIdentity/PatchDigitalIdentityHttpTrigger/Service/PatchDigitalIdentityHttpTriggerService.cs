@@ -36,9 +36,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service
 
             var response = await _documentDbProvider.UpdateIdentityAsync(identityResource);
 
-            var responseStatusCode = response.StatusCode;
-
-            return responseStatusCode == HttpStatusCode.OK ? (dynamic)response.Resource : null;
+            return response;
         }
     }
 }

@@ -37,7 +37,6 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "identity/{IdentityId}")] HttpRequest req, ILogger log,
             string IdentityId,
-            [Inject]IResourceHelper resourceHelper,
             [Inject]IPatchDigitalIdentityHttpTriggerService identityPatchService,
             [Inject]IGetDigitalIdentityHttpTriggerService identityGetService,
             [Inject]ILoggerHelper loggerHelper,

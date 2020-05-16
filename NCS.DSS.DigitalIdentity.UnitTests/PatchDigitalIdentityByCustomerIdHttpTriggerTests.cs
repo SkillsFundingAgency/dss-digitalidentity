@@ -18,6 +18,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using NCS.DSS.DigitalIdentity.ServiceBus;
 
 namespace NCS.DSS.DigitalIdentity.UnitTests
 {
@@ -34,8 +35,10 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private Mock<ILogger> _mockLog;
         private Mock<IDocumentDBProvider> _mockDocumentDbProvider;
         private Mock<ILoggerHelper> _loggerHelper;
-        private Mock<IPatchDigitalIdentityHttpTriggerService> _mockPatchDigitalIdentityHttpTriggerService;
+        private Mock<IDigitalIdentityServiceBusClient> _mockDigitalIdentityServiceBusClient;
 
+
+        private IPatchDigitalIdentityHttpTriggerService _patchDigitalIdentityHttpTriggerService;
         private IResourceHelper _resourceHelper;
         private IGetDigitalIdentityByCustomerIdHttpTriggerService _getDigitalIdentityByCustomerIdHttpTriggerService;
         private IHttpRequestHelper _httpRequestHelper;
@@ -49,10 +52,10 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             // Mocks
             _mockLog = new Mock<ILogger>();
             _mockDocumentDbProvider = new Mock<IDocumentDBProvider>();
+            _mockDigitalIdentityServiceBusClient = new Mock<IDigitalIdentityServiceBusClient>();
             _loggerHelper = new Mock<ILoggerHelper>();
 
             // Below is a fudge as we cannot return ResourceResponse<Document> out of _mockDocumentDbProvider
-            _mockPatchDigitalIdentityHttpTriggerService = new Mock<IPatchDigitalIdentityHttpTriggerService>();
 
             _resourceHelper = new ResourceHelper(_mockDocumentDbProvider.Object);
             _validate = new Validate(_mockDocumentDbProvider.Object);
@@ -60,7 +63,9 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _httpResponseMessageHelper = new HttpResponseMessageHelper();
             _jsonHelper = new JsonHelper();
             _getDigitalIdentityByCustomerIdHttpTriggerService = new GetDigitalIdentityByCustomerIdHttpTriggerService(_mockDocumentDbProvider.Object);
-
+            _patchDigitalIdentityHttpTriggerService =
+                new PatchDigitalIdentityHttpTriggerService(_mockDocumentDbProvider.Object,
+                    _mockDigitalIdentityServiceBusClient.Object);
         }
 
         [Test]
@@ -86,9 +91,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                                                                         .Returns(Task.FromResult<bool>(true));
             _mockDocumentDbProvider.Setup(m => m.GetIdentityForCustomerAsync(It.IsAny<Guid>()))
                                                                         .Returns(Task.FromResult<Models.DigitalIdentity>(responsHttpBody));
-            _mockPatchDigitalIdentityHttpTriggerService.Setup(m =>
-                                                                        m.UpdateIdentity(It.IsAny<Models.DigitalIdentity>(),
-                                                                            It.IsAny<DigitalIdentityPatch>()))
+            _mockDocumentDbProvider.Setup(m => m.UpdateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
                                                                         .Returns(Task.FromResult(responsHttpBody));
 
             // Act
@@ -240,8 +243,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 request,
                 _mockLog.Object,
                 identityId,
-                _resourceHelper,
-                _mockPatchDigitalIdentityHttpTriggerService.Object,
+                _patchDigitalIdentityHttpTriggerService,
                 _getDigitalIdentityByCustomerIdHttpTriggerService,
                 _loggerHelper.Object,
                 _httpRequestHelper,

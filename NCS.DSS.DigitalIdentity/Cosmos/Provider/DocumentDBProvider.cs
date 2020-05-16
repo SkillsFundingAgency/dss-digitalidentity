@@ -67,7 +67,7 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
             return digitalIdentity?.FirstOrDefault();
         }
 
-        public async Task<ResourceResponse<Document>> CreateIdentityAsync(Models.DigitalIdentity digitalIdentity)
+        public async Task<Models.DigitalIdentity> CreateIdentityAsync(Models.DigitalIdentity digitalIdentity)
         {
 
             var collectionUri = DocumentDBHelper.CreateDocumentCollectionUri();
@@ -79,11 +79,11 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 
             var response = await client.CreateDocumentAsync(collectionUri, digitalIdentity);
 
-            return response;
+            return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : null;
 
         }
 
-        public async Task<ResourceResponse<Document>> UpdateIdentityAsync(Models.DigitalIdentity digitalIdentity)
+        public async Task<Models.DigitalIdentity> UpdateIdentityAsync(Models.DigitalIdentity digitalIdentity)
         {
             var documentUri = DocumentDBHelper.CreateDocumentUri(digitalIdentity.IdentityID.GetValueOrDefault());
 
@@ -94,7 +94,8 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 
             var response = await client.ReplaceDocumentAsync(documentUri, digitalIdentity);
 
-            return response;
+            return response.StatusCode == HttpStatusCode.OK ? (dynamic)response.Resource : null;
+
         }
 
         public async Task<bool> DoesCustomerResourceExist(Guid customerId)

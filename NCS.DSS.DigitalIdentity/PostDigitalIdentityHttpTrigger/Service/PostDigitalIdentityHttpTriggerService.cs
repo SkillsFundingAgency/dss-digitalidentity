@@ -28,7 +28,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service
 
             var response = await _documentDbProvider.CreateIdentityAsync(digitalIdentity);
 
-            return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : (Guid?)null;
+            return response;
         }
 
         public async Task SendToServiceBusQueueAsync(Models.DigitalIdentity digitalIdentity, string reqUrl)

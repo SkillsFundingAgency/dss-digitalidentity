@@ -17,6 +17,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 
 namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
 {
@@ -31,7 +32,6 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         [Response(HttpStatusCode = (int)422, Description = "Digital Identity resource validation error(s)", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "identity")]HttpRequest req, ILogger log,
-            [Inject]IResourceHelper resourceHelper,
             [Inject]IPostDigitalIdentityHttpTriggerService identityPostService,
             [Inject]ILoggerHelper loggerHelper,
             [Inject]IHttpRequestHelper httpRequestHelper,
@@ -82,7 +82,14 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             }
             catch (JsonException ex)
             {
+                loggerHelper.LogError(log, correlationGuid, "Apimurl:  " + apimUrl, ex);
                 return httpResponseMessageHelper.UnprocessableEntity(ex);
+            }
+
+            if (identityRequest == null)
+            {
+                loggerHelper.LogInformationMessage(log, correlationGuid, "digital identity post request is null");
+                return httpResponseMessageHelper.UnprocessableEntity();
             }
 
             // Validate request body
@@ -95,14 +102,21 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             identityRequest.CreatedBy = touchpointId;
             var createdIdentity = await identityPostService.CreateAsync(identityRequest);
 
-
-            // TODO : Enable this when service bus is created
             // Notify service bus
-            //if (createdIdentity != null)
-            //    await identityPostService.SendToServiceBusQueueAsync(createdIdentity, apimUrl);
+            if (createdIdentity != null)
+            {
+                // TODO : Enable below when service bus is created
+                // await identityPostService.SendToServiceBusQueueAsync(createdIdentity, apimUrl);
 
-            // return response
-            return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(createdIdentity, "id", "DigitalIdentityId"));
+                // return response
+                return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(createdIdentity, "id", "DigitalIdentityId"));
+            }
+            else
+            {
+                loggerHelper.LogError(log, correlationGuid, $"Error creating resource.", null);
+                return new HttpResponseMessage (HttpStatusCode.InternalServerError);
+            }
+
         }
     }
 }
