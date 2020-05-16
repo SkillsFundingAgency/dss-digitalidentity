@@ -35,5 +35,10 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service
         {
             await _serviceBusClient.SendPostMessageAsync(digitalIdentity, reqUrl);
         }
+
+        public async Task<bool> DoesCustomerExists(Guid? identityRequestCustomerId)
+        {
+            return identityRequestCustomerId != null && await _documentDbProvider.DoesCustomerResourceExist(identityRequestCustomerId.Value);
+        }
     }
 }

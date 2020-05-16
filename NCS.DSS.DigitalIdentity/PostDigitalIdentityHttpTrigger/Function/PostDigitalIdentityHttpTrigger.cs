@@ -98,8 +98,15 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             if (errors != null && errors.Any())
                 return httpResponseMessageHelper.UnprocessableEntity(errors);
 
+            // Check if customer exists
+            var doesCustomerExists = await identityPostService.DoesCustomerExists(identityRequest.CustomerId);
+
+            if (!doesCustomerExists)
+                return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
+
             // Create digital Identity
             identityRequest.CreatedBy = touchpointId;
+            identityRequest.LastModifiedTouchpointId = touchpointId;
             var createdIdentity = await identityPostService.CreateAsync(identityRequest);
 
             // Notify service bus

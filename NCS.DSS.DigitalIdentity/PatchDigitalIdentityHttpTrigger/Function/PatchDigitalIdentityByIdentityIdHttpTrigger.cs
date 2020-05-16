@@ -131,7 +131,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             if (digitalIdentity.DateOfTermination.HasValue && digitalIdentity.DateOfTermination.Value  < DateTime.UtcNow)
             {
                 loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Patch requested on terminated resource {0}", identityGuid));
-                return httpResponseMessageHelper.NoContent(identityGuid);
+                return httpResponseMessageHelper.UnprocessableEntity();
             }
 
             loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to patch identity resource {0}", identityGuid));

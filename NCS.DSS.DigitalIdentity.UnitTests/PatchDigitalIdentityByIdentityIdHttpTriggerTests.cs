@@ -182,12 +182,28 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         }
 
         [Test]
-        public async Task GivenIdentityResourceExists_WhenCustomerDoesNotExists_ThenReturnUnprocessibleEntity()
+        public async Task GivenIdentityResourceExists_WhenCustomerDoesNotExists_ThenReturnUpdatedEntity()
         {
             // Arrange
             var httpRequestBody = GenerateDefaultPatchRequestBody();
             var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
+            var responsHttpBody = new Models.DigitalIdentity()
+            {
+                IdentityID = Guid.Parse(validIdentityId),
+                CustomerId = httpRequestBody.CustomerId,
+                IdentityStoreId = httpRequestBody.IdentityStoreID,
+                LastLoggedInDateTime = httpRequestBody.LastLoggedInDateTime,
+                LastModifiedDate = DateTime.UtcNow,
+                LegacyIdentity = httpRequestBody.LegacyIdentity,
+                id_token = httpRequestBody.id_token,
+                LastModifiedTouchpointId = TouchpointIdHeaderParamValue,
+                DateOfTermination = null,
+            };
 
+            _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
+                .Returns(Task.FromResult<Models.DigitalIdentity>(responsHttpBody));
+            _mockDocumentDbProvider.Setup(m => m.UpdateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
+                .Returns(Task.FromResult(responsHttpBody));
             _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
                                     .Returns(Task.FromResult<bool>(false));
 
@@ -197,7 +213,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             // Assert
             Assert.IsInstanceOf<HttpResponseMessage>(result);
-            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
             Assert.IsNotEmpty(contentBody);
         }
 
@@ -221,6 +237,38 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             Assert.IsInstanceOf<HttpResponseMessage>(result);
             Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
             Assert.IsNotEmpty(contentBody);
+        }
+
+        [Test]
+        public async Task GivenIdentityResourceExists_WhenIdentityIsTerminated_ThenReturnNoContentEntity()
+        {
+            // Arrange
+            var httpRequestBody = GenerateDefaultPatchRequestBody();
+            var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
+            var terminateDigitalIdentity = new Models.DigitalIdentity()
+            {
+                IdentityID = Guid.Parse(validIdentityId),
+                CustomerId = httpRequestBody.CustomerId,
+                IdentityStoreId = httpRequestBody.IdentityStoreID,
+                LastLoggedInDateTime = httpRequestBody.LastLoggedInDateTime,
+                LastModifiedDate = DateTime.UtcNow,
+                LegacyIdentity = httpRequestBody.LegacyIdentity,
+                id_token = httpRequestBody.id_token,
+                LastModifiedTouchpointId = TouchpointIdHeaderParamValue,
+                DateOfTermination = DateTime.UtcNow.AddDays(-1), // Ensure resource is terminated
+            };
+
+            _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
+                .Returns(Task.FromResult<bool>(true));
+            _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
+                .Returns(Task.FromResult<Models.DigitalIdentity>(terminateDigitalIdentity));
+
+            // Act
+            var result = await RunFunction(validIdentityId, httpRequest);
+
+            // Assert
+            Assert.IsInstanceOf<HttpResponseMessage>(result);
+            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
         }
 
         #region Helpers
