@@ -152,7 +152,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             //if (patchedCustomer != null)
             //    await identityPatchService.SendToServiceBusQueueAsync(patchedCustomer, apimUrl);
 
-            return httpResponseMessageHelper.Ok(jsonHelper.SerializeObjectAndRenameIdProperty(patchedCustomer, "id", "DigitalIdentityId"));
+            return httpResponseMessageHelper.Ok(jsonHelper.SerializeObjectAndRenameIdProperty(patchedCustomer, "id", "IdentityID"));
         }
     }
 }
