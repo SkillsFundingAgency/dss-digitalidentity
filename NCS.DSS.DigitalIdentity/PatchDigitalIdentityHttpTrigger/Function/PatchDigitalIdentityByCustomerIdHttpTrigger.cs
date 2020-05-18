@@ -116,6 +116,14 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
 
             digitalPatchRequest.LastModifiedTouchpointId = touchpointId;
 
+            // Check if customer exists
+            var doesCustomerExists = await identityPatchService.DoesCustomerExists(customerGuid);
+
+            if (!doesCustomerExists)
+                    return httpResponseMessageHelper.UnprocessableEntity(
+                        $"Customer with CustomerId  {digitalPatchRequest.CustomerId} does not exists.");
+
+
             // Check if identity resource exists for customer
 
             loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to get Digital Identity by Customer Id {0}", customerGuid));

@@ -38,5 +38,10 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service
 
             return response;
         }
+
+        public async Task<bool> DoesCustomerExists(Guid? identityRequestCustomerId)
+        {
+            return identityRequestCustomerId != null && await _documentDbProvider.DoesCustomerResourceExist(identityRequestCustomerId.Value);
+        }
     }
 }
