@@ -1,0 +1,157 @@
+{
+	"info": {
+		"_postman_id": "ba0afe58-003e-4839-a642-b07b45ec6314",
+		"name": "DSS - DigitalIdentity",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "API-Definition",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{endpoint}}/api/DigitalIdentities/API-Definition",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"api",
+						"DigitalIdentities",
+						"API-Definition"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get By IdentityId",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "touchpointId",
+						"value": "90000000",
+						"type": "text"
+					},
+					{
+						"key": "apimurl",
+						"value": "http://localhost/test",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{endpoint}}/api/identities/7acfc365-dfa0-6f84-46f3-eb767420eaab",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"api",
+						"identities",
+						"7acfc365-dfa0-6f84-46f3-eb767420eaab"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get By CustomerId",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "touchpointId",
+						"type": "text",
+						"value": "90000000"
+					},
+					{
+						"key": "apimurl",
+						"type": "text",
+						"value": "http://localhost/test"
+					}
+				],
+				"url": {
+					"raw": "{{endpoint}}/api/customers/f72c07d6-e3a6-4dc2-9e62-2e91f09e484e",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"api",
+						"customers",
+						"f72c07d6-e3a6-4dc2-9e62-2e91f09e484e"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "touchpointId",
+						"type": "text",
+						"value": "90000000"
+					},
+					{
+						"key": "apimurl",
+						"type": "text",
+						"value": "http://localhost/test"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"CustomerId\": \"f72c07d6-e3a6-4dc2-9e62-2e91f09e484e\",\r\n  \"IdentityStoreId\": \"04e40f72-aa1e-45b9-b89f-15fe167b0c3d\",\r\n  \"LegacyIdentity\": \"c5311382-bc68-42e5-95ca-144f8196d9c2\",\r\n  \"id_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c\",\r\n  \"LastLoggedInDateTime\": \"2019-02-21T08:20:31.6624388Z\",\r\n  \"DateOfTermination\": null\r\n}"
+				},
+				"url": {
+					"raw": "{{endpoint}}/api/identity/",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"api",
+						"identity",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PATCH",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "touchpointId",
+						"type": "text",
+						"value": "90000000"
+					},
+					{
+						"key": "apimurl",
+						"type": "text",
+						"value": "http://localhost/test"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\r\n  \"id_token\": \"updated_token\",\r\n  \"LastLoggedInDateTime\": \"2019-03-28T08:20:31.6624388Z\",\r\n  \"DateOfTermination\": null\r\n}"
+				},
+				"url": {
+					"raw": "{{endpoint}}/api/identity/cffc5ea1-4a4c-42ad-9337-14914e9428e7",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"api",
+						"identity",
+						"cffc5ea1-4a4c-42ad-9337-14914e9428e7"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

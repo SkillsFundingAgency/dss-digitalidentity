@@ -17,7 +17,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service
 
         public async Task<Models.DigitalIdentity> GetIdentityAsync(Guid identityId)
         {
-            var identity = await _documentDbProvider.GetIdentityAsync(identityId);
+            var identity = await _documentDbProvider.GetIdentityByIdentityIdAsync(identityId);
 
             return identity;
         }

@@ -7,5 +7,6 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service
     {
         Task<Models.DigitalIdentity> CreateAsync(Models.DigitalIdentity digitalIdentity);
         Task SendToServiceBusQueueAsync(Models.DigitalIdentity digitalIdentity, string apimUrl);
+        Task<bool> DoesCustomerExists(Guid? identityRequestCustomerId);
     }
 }

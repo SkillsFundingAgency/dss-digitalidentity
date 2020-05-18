@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using DFC.Common.Standard.Logging;
 using Microsoft.AspNetCore.Mvc;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
+using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Validation;
@@ -36,9 +37,8 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "identity/{IdentityId}")] HttpRequest req, ILogger log,
             string IdentityId,
-            [Inject]IResourceHelper resourceHelper,
             [Inject]IPatchDigitalIdentityHttpTriggerService identityPatchService,
-            [Inject]IGetDigitalIdentityByCustomerIdHttpTriggerService identityGetService,
+            [Inject]IGetDigitalIdentityHttpTriggerService identityGetService,
             [Inject]ILoggerHelper loggerHelper,
             [Inject]IHttpRequestHelper httpRequestHelper,
             [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,
@@ -102,7 +102,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             if (digitalPatchRequest == null)
             {
                 loggerHelper.LogInformationMessage(log, correlationGuid, "digital identity patch request is null");
-                return httpResponseMessageHelper.UnprocessableEntity(req);
+                return httpResponseMessageHelper.UnprocessableEntity();
             }
 
             // Validate patch body
@@ -115,12 +115,11 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.UnprocessableEntity(errors);
             }
 
-
             digitalPatchRequest.LastModifiedTouchpointId = touchpointId;
 
             // Check if resource exists
             loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to get Digital Identity by Identity Id {0}", identityGuid));
-            var digitalIdentity = await identityGetService.GetIdentityByIdentityIdAsync(identityGuid);
+            var digitalIdentity = await identityGetService.GetIdentityAsync(identityGuid);
 
             if (digitalIdentity == null)
             {
@@ -132,7 +131,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             if (digitalIdentity.DateOfTermination.HasValue && digitalIdentity.DateOfTermination.Value  < DateTime.UtcNow)
             {
                 loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Patch requested on terminated resource {0}", identityGuid));
-                return httpResponseMessageHelper.NoContent(identityGuid);
+                return httpResponseMessageHelper.UnprocessableEntity();
             }
 
             loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to patch identity resource {0}", identityGuid));
@@ -143,7 +142,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             //if (patchedCustomer != null)
             //    await identityPatchService.SendToServiceBusQueueAsync(patchedCustomer, apimUrl);
 
-            return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(new Models.DigitalIdentity(), "id", "DigitalIdentityId"));
+            return httpResponseMessageHelper.Ok(jsonHelper.SerializeObjectAndRenameIdProperty(patchedCustomer, "id", "DigitalIdentityId"));
         }
     }
 }

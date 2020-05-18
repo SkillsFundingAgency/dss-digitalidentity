@@ -5,6 +5,10 @@
 	<RuntimeFrameworkVersion>3.1</RuntimeFrameworkVersion>
     <ProjectGuid>{B229004F-C6B1-4962-AC89-748972990912}</ProjectGuid>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Remove="DeleteDigitalIdentityByCustomerIdHttpTrigger\**" />
     <Compile Remove="DeleteDigitalIdentityHttpTrigger\**" />

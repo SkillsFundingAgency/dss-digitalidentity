@@ -1,33 +1,30 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
-using System.Net.Http;
-using System.Net;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using DFC.Swagger.Standard.Annotations;
+﻿using DFC.Common.Standard.Logging;
 using DFC.Functions.DI.Standard.Attributes;
-using NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Service;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
+using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
-using DFC.Common.Standard.Logging;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 
 namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
 {
     public static class PostDigitalIdentityHttpTrigger
     {
         [FunctionName("POST")]
-
-        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity Added", ShowSchema = true)]
+        [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity Created", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Resource Does Not Exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Post request is malformed", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
@@ -35,7 +32,6 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         [Response(HttpStatusCode = (int)422, Description = "Digital Identity resource validation error(s)", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "identity")]HttpRequest req, ILogger log,
-            [Inject]IResourceHelper resourceHelper,
             [Inject]IPostDigitalIdentityHttpTriggerService identityPostService,
             [Inject]ILoggerHelper loggerHelper,
             [Inject]IHttpRequestHelper httpRequestHelper,
@@ -86,7 +82,14 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             }
             catch (JsonException ex)
             {
+                loggerHelper.LogError(log, correlationGuid, "Apimurl:  " + apimUrl, ex);
                 return httpResponseMessageHelper.UnprocessableEntity(ex);
+            }
+
+            if (identityRequest == null)
+            {
+                loggerHelper.LogInformationMessage(log, correlationGuid, "digital identity post request is null");
+                return httpResponseMessageHelper.UnprocessableEntity();
             }
 
             // Validate request body
@@ -95,18 +98,32 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             if (errors != null && errors.Any())
                 return httpResponseMessageHelper.UnprocessableEntity(errors);
 
+            // Check if customer exists
+            var doesCustomerExists = await identityPostService.DoesCustomerExists(identityRequest.CustomerId);
+
+            if (!doesCustomerExists)
+                return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
+
             // Create digital Identity
             identityRequest.CreatedBy = touchpointId;
+            identityRequest.LastModifiedTouchpointId = touchpointId;
             var createdIdentity = await identityPostService.CreateAsync(identityRequest);
 
-
-            // TODO : Enable this when service bus is created
             // Notify service bus
-            //if (createdIdentity != null)
-            //    await identityPostService.SendToServiceBusQueueAsync(createdIdentity, apimUrl);
+            if (createdIdentity != null)
+            {
+                // TODO : Enable below when service bus is created
+                // await identityPostService.SendToServiceBusQueueAsync(createdIdentity, apimUrl);
 
-            // return response
-            return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(createdIdentity, "id", "DigitalIdentityId"));
+                // return response
+                return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(createdIdentity, "id", "DigitalIdentityId"));
+            }
+            else
+            {
+                loggerHelper.LogError(log, correlationGuid, $"Error creating resource.", null);
+                return new HttpResponseMessage (HttpStatusCode.InternalServerError);
+            }
+
         }
     }
 }

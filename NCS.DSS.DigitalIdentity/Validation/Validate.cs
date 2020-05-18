@@ -31,10 +31,7 @@ namespace NCS.DSS.DigitalIdentity.Validation
 
         private async Task ValidateCustomerRules(Models.IDigitalIdentity resource, List<ValidationResult> results, bool validateModelForPost)
         {
-            var doesCustomerExists = resource.CustomerId != null && await _documentDbProvider.DoesCustomerResourceExist(resource.CustomerId.Value);
-
-            if (doesCustomerExists)
-                results.Add(new ValidationResult($"Customer with CustomerId  {resource.CustomerId} does not exists.", new[] { "CustomerId" }));
+            
         }
     }
 }

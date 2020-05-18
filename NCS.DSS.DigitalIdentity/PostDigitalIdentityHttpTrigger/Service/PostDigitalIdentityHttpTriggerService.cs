@@ -28,12 +28,17 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service
 
             var response = await _documentDbProvider.CreateIdentityAsync(digitalIdentity);
 
-            return response.StatusCode == HttpStatusCode.Created ? (dynamic)response.Resource : (Guid?)null;
+            return response;
         }
 
         public async Task SendToServiceBusQueueAsync(Models.DigitalIdentity digitalIdentity, string reqUrl)
         {
             await _serviceBusClient.SendPostMessageAsync(digitalIdentity, reqUrl);
+        }
+
+        public async Task<bool> DoesCustomerExists(Guid? identityRequestCustomerId)
+        {
+            return identityRequestCustomerId != null && await _documentDbProvider.DoesCustomerResourceExist(identityRequestCustomerId.Value);
         }
     }
 }
