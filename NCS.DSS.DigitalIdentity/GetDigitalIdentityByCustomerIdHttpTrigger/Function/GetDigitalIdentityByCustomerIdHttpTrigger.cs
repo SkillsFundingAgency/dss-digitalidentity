@@ -29,7 +29,6 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Func
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Display(Name = "GetById", Description = "Ability to retrieve an individual digital identity for the given customer")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "customers/{customerId}")]HttpRequest req, ILogger log, string customerId,
-            //[Inject]IResourceHelper resourceHelper,
             [Inject]IGetDigitalIdentityByCustomerIdHttpTriggerService identityGetService,
             [Inject]ILoggerHelper loggerHelper,
             [Inject]IHttpRequestHelper httpRequestHelper,
@@ -68,16 +67,14 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Func
                 return httpResponseMessageHelper.BadRequest(customerGuid);
             }
 
-            /*loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to see if customer exists {0}", customerGuid));
-            var doesCustomerExist = await resourceHelper.DoesCustomerExist(customerGuid);
+            loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to see if customer exists {0}", customerGuid));
+            var doesCustomerExist = await identityGetService.DoesCustomerExists(customerGuid);
 
             if (!doesCustomerExist)
             {
                 loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Customer does not exist {0}", customerGuid));
                 return httpResponseMessageHelper.NoContent(customerGuid);
-            }*/
-
-
+            }
 
             loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to get identity for customer {0}", customerGuid));
             var identity = await identityGetService.GetIdentityForCustomerAsync(customerGuid);
