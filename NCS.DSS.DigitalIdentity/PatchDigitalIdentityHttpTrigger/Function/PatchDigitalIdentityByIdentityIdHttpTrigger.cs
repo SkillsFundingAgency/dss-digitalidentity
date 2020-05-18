@@ -115,6 +115,16 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.UnprocessableEntity(errors);
             }
 
+            // Check if customer exists then validate
+            if (digitalPatchRequest.CustomerId.HasValue)
+            {
+                var doesCustomerExists = await identityPatchService.DoesCustomerExists(digitalPatchRequest.CustomerId);
+
+                if (!doesCustomerExists)
+                    return httpResponseMessageHelper.UnprocessableEntity(
+                        $"Customer with CustomerId  {digitalPatchRequest.CustomerId} does not exists.");
+            }
+
             digitalPatchRequest.LastModifiedTouchpointId = touchpointId;
 
             // Check if resource exists

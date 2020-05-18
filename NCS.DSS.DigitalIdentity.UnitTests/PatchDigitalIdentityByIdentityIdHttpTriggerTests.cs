@@ -213,7 +213,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             // Assert
             Assert.IsInstanceOf<HttpResponseMessage>(result);
-            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
             Assert.IsNotEmpty(contentBody);
         }
 
