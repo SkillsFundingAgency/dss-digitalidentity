@@ -116,7 +116,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
                 // await identityPostService.SendToServiceBusQueueAsync(createdIdentity, apimUrl);
 
                 // return response
-                return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(createdIdentity, "id", "DigitalIdentityId"));
+                return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(createdIdentity, "id", "IdentityID"));
             }
             else
             {

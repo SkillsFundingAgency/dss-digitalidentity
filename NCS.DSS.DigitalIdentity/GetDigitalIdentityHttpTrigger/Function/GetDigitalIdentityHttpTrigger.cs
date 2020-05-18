@@ -75,7 +75,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
 
             return identity == null ?
                 httpResponseMessageHelper.NoContent(identityGuid) :
-                httpResponseMessageHelper.Ok(jsonHelper.SerializeObjectAndRenameIdProperty(identity, "id", "DigitalIdentityId"));
+                httpResponseMessageHelper.Ok(jsonHelper.SerializeObjectAndRenameIdProperty(identity, "id", "IdentityID"));
         }
     }
 }
