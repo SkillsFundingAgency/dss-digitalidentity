@@ -8,5 +8,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Serv
         Task<Models.DigitalIdentity> GetIdentityForCustomerAsync(Guid customerId);
 
         Task<Models.DigitalIdentity> GetIdentityByIdentityIdAsync(Guid identityGuid);
+
+        Task<bool> DoesCustomerExists(Guid? identityRequestCustomerId);
     }
 }

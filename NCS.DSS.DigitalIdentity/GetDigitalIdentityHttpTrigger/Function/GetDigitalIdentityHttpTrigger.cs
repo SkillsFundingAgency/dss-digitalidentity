@@ -68,17 +68,6 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.BadRequest(identityGuid);
             }
 
-            /*loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to see if customer exists {0}", customerGuid));
-            var doesCustomerExist = await resourceHelper.DoesCustomerExist(customerGuid);
-
-            if (!doesCustomerExist)
-            {
-                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Customer does not exist {0}", customerGuid));
-                return httpResponseMessageHelper.NoContent(customerGuid);
-            }*/
-
-
-
             loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to identity for id {0}", identityGuid));
             var identity = await identityGetService.GetIdentityAsync(identityGuid);
 
