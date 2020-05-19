@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using DFC.Swagger.Standard.Annotations;
 using DFC.Functions.DI.Standard.Attributes;
-using NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Service;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
 using DFC.Common.Standard.Logging;
 using Microsoft.AspNetCore.Mvc;
+using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 
-namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Function
+namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
 {
     public static class GetDigitalIdentityByCustomerIdHttpTrigger
     {
@@ -29,7 +29,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Func
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Display(Name = "GetById", Description = "Ability to retrieve an individual digital identity for the given customer")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "customers/{customerId}")]HttpRequest req, ILogger log, string customerId,
-            [Inject]IGetDigitalIdentityByCustomerIdHttpTriggerService identityGetService,
+            [Inject]IGetDigitalIdentityHttpTriggerService identityGetService,
             [Inject]ILoggerHelper loggerHelper,
             [Inject]IHttpRequestHelper httpRequestHelper,
             [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,

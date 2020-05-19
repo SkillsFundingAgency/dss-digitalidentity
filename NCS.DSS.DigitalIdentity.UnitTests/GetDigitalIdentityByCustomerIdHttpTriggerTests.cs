@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
-using NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Models;
 using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Validation;
@@ -37,7 +37,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private Mock<IDocumentDBProvider> _mockDocumentDbProvider;
         private Mock<ILoggerHelper> _loggerHelper;
 
-        private IGetDigitalIdentityByCustomerIdHttpTriggerService _getDigitalIdentityByCustomerIdHttpTriggerService;
+        private IGetDigitalIdentityHttpTriggerService _getDigitalIdentityByCustomerIdHttpTriggerService;
         private IHttpRequestHelper _httpRequestHelper;
         private IHttpResponseMessageHelper _httpResponseMessageHelper;
         private IJsonHelper _jsonHelper;
@@ -57,7 +57,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _httpRequestHelper = new HttpRequestHelper();
             _httpResponseMessageHelper = new HttpResponseMessageHelper();
             _jsonHelper = new JsonHelper();
-            _getDigitalIdentityByCustomerIdHttpTriggerService = new GetDigitalIdentityByCustomerIdHttpTriggerService(_mockDocumentDbProvider.Object);
+            _getDigitalIdentityByCustomerIdHttpTriggerService = new GetDigitalIdentityHttpTriggerService(_mockDocumentDbProvider.Object);
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
         private async Task<HttpResponseMessage> RunFunction(string customerId, HttpRequest request)
         {
-            return await GetDigitalIdentityByCustomerIdHttpTrigger.Function.GetDigitalIdentityByCustomerIdHttpTrigger.Run(
+            return await GetDigitalIdentityHttpTrigger.Function.GetDigitalIdentityByCustomerIdHttpTrigger.Run(
                 request,
                 _mockLog.Object,
                 customerId,

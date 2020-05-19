@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
-using NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Models;
 using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Validation;

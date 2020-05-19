@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using DFC.Swagger.Standard.Annotations;
 using DFC.Functions.DI.Standard.Attributes;
-using NCS.DSS.DigitalIdentity.GetDigitalIdentityByCustomerIdHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
@@ -37,7 +37,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
         public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "customer/{customerId}")] HttpRequest req, ILogger log,
             string customerId,
             [Inject]IPatchDigitalIdentityHttpTriggerService identityPatchService,
-            [Inject]IGetDigitalIdentityByCustomerIdHttpTriggerService identityGetService,
+            [Inject]IGetDigitalIdentityHttpTriggerService identityGetService,
             [Inject]ILoggerHelper loggerHelper,
             [Inject]IHttpRequestHelper httpRequestHelper,
             [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,
