@@ -86,7 +86,7 @@
               "value": "[parameters('cosmosDbDatabaseId')]"
             },
             {
-              "name": "Endpoint",
+              "name": "ConnectionString",
               "value": "[parameters('cosmosDbEndpoint')]"
             },
             {
