@@ -87,7 +87,7 @@
             },
             {
               "name": "ConnectionString",
-              "value": "[parameters('cosmosDbEndpoint')]"
+              "value": "[concat('AccountEndpoint=', parameters('cosmosDbEndpoint'), '/;AccountKey=', parameters('cosmosDbKey'), ';')]"
             },
             {
               "name": "Key",
