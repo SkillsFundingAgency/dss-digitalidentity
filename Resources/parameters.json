@@ -2,20 +2,44 @@
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "templateBaseUrl": {
-            "value": "https://raw.githubusercontent.com/SkillsFundingAgency/cdh-central/master/Resources/"
+        "cosmosDbCollectionId": {
+            "value": "__ApiResourceName__"
+        },
+        "cosmosDbDatabaseId": {
+            "value": "__ApiResourceName__"
+        },
+        "cosmosDbEndpoint": {
+            "value": "__CosmosDbEndpoint__"
+        },
+        "cosmosDbKey": {
+            "value": "__CosmosDbKey__"
         },
         "environmentName": {
-            "value": ""
+            "value": "__NotTokenised__"
         },
         "functionAppNames": {
-            "value": []
+            "value": "__NotTokenised__"
+        },
+        "serviceBusConnectionString": {
+            "value": "__serviceBusConnectionString__"
+        },
+        "serviceBusQueueName": {
+            "value": "__serviceBusQueueName__"
+        },
+        "storageAccountName": {
+            "value": "__storageAccountName__"
+        },
+        "storageAccountKey": {
+            "value": "__storageAccountKey__"
         },
         "sharedAppServicePlanName": {
-            "value": ""
+            "value": "__SharedAppServicePlanName__"
         },
         "sharedAppServicePlanResourceGroup": {
-            "value": ""
+            "value": "__SharedAppServicePlanResourceGroup__"
+        },
+        "templateBaseUrl": {
+            "value": "__NestedArmTemplateBaseUrl__"
         }
     }
 }
