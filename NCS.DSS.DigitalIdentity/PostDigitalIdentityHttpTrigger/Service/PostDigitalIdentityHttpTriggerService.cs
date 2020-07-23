@@ -1,9 +1,6 @@
 ﻿using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.ServiceBus;
 using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service

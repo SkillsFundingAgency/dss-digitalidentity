@@ -1,13 +1,16 @@
 ﻿using DFC.JSON.Standard.Attributes;
 using DFC.Swagger.Standard.Annotations;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NCS.DSS.DigitalIdentity.Models
 {
     public class DigitalIdentity : IDigitalIdentity
     {
+        public DigitalIdentity()
+        {
+        }
+
         [Display(Description = "Unique identifier of a digital identity")]
         [Example(Description = "b8592ff8-af97-49ad-9fb2-e5c3c717fd85")]
         [Newtonsoft.Json.JsonProperty(PropertyName = "id")]
@@ -50,11 +53,25 @@ namespace NCS.DSS.DigitalIdentity.Models
         [JsonIgnoreOnSerialize]
         public string CreatedBy { get; set; }
 
+        public string EmailAddress { get; private set; }
+        public string FirstName { get; private set; }
+        public string LastName { get; private set; }
+        public bool? CreateDigitalIdentity { get; private set; }
+
+
         public void SetDefaultValues()
         {
             if (!LastModifiedDate.HasValue)
                 LastModifiedDate = DateTime.UtcNow;
+        }
 
+        public void SetDigitalIdentity(string emailAddress,string firstName, string lastName)
+        {
+            EmailAddress = emailAddress;
+            FirstName = firstName;
+            LastName = lastName;
+            if (!string.IsNullOrEmpty(emailAddress) && !string.IsNullOrEmpty(firstName) && !string.IsNullOrEmpty(lastName))
+                CreateDigitalIdentity = true;
         }
 
         public void Patch(DigitalIdentityPatch identityRequestPatch)

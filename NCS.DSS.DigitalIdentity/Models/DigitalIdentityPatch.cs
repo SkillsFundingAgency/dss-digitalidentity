@@ -1,6 +1,5 @@
 ﻿using DFC.Swagger.Standard.Annotations;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NCS.DSS.DigitalIdentity.Models
@@ -40,12 +39,22 @@ namespace NCS.DSS.DigitalIdentity.Models
         [Example(Description = "2018-06-20T13:45:00")]
         public DateTime? DateOfTermination { get; set; }
 
+        public string EmailAddress { get; private set; }
+
+        public string FirstName { get; private set; }
+
+        public string LastName { get; private set; }
+        public bool? CreateDigitalIdentity { get; private set; }
 
         public void SetDefaultValues()
         {
             if (!LastModifiedDate.HasValue)
                 LastModifiedDate = DateTime.UtcNow;
 
+        }
+
+        public void SetDigitalIdentity(string emailAddress, string firstName, string lastName)
+        {
         }
     }
 }

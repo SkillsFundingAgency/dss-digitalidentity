@@ -10,6 +10,7 @@ using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Models;
 using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.ServiceBus;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -18,7 +19,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using NCS.DSS.DigitalIdentity.ServiceBus;
 
 namespace NCS.DSS.DigitalIdentity.UnitTests
 {
@@ -93,6 +93,9 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                                                                         .Returns(Task.FromResult<Models.DigitalIdentity>(responsHttpBody));
             _mockDocumentDbProvider.Setup(m => m.UpdateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
                                                                         .Returns(Task.FromResult(responsHttpBody));
+            _mockDocumentDbProvider.Setup(m => m.GetCustomer(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(new Customer()));
+
 
             // Act
             var result = await RunFunction(validCustomerId, httpRequest);
@@ -217,6 +220,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 .Returns(Task.FromResult<bool>(true));
             _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
                 .Returns(Task.FromResult<Models.DigitalIdentity>(null));
+            _mockDocumentDbProvider.Setup(m => m.GetCustomer(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(new Customer()));
 
             // Act
             var result = await RunFunction(validCustomerId, httpRequest);

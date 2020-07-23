@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using NCS.DSS.DigitalIdentity.Models;
+using System;
 using System.Threading.Tasks;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
-using NCS.DSS.DigitalIdentity.Models;
 
 namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 {
@@ -23,5 +19,8 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 
         Task<bool> DoesCustomerResourceExist(Guid customerId);
         Task<Models.DigitalIdentity> GetIdentityByIdentityIdAsync(Guid identityGuid);
+        Task<Contact> GetCustomerContact(Guid customerId);
+        Task<Customer> GetCustomer(Guid customerId);
+        Task<bool> DoesContactDetailsWithEmailExists(string emailAddressToCheck);
     }
 }

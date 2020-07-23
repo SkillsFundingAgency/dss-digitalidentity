@@ -1,26 +1,22 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
-using System.Net.Http;
-using System.Net;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using DFC.Swagger.Standard.Annotations;
+﻿using DFC.Common.Standard.Logging;
 using DFC.Functions.DI.Standard.Attributes;
-using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
+using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
-using DFC.Common.Standard.Logging;
 using Microsoft.AspNetCore.Mvc;
-using NCS.DSS.DigitalIdentity.Cosmos.Helper;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
+using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
-using NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
 {
