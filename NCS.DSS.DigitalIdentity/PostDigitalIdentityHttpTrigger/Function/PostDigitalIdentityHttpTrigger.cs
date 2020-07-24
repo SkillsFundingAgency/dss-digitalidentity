@@ -119,7 +119,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             {
                 var digitalIdentity = await provider.GetIdentityForCustomerAsync(identityRequest.CustomerId.GetValueOrDefault());
                 if (digitalIdentity != null)
-                    return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
+                    return httpResponseMessageHelper.UnprocessableEntity($"Digital Identity for customer {identityRequest.CustomerId} already exists.");
             }
 
             //email address check
