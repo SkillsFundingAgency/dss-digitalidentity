@@ -53,9 +53,13 @@ namespace NCS.DSS.DigitalIdentity.Models
         [JsonIgnoreOnSerialize]
         public string CreatedBy { get; set; }
 
+        [JsonIgnoreOnSerialize]
         public string EmailAddress { get; private set; }
+        [JsonIgnoreOnSerialize]
         public string FirstName { get; private set; }
+        [JsonIgnoreOnSerialize]
         public string LastName { get; private set; }
+        [JsonIgnoreOnSerialize]
         public bool? CreateDigitalIdentity { get; private set; }
 
 
@@ -65,7 +69,7 @@ namespace NCS.DSS.DigitalIdentity.Models
                 LastModifiedDate = DateTime.UtcNow;
         }
 
-        public void SetDigitalIdentity(string emailAddress,string firstName, string lastName)
+        public void SetDigitalIdentity(string emailAddress, string firstName, string lastName)
         {
             EmailAddress = emailAddress;
             FirstName = firstName;

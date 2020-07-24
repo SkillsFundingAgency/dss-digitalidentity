@@ -39,12 +39,9 @@ namespace NCS.DSS.DigitalIdentity.Validation
             }
 
             //only validate through posting a new digital identity
-            if (resource.CreateDigitalIdentity == true)
-            {
-                var digitalIdentity = await _documentDbProvider.GetIdentityForCustomerAsync(resource.CustomerId.GetValueOrDefault());
-                if (digitalIdentity != null)
-                    results.Add(new ValidationResult($"Digital Identity for CustomerId {resource.CustomerId.GetValueOrDefault()} already exists."));
-            }
+            var digitalIdentity = await _documentDbProvider.GetIdentityForCustomerAsync(resource.CustomerId.GetValueOrDefault());
+            if (digitalIdentity != null)
+                results.Add(new ValidationResult($"Digital Identity for CustomerId {resource.CustomerId.GetValueOrDefault()} already exists."));
 
             //email address check, will need to revisit for patches
             if (!string.IsNullOrEmpty(resource.EmailAddress))

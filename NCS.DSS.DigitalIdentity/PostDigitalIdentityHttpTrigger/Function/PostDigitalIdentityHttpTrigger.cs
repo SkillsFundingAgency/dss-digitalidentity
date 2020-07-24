@@ -112,8 +112,10 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             // Notify service bus
             if (createdIdentity != null)
             {
-                if(identityRequest.CreateDigitalIdentity == true)
+                if (identityRequest.CreateDigitalIdentity == true)
+                {
                     await identityPostService.SendToServiceBusQueueAsync(identityRequest, apimUrl);
+                }
 
                 // return response
                 return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(identityRequest, "id", "IdentityID"));
