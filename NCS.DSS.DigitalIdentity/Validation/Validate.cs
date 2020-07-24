@@ -38,7 +38,7 @@ namespace NCS.DSS.DigitalIdentity.Validation
                     results.Add(new ValidationResult($"Unable to create DigitalIdentity for CustomerId  {resource.CustomerId.GetValueOrDefault()}, customer is readonly."));
             }
 
-            //only validate through posting a new digital identity
+            //only validate through posting a new digital identity 
             var digitalIdentity = await _documentDbProvider.GetIdentityForCustomerAsync(resource.CustomerId.GetValueOrDefault());
             if (digitalIdentity != null)
                 results.Add(new ValidationResult($"Digital Identity for CustomerId {resource.CustomerId.GetValueOrDefault()} already exists."));
