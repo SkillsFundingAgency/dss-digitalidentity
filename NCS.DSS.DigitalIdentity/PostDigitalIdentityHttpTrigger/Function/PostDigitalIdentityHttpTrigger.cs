@@ -94,9 +94,41 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.UnprocessableEntity();
             }
 
+
+            // Check if customer exists
+            var doesCustomerExists = await identityPostService.DoesCustomerExists(identityRequest.CustomerId);
+
+            if (!doesCustomerExists)
+                return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
+
             var customer = await provider.GetCustomer(identityRequest.CustomerId.Value);
             var contact = await provider.GetCustomerContact(identityRequest.CustomerId.Value);
-            identityRequest.SetDigitalIdentity(contact?.EmailAddress, customer?.GivenName, customer?.FamilyName);
+            identityRequest.SetCreateDigitalIdentity(contact?.EmailAddress, customer?.GivenName, customer?.FamilyName);
+
+            //Customer exists check
+            if (customer == null)
+                return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
+            else
+            {
+                if (customer.DateOfTermination.HasValue)
+                    return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} is readonly");
+            }
+
+            //only validate through posting a new digital identity 
+            if (identityRequest.CreateDigitalIdentity == true)
+            {
+                var digitalIdentity = await provider.GetIdentityForCustomerAsync(identityRequest.CustomerId.GetValueOrDefault());
+                if (digitalIdentity != null)
+                    return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
+            }
+
+            //email address check
+            if (!string.IsNullOrEmpty(identityRequest.EmailAddress))
+            {
+                var doesContactWithEmailExists = await provider.DoesContactDetailsWithEmailExists(identityRequest.EmailAddress);
+                if (doesContactWithEmailExists)
+                    return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
+            }
 
             // Validate request body
             var errors = await validate.ValidateResource(identityRequest, true);
@@ -112,7 +144,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             // Notify service bus
             if (createdIdentity != null)
             {
-                if (identityRequest.CreateDigitalIdentity == true)
+                if (identityRequest.IsDigitalAccount == true)
                 {
                     await identityPostService.SendToServiceBusQueueAsync(identityRequest, apimUrl);
                 }

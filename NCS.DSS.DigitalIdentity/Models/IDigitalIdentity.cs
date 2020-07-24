@@ -16,6 +16,6 @@ namespace NCS.DSS.DigitalIdentity.Models
         bool? CreateDigitalIdentity { get; }
 
         void SetDefaultValues();
-        void SetDigitalIdentity(string emailAddress, string firstName, string lastName);
+        void SetCreateDigitalIdentity(string emailAddress, string firstName, string lastName);
     }
 }

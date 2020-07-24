@@ -44,7 +44,8 @@ namespace NCS.DSS.DigitalIdentity.ServiceBus
                 digitalIdentity.LastName,
                 digitalIdentity.EmailAddress,
                 digitalIdentity.CustomerId,
-                CreateDigitalIdentity = digitalIdentity.CreateDigitalIdentity
+                digitalIdentity.CreateDigitalIdentity,
+                digitalIdentity.IsDigitalAccount
             };
             var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(sbMessage)));
             await queueClient.SendAsync(msg);

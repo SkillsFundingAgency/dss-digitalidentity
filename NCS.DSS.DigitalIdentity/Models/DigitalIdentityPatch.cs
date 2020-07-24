@@ -46,6 +46,11 @@ namespace NCS.DSS.DigitalIdentity.Models
         public string LastName { get; private set; }
         public bool? CreateDigitalIdentity { get; private set; }
 
+        public void SetCreateDigitalIdentity(string emailAddress, string firstName, string lastName)
+        {
+            throw new NotImplementedException();
+        }
+
         public void SetDefaultValues()
         {
             if (!LastModifiedDate.HasValue)
@@ -55,6 +60,7 @@ namespace NCS.DSS.DigitalIdentity.Models
 
         public void SetDigitalIdentity(string emailAddress, string firstName, string lastName)
         {
+            throw new NotImplementedException();
         }
     }
 }

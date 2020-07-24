@@ -61,6 +61,8 @@ namespace NCS.DSS.DigitalIdentity.Models
         public string LastName { get; private set; }
         [JsonIgnoreOnSerialize]
         public bool? CreateDigitalIdentity { get; private set; }
+        [JsonIgnoreOnSerialize]
+        public bool? IsDigitalAccount { get; private set; }
 
 
         public void SetDefaultValues()
@@ -69,13 +71,16 @@ namespace NCS.DSS.DigitalIdentity.Models
                 LastModifiedDate = DateTime.UtcNow;
         }
 
-        public void SetDigitalIdentity(string emailAddress, string firstName, string lastName)
+        public void SetCreateDigitalIdentity(string emailAddress, string firstName, string lastName)
         {
             EmailAddress = emailAddress;
             FirstName = firstName;
             LastName = lastName;
             if (!string.IsNullOrEmpty(emailAddress) && !string.IsNullOrEmpty(firstName) && !string.IsNullOrEmpty(lastName))
+            {
+                IsDigitalAccount = true;
                 CreateDigitalIdentity = true;
+            }
         }
 
         public void Patch(DigitalIdentityPatch identityRequestPatch)
