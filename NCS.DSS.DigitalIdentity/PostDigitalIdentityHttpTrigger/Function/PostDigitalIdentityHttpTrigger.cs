@@ -154,7 +154,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
                 }
 
                 // return response
-                return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(identityRequest, "id", "IdentityID"));
+                return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(createdIdentity, "id", "IdentityID"));
             }
             else
             {
