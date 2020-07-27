@@ -9,7 +9,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
-using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.Interfaces;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
 using System;
@@ -32,7 +32,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "identity/{IdentityId}")] HttpRequest req, ILogger log,
             string IdentityId,
-            [Inject]IPatchDigitalIdentityHttpTriggerService identityPatchService,
+            [Inject]IDigitalIdentityService identityPatchService,
             [Inject]IGetDigitalIdentityHttpTriggerService identityGetService,
             [Inject]ILoggerHelper loggerHelper,
             [Inject]IHttpRequestHelper httpRequestHelper,
@@ -140,7 +140,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             }
 
             loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to patch identity resource {0}", identityGuid));
-            var patchedCustomer = await identityPatchService.UpdateIdentity(digitalIdentity, digitalPatchRequest);
+            var patchedCustomer = await identityPatchService.PatchAsync(digitalIdentity, digitalPatchRequest);
 
             // TODO : Enable this when service bus is created
             // Notify service bus

@@ -8,10 +8,9 @@ using Microsoft.Azure.WebJobs.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.Interfaces;
 using NCS.DSS.DigitalIdentity.Ioc;
-using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
-using NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service;
-using NCS.DSS.DigitalIdentity.ServiceBus;
+using NCS.DSS.DigitalIdentity.Services;
 using NCS.DSS.DigitalIdentity.Validation;
 
 [assembly: WebJobsStartup(typeof(WebJobsExtensionStartup), "Web Jobs Extension Startup")]
@@ -35,11 +34,12 @@ namespace NCS.DSS.DigitalIdentity.Ioc
 
             builder.Services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
             builder.Services.AddScoped<IGetDigitalIdentityHttpTriggerService, GetDigitalIdentityHttpTriggerService>();
+            builder.Services.AddTransient<IDigitalIdentityService, DigitalIdentityService>();
 
             //builder.Services.AddScoped<IDeleteDigitalIdentityHttpTriggerService, DeleteDigitalIdentityHttpTriggerService>();
             //builder.Services.AddScoped<IDeleteDigitalIdentityByCustomerIdHttpTriggerService, DeleteDigitalIdentityByCustomerIdHttpTriggerService>();
-            builder.Services.AddScoped<IPostDigitalIdentityHttpTriggerService, PostDigitalIdentityHttpTriggerService>();
-            builder.Services.AddScoped<IPatchDigitalIdentityHttpTriggerService, PatchDigitalIdentityHttpTriggerService>();
+            //builder.Services.AddScoped<IPostDigitalIdentityHttpTriggerService, PostDigitalIdentityHttpTriggerService>();
+            //builder.Services.AddScoped<IPatchDigitalIdentityHttpTriggerService, PatchDigitalIdentityHttpTriggerService>();
 
         }
     }

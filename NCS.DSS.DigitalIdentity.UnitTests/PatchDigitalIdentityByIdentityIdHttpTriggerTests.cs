@@ -8,9 +8,9 @@ using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.Interfaces;
 using NCS.DSS.DigitalIdentity.Models;
-using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
-using NCS.DSS.DigitalIdentity.ServiceBus;
+using NCS.DSS.DigitalIdentity.Services;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -38,7 +38,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private Mock<IDigitalIdentityServiceBusClient> _mockDigitalIdentityServiceBusClient;
 
 
-        private IPatchDigitalIdentityHttpTriggerService _patchDigitalIdentityHttpTriggerService;
+        private IDigitalIdentityService _patchDigitalIdentityHttpTriggerService;
         private IResourceHelper _resourceHelper;
         private IGetDigitalIdentityHttpTriggerService _getDigitalIdentityHttpTriggerService;
         private IHttpRequestHelper _httpRequestHelper;
@@ -56,7 +56,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _loggerHelper = new Mock<ILoggerHelper>();
 
             // Below is a fudge as we cannot return ResourceResponse<Document> out of _mockDocumentDbProvider
-            _patchDigitalIdentityHttpTriggerService = new PatchDigitalIdentityHttpTriggerService(_mockDocumentDbProvider.Object, _mockDigitalIdentityServiceBusClient.Object);
+            _patchDigitalIdentityHttpTriggerService = new DigitalIdentityService(_mockDocumentDbProvider.Object, _mockDigitalIdentityServiceBusClient.Object);
 
             _resourceHelper = new ResourceHelper(_mockDocumentDbProvider.Object);
             _validate = new Validate(_mockDocumentDbProvider.Object);

@@ -7,9 +7,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
+using NCS.DSS.DigitalIdentity.Interfaces;
 using NCS.DSS.DigitalIdentity.Models;
-using NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service;
-using NCS.DSS.DigitalIdentity.ServiceBus;
+using NCS.DSS.DigitalIdentity.Services;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -35,7 +35,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private Mock<ILoggerHelper> _loggerHelper;
         private Mock<IDigitalIdentityServiceBusClient> _mockDigitalIdentityServiceBusClient;
 
-        private IPostDigitalIdentityHttpTriggerService _postDigitalIdentityHttpTriggerService;
+        private IDigitalIdentityService _postDigitalIdentityHttpTriggerService;
         private IResourceHelper _resourceHelper;
         private IHttpRequestHelper _httpRequestHelper;
         private IHttpResponseMessageHelper _httpResponseMessageHelper;
@@ -52,7 +52,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _loggerHelper = new Mock<ILoggerHelper>();
 
             // Below is a fudge as we cannot return ResourceResponse<Document> out of _mockDocumentDbProvider
-            _postDigitalIdentityHttpTriggerService = new PostDigitalIdentityHttpTriggerService(_mockDocumentDbProvider.Object, _mockDigitalIdentityServiceBusClient.Object);
+            _postDigitalIdentityHttpTriggerService = new DigitalIdentityService(_mockDocumentDbProvider.Object, _mockDigitalIdentityServiceBusClient.Object);
 
             _resourceHelper = new ResourceHelper(_mockDocumentDbProvider.Object);
             _validate = new Validate(_mockDocumentDbProvider.Object);
@@ -258,7 +258,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 _httpResponseMessageHelper,
                 _jsonHelper,
                 _validate,
-                _mockDocumentDbProvider.Object
+                _mockDocumentDbProvider.Object,
+                _mockDigitalIdentityServiceBusClient.Object
             ).ConfigureAwait(false);
         }
 

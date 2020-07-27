@@ -1,4 +1,5 @@
 ﻿using DFC.Common.Standard.Logging;
+using DFC.Common.Standard.ServiceBusClient.Interfaces;
 using DFC.Functions.DI.Standard.Attributes;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
@@ -9,7 +10,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
-using NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.Interfaces;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
 using System;
@@ -33,13 +34,14 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Conflict, Description = "Duplicate Email Address", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "identity")] HttpRequest req, ILogger log,
-            [Inject] IPostDigitalIdentityHttpTriggerService identityPostService,
+            [Inject] IDigitalIdentityService identityPostService,
             [Inject] ILoggerHelper loggerHelper,
             [Inject] IHttpRequestHelper httpRequestHelper,
             [Inject] IHttpResponseMessageHelper httpResponseMessageHelper,
             [Inject] IJsonHelper jsonHelper,
             [Inject] IValidate validate,
-            [Inject] IDocumentDBProvider provider)
+            [Inject] IDocumentDBProvider provider,
+            [Inject] IDigitalIdentityServiceBusClient servicebus)
         {
             Models.DigitalIdentity identityRequest;
             loggerHelper.LogMethodEnter(log);
@@ -150,7 +152,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             {
                 if (identityRequest.IsDigitalAccount == true)
                 {
-                    await identityPostService.SendToServiceBusQueueAsync(identityRequest, apimUrl);
+                    await servicebus.SendPostMessageAsync(identityRequest, apimUrl);
                 }
 
                 // return response

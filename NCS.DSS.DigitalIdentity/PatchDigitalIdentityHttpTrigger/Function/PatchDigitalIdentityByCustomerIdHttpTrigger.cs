@@ -17,10 +17,9 @@ using Microsoft.AspNetCore.Http;
 using DFC.Common.Standard.Logging;
 using Microsoft.AspNetCore.Mvc;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
-using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
-using NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
+using NCS.DSS.DigitalIdentity.Interfaces;
 
 namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
 {
@@ -36,7 +35,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "customer/{customerId}")] HttpRequest req, ILogger log,
             string customerId,
-            [Inject]IPatchDigitalIdentityHttpTriggerService identityPatchService,
+            [Inject]IDigitalIdentityService identityPatchService,
             [Inject]IGetDigitalIdentityHttpTriggerService identityGetService,
             [Inject]ILoggerHelper loggerHelper,
             [Inject]IHttpRequestHelper httpRequestHelper,
@@ -143,7 +142,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             }
 
             loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to patch identity resource {0}", customerGuid));
-            var patchedCustomer = await identityPatchService.UpdateIdentity(digitalIdentity, digitalPatchRequest);
+            var patchedCustomer = await identityPatchService.PatchAsync(digitalIdentity, digitalPatchRequest);
 
             // TODO : Enable this when service bus is created
             // Notify service bus

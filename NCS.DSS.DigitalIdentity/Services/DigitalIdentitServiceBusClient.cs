@@ -1,13 +1,11 @@
-﻿using DFC.Common.Standard.ServiceBusClient.Models;
-using Microsoft.Azure.ServiceBus;
+﻿using Microsoft.Azure.ServiceBus;
+using NCS.DSS.DigitalIdentity.Interfaces;
 using Newtonsoft.Json;
 using System;
-using System.Configuration;
-using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NCS.DSS.DigitalIdentity.ServiceBus
+namespace NCS.DSS.DigitalIdentity.Services
 {
     public class DigitalIdentitServiceBusClient : IDigitalIdentityServiceBusClient
     {
