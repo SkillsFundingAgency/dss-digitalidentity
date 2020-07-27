@@ -94,10 +94,14 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.UnprocessableEntity();
             }
 
+            if (!identityRequest.CustomerId.HasValue)
+                return httpResponseMessageHelper.UnprocessableEntity($"CustomerId is mandatory");
+
+            if (identityRequest.DateOfTermination.HasValue)
+                return httpResponseMessageHelper.UnprocessableEntity($"Date of termination cannot be set in post request!");
 
             // Check if customer exists
             var doesCustomerExists = await identityPostService.DoesCustomerExists(identityRequest.CustomerId);
-
             if (!doesCustomerExists)
                 return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
 
@@ -127,7 +131,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             {
                 var doesContactWithEmailExists = await provider.DoesContactDetailsWithEmailExists(identityRequest.EmailAddress);
                 if (doesContactWithEmailExists)
-                    return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
+                    return httpResponseMessageHelper.UnprocessableEntity($"Email address is already in use  {identityRequest.EmailAddress}.");
             }
 
             // Validate request body
