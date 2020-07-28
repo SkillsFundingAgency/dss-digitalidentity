@@ -50,13 +50,13 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _httpRequestHelper = new HttpRequestHelper();
             _httpResponseMessageHelper = new HttpResponseMessageHelper();
             _jsonHelper = new JsonHelper();
-            _trigger = new DeleteDigitalIdentityByCustomerIdHttpTrigger.Function.DeleteDigitalIdentityByCustomerIdHttpTrigger(_digitalidentityservice.Object, _servicebus.Object, _mockLog.Object, _loggerHelper.Object, _httpRequestHelper, _httpResponseMessageHelper);
+            _trigger = new DeleteDigitalIdentityByCustomerIdHttpTrigger.Function.DeleteDigitalIdentityByCustomerIdHttpTrigger(_digitalidentityservice.Object, _servicebus.Object, _loggerHelper.Object, _httpRequestHelper, _httpResponseMessageHelper);
         }
 
 
         private async Task<HttpResponseMessage> RunFunction(HttpRequest request, string customerId)
         {
-            return await _trigger.Run(request, customerId);
+            return await _trigger.Run(request, _mockLog.Object, customerId);
         }
 
         [Test]

@@ -20,16 +20,14 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
     {
         private readonly IDigitalIdentityService _identityDeleteService;
         private readonly IDigitalIdentityServiceBusClient _serviceBus;
-        private readonly ILogger _logger;
         private readonly ILoggerHelper _loggerHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
 
-        public DeleteDigitalIdentityByCustomerIdHttpTrigger(IDigitalIdentityService deleteService, IDigitalIdentityServiceBusClient serviceBus, ILogger log, ILoggerHelper loggerHelper, IHttpRequestHelper httpRequestHelper, IHttpResponseMessageHelper httpResponseMessageHelper)
+        public DeleteDigitalIdentityByCustomerIdHttpTrigger(IDigitalIdentityService deleteService, IDigitalIdentityServiceBusClient serviceBus, ILoggerHelper loggerHelper, IHttpRequestHelper httpRequestHelper, IHttpResponseMessageHelper httpResponseMessageHelper)
         {
             _identityDeleteService = deleteService;
             _serviceBus = serviceBus;
-            _logger = log;
             _loggerHelper = loggerHelper;
             _httpRequestHelper = httpRequestHelper;
             _httpResponseMessageHelper = httpResponseMessageHelper;
@@ -42,7 +40,7 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Display(Name = "DeleteById", Description = "Ability to delete an individual digital identity by customer id")]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "customer/{customerId}")] HttpRequest req, string customerId)
+        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "customer/{customerId}")] HttpRequest req, ILogger _logger, string customerId)
         {
             var apimUrl = _httpRequestHelper.GetDssApimUrl(req);
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);

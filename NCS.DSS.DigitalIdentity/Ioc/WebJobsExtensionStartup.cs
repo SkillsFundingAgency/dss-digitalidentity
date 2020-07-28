@@ -35,6 +35,9 @@ namespace NCS.DSS.DigitalIdentity.Ioc
             builder.Services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
             builder.Services.AddScoped<IGetDigitalIdentityHttpTriggerService, GetDigitalIdentityHttpTriggerService>();
             builder.Services.AddTransient<IDigitalIdentityService, DigitalIdentityService>();
+            builder.Services.AddLogging();
+
+
 
             //builder.Services.AddScoped<IDeleteDigitalIdentityHttpTriggerService, DeleteDigitalIdentityHttpTriggerService>();
             //builder.Services.AddScoped<IDeleteDigitalIdentityByCustomerIdHttpTriggerService, DeleteDigitalIdentityByCustomerIdHttpTriggerService>();
