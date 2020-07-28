@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.Interfaces;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
 using NUnit.Framework;
