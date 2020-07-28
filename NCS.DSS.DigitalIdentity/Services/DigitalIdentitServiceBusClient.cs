@@ -27,6 +27,12 @@ namespace NCS.DSS.DigitalIdentity.Services
             await SendMessageAsync(updatedDigitalIdentity, reqUrl, titleMessage);
         }
 
+        public async Task SendDeleteMessageAsync(Models.DigitalIdentity updatedDigitalIdentity, string reqUrl)
+        {
+            string titleMessage = $"Digital Identity deleted for {updatedDigitalIdentity.IdentityID} at {DateTime.UtcNow}";
+            await SendMessageAsync(updatedDigitalIdentity, reqUrl, titleMessage);
+        }
+
         private async Task SendMessageAsync(Models.DigitalIdentity digitalIdentity, string reqUrl, string message)
         {
             var queueClient = new QueueClient(ServiceBusConnectionString, QueueName);
@@ -42,8 +48,9 @@ namespace NCS.DSS.DigitalIdentity.Services
                 digitalIdentity.LastName,
                 digitalIdentity.EmailAddress,
                 digitalIdentity.CustomerId,
-                digitalIdentity.CreateDigitalIdentity,
-                digitalIdentity.IsDigitalAccount
+                CreateDigitalIdentity= digitalIdentity.CreateDigitalIdentity ?? false,
+                IsDigitalAccount = digitalIdentity.IsDigitalAccount ?? false,
+                DeleteDigitalIdentity = digitalIdentity.DeleteDigitalIdentity ?? false
             };
             var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(sbMessage)));
             await queueClient.SendAsync(msg);

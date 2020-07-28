@@ -1,4 +1,5 @@
 ﻿using DFC.Swagger.Standard.Annotations;
+using NCS.DSS.DigitalIdentity.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -46,6 +47,10 @@ namespace NCS.DSS.DigitalIdentity.Models
         public string LastName { get; private set; }
         public bool? CreateDigitalIdentity { get; private set; }
 
+        public bool? IsDigitalAccount =>  null;
+
+        public bool? DeleteDigitalIdentity => null;
+
         public void SetCreateDigitalIdentity(string emailAddress, string firstName, string lastName)
         {
             throw new NotImplementedException();
@@ -56,6 +61,11 @@ namespace NCS.DSS.DigitalIdentity.Models
             if (!LastModifiedDate.HasValue)
                 LastModifiedDate = DateTime.UtcNow;
 
+        }
+
+        public void SetDeleted()
+        {
+            throw new NotImplementedException();
         }
 
         public void SetDigitalIdentity(string emailAddress, string firstName, string lastName)

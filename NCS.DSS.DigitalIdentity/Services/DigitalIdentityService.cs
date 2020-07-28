@@ -59,5 +59,19 @@ namespace NCS.DSS.DigitalIdentity.Services
 
             return response;
         }
+
+        public async Task<Models.DigitalIdentity> GetIdentityForCustomerAsync(Guid customerId)
+        {
+            var identity = await _documentDbProvider.GetIdentityForCustomerAsync(customerId);
+
+            return identity;
+        }
+
+        public async Task<bool> DeleteIdentityAsync(Guid identityId)
+        {
+            var identities = await _documentDbProvider.DeleteIdentityAsync(identityId);
+
+            return identities;
+        }
     }
 }

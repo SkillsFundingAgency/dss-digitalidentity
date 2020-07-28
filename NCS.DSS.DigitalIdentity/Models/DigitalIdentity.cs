@@ -1,5 +1,6 @@
 ﻿using DFC.JSON.Standard.Attributes;
 using DFC.Swagger.Standard.Annotations;
+using NCS.DSS.DigitalIdentity.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -63,7 +64,8 @@ namespace NCS.DSS.DigitalIdentity.Models
         public bool? CreateDigitalIdentity { get; private set; }
         [JsonIgnoreOnSerialize]
         public bool? IsDigitalAccount { get; private set; }
-
+        [JsonIgnoreOnSerialize]
+        public bool? DeleteDigitalIdentity { get; private set; }
 
         public void SetDefaultValues()
         {
@@ -81,6 +83,12 @@ namespace NCS.DSS.DigitalIdentity.Models
                 IsDigitalAccount = true;
                 CreateDigitalIdentity = true;
             }
+        }
+
+        public void SetDeleted()
+        {
+            DeleteDigitalIdentity = true;
+            IsDigitalAccount = true;
         }
 
         public void Patch(DigitalIdentityPatch identityRequestPatch)

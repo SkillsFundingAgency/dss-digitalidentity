@@ -1,4 +1,5 @@
 ﻿using NCS.DSS.DigitalIdentity.Cosmos.Provider;
+using NCS.DSS.DigitalIdentity.Interfaces;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace NCS.DSS.DigitalIdentity.Validation
             _documentDbProvider = documentDbProvider;
         }
 
-        public async Task<List<ValidationResult>> ValidateResource(Models.IDigitalIdentity resource, bool validateModelForPost)
+        public async Task<List<ValidationResult>> ValidateResource(IDigitalIdentity resource, bool validateModelForPost)
         {
             var context = new ValidationContext(resource, null, null);
             var results = new List<ValidationResult>();
@@ -26,7 +27,7 @@ namespace NCS.DSS.DigitalIdentity.Validation
             return results;
         }
 
-        private async Task ValidateCustomerRules(Models.IDigitalIdentity resource, List<ValidationResult> results, bool validateModelForPost)
+        private async Task ValidateCustomerRules(IDigitalIdentity resource, List<ValidationResult> results, bool validateModelForPost)
         {
         }
     }

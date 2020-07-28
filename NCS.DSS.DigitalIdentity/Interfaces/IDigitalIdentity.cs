@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NCS.DSS.DigitalIdentity.Models
+namespace NCS.DSS.DigitalIdentity.Interfaces
 {
     public interface IDigitalIdentity
     {
@@ -14,8 +14,11 @@ namespace NCS.DSS.DigitalIdentity.Models
         string FirstName { get; }
         string LastName { get;  }
         bool? CreateDigitalIdentity { get; }
+        bool? IsDigitalAccount { get; }
+        bool? DeleteDigitalIdentity { get; }
 
         void SetDefaultValues();
         void SetCreateDigitalIdentity(string emailAddress, string firstName, string lastName);
+        void SetDeleted();
     }
 }
