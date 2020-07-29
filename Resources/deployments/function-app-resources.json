@@ -120,6 +120,14 @@
             {
               "name": "QueueName",
               "value": "[parameters('serviceBusQueueName')]"
+            },
+            {
+              "name": "ContactsCollectionId",
+              "value": "contacts"
+            },
+            {
+              "name": "ContactsDatabaseId",
+              "value": "contacts"
             }
           ]
         }
