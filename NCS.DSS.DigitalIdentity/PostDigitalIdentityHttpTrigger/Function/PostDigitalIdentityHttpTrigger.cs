@@ -1,4 +1,5 @@
-﻿using DFC.Common.Standard.Logging;
+﻿using AutoMapper;
+using DFC.Common.Standard.Logging;
 using DFC.Common.Standard.ServiceBusClient.Interfaces;
 using DFC.Functions.DI.Standard.Attributes;
 using DFC.HTTP.Standard;
@@ -10,6 +11,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
+using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.Interfaces;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
@@ -41,9 +43,10 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             [Inject] IJsonHelper jsonHelper,
             [Inject] IValidate validate,
             [Inject] IDocumentDBProvider provider,
-            [Inject] IDigitalIdentityServiceBusClient servicebus)
+            [Inject] IDigitalIdentityServiceBusClient servicebus,
+            [Inject] IMapper mapper)
         {
-            Models.DigitalIdentity identityRequest;
+            DigitalIdentityPost identityRequest;
             loggerHelper.LogMethodEnter(log);
 
             //Get Correlation Id
@@ -82,7 +85,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             // Get request body
             try
             {
-                identityRequest = await httpRequestHelper.GetResourceFromRequest<Models.DigitalIdentity>(req);
+                identityRequest = await httpRequestHelper.GetResourceFromRequest<DigitalIdentityPost>(req);
             }
             catch (JsonException ex)
             {
@@ -107,33 +110,36 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             if (!doesCustomerExists)
                 return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
 
+            var model = mapper.Map<Models.DigitalIdentity>(identityRequest);
+
             var customer = await provider.GetCustomer(identityRequest.CustomerId.Value);
             var contact = await provider.GetCustomerContact(identityRequest.CustomerId.Value);
-            identityRequest.SetCreateDigitalIdentity(contact?.EmailAddress, customer?.GivenName, customer?.FamilyName);
+            model.SetCreateDigitalIdentity(contact?.EmailAddress, customer?.GivenName, customer?.FamilyName);
 
             //Customer exists check
             if (customer == null)
-                return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
+                return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {model.CustomerId} does not exists.");
             else
             {
                 if (customer.DateOfTermination.HasValue)
-                    return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} is readonly");
+                    return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {model.CustomerId} is readonly");
             }
 
             //only validate through posting a new digital identity 
-            if (identityRequest.CreateDigitalIdentity == true)
-            {
-                var digitalIdentity = await provider.GetIdentityForCustomerAsync(identityRequest.CustomerId.GetValueOrDefault());
-                if (digitalIdentity != null)
-                    return httpResponseMessageHelper.UnprocessableEntity($"Digital Identity for customer {identityRequest.CustomerId} already exists.");
-            }
+            var digitalIdentity = await provider.GetIdentityForCustomerAsync(model.CustomerId.GetValueOrDefault());
+            if (digitalIdentity != null)
+                return httpResponseMessageHelper.UnprocessableEntity($"Digital Identity for customer {model.CustomerId} already exists.");
 
             //email address check
-            if (!string.IsNullOrEmpty(identityRequest.EmailAddress))
+            if (!string.IsNullOrEmpty(model.EmailAddress))
             {
-                var doesContactWithEmailExists = await provider.DoesContactDetailsWithEmailExists(identityRequest.EmailAddress);
+                var doesContactWithEmailExists = await provider.DoesContactDetailsWithEmailExists(model.EmailAddress);
                 if (doesContactWithEmailExists)
-                    return httpResponseMessageHelper.UnprocessableEntity($"Email address is already in use  {identityRequest.EmailAddress}.");
+                    return httpResponseMessageHelper.UnprocessableEntity($"Email address is already in use  {model.EmailAddress}.");
+            }
+            else
+            {
+                return httpResponseMessageHelper.UnprocessableEntity($"Email address is required for customer.");
             }
 
             // Validate request body
@@ -142,21 +148,22 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             if (errors != null && errors.Any())
                 return httpResponseMessageHelper.UnprocessableEntity(errors);
 
-            // Create digital Identity
-            identityRequest.CreatedBy = touchpointId;
-            identityRequest.LastModifiedTouchpointId = touchpointId;
-            var createdIdentity = await identityPostService.CreateAsync(identityRequest);
+            //Create digital Identity
+            model.CreatedBy = touchpointId;
+            model.LastModifiedTouchpointId = touchpointId;
+            var createdIdentity = await identityPostService.CreateAsync(model);
+            var resp = mapper.Map<DigitalIdentity.DTO.DigitalIdentityPost>(createdIdentity);
 
             // Notify service bus
             if (createdIdentity != null)
             {
-                if (identityRequest.IsDigitalAccount == true)
+                if (model.IsDigitalAccount == true)
                 {
-                    await servicebus.SendPostMessageAsync(identityRequest, apimUrl);
+                    await servicebus.SendPostMessageAsync(model, apimUrl);
                 }
 
                 // return response
-                return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(createdIdentity, "id", "IdentityID"));
+                return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(resp, "id", "IdentityID"));
             }
             else
             {

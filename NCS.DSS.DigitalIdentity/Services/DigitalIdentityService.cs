@@ -1,4 +1,5 @@
 ﻿using NCS.DSS.DigitalIdentity.Cosmos.Provider;
+using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -38,12 +39,12 @@ namespace NCS.DSS.DigitalIdentity.Services
             return identityRequestCustomerId != null && await _documentDbProvider.DoesCustomerResourceExist(identityRequestCustomerId.Value);
         }
 
-        public async Task<Models.DigitalIdentity> PatchAsync(Models.DigitalIdentity identityResource, Models.DigitalIdentityPatch identityRequestPatch)
+        public async Task<Models.DigitalIdentity> PatchAsync(Models.DigitalIdentity identityResource, DigitalIdentityPatch identityRequestPatch)
         {
             if (identityResource == null)
                 return null;
 
-            identityRequestPatch.SetDefaultValues();
+            identityResource.SetDefaultValues();
             identityResource.Patch(identityRequestPatch);
 
             var response = await UpdateASync(identityResource);

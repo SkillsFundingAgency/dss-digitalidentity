@@ -10,15 +10,5 @@ namespace NCS.DSS.DigitalIdentity.Interfaces
         DateTime? LastModifiedDate { get; set; }
         string LastModifiedTouchpointId { get; set; }
         Guid? CustomerId { get; set; }
-        string EmailAddress { get; }
-        string FirstName { get; }
-        string LastName { get;  }
-        bool? CreateDigitalIdentity { get; }
-        bool? IsDigitalAccount { get; }
-        bool? DeleteDigitalIdentity { get; }
-
-        void SetDefaultValues();
-        void SetCreateDigitalIdentity(string emailAddress, string firstName, string lastName);
-        void SetDeleted();
     }
 }

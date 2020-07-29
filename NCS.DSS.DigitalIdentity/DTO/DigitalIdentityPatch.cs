@@ -3,7 +3,7 @@ using NCS.DSS.DigitalIdentity.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace NCS.DSS.DigitalIdentity.Models
+namespace NCS.DSS.DigitalIdentity.DTO
 {
     public class DigitalIdentityPatch : IDigitalIdentity
     {
@@ -39,38 +39,5 @@ namespace NCS.DSS.DigitalIdentity.Models
         [Display(Description = "Date and time the resource was terminated.")]
         [Example(Description = "2018-06-20T13:45:00")]
         public DateTime? DateOfTermination { get; set; }
-
-        public string EmailAddress { get; private set; }
-
-        public string FirstName { get; private set; }
-
-        public string LastName { get; private set; }
-        public bool? CreateDigitalIdentity { get; private set; }
-
-        public bool? IsDigitalAccount =>  null;
-
-        public bool? DeleteDigitalIdentity => null;
-
-        public void SetCreateDigitalIdentity(string emailAddress, string firstName, string lastName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetDefaultValues()
-        {
-            if (!LastModifiedDate.HasValue)
-                LastModifiedDate = DateTime.UtcNow;
-
-        }
-
-        public void SetDeleted()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetDigitalIdentity(string emailAddress, string firstName, string lastName)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

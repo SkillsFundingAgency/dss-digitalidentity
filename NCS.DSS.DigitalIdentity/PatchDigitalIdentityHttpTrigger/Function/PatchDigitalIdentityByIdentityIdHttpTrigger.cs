@@ -1,4 +1,5 @@
-﻿using DFC.Common.Standard.Logging;
+﻿using AutoMapper;
+using DFC.Common.Standard.Logging;
 using DFC.Functions.DI.Standard.Attributes;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Interfaces;
 using NCS.DSS.DigitalIdentity.Validation;
@@ -38,7 +40,8 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             [Inject]IHttpRequestHelper httpRequestHelper,
             [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,
             [Inject]IJsonHelper jsonHelper,
-            [Inject]IValidate validate)
+            [Inject]IValidate validate,
+            [Inject]IMapper mapper)
         {
             loggerHelper.LogMethodEnter(log);
 
@@ -82,11 +85,11 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             }
 
             // Get patch body
-            Models.DigitalIdentityPatch digitalPatchRequest;
+            DigitalIdentityPatch digitalPatchRequest;
             try
             {
                 loggerHelper.LogInformationMessage(log, correlationGuid, "Attempt to get resource from body of the request");
-                digitalPatchRequest = await httpRequestHelper.GetResourceFromRequest<Models.DigitalIdentityPatch>(req);
+                digitalPatchRequest = await httpRequestHelper.GetResourceFromRequest<DigitalIdentityPatch>(req);
             }
             catch (JsonException ex)
             {
@@ -138,14 +141,9 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
                 loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Patch requested on terminated resource {0}", identityGuid));
                 return httpResponseMessageHelper.UnprocessableEntity();
             }
-
+            var model = mapper.Map<Models.DigitalIdentity>(digitalIdentity);
             loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to patch identity resource {0}", identityGuid));
-            var patchedCustomer = await identityPatchService.PatchAsync(digitalIdentity, digitalPatchRequest);
-
-            // TODO : Enable this when service bus is created
-            // Notify service bus
-            //if (patchedCustomer != null)
-            //    await identityPatchService.SendToServiceBusQueueAsync(patchedCustomer, apimUrl);
+            var patchedCustomer = await identityPatchService.PatchAsync(model, digitalPatchRequest);
 
             return httpResponseMessageHelper.Ok(jsonHelper.SerializeObjectAndRenameIdProperty(patchedCustomer, "id", "IdentityID"));
         }

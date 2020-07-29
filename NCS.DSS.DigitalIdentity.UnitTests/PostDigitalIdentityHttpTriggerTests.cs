@@ -1,3 +1,4 @@
+using AutoMapper;
 using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
@@ -8,6 +9,7 @@ using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.Interfaces;
+using NCS.DSS.DigitalIdentity.Mappings;
 using NCS.DSS.DigitalIdentity.Models;
 using NCS.DSS.DigitalIdentity.Services;
 using NCS.DSS.DigitalIdentity.Validation;
@@ -41,6 +43,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private IHttpResponseMessageHelper _httpResponseMessageHelper;
         private IJsonHelper _jsonHelper;
         private IValidate _validate;
+        private IMapper _mapper;
 
         [SetUp]
         public void Setup()
@@ -59,6 +62,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _httpRequestHelper = new HttpRequestHelper();
             _httpResponseMessageHelper = new HttpResponseMessageHelper();
             _jsonHelper = new JsonHelper();
+            _mapper = new Mapper(new MapperConfiguration(item => item.AddProfile<MappingProfile>()));
 
         }
 
@@ -77,7 +81,9 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _mockDocumentDbProvider.Setup(m => m.CreateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
                 .Returns(Task.FromResult(responsHttpBody));
             _mockDocumentDbProvider.Setup(m => m.GetCustomer(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(new Customer()));
+                .Returns(Task.FromResult(new Customer() { GivenName="test", FamilyName="test" }));
+            _mockDocumentDbProvider.Setup(m => m.GetCustomerContact(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(new Contact() { EmailAddress = "email@email.com" }));
 
             // Act
             var result = await RunFunction(httpRequest);
@@ -175,7 +181,9 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _mockDocumentDbProvider.Setup(m => m.CreateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
                 .Returns(Task.FromResult(responsHttpBody));
             _mockDocumentDbProvider.Setup(m => m.GetCustomer(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(new Customer()));
+                .Returns(Task.FromResult(new Customer() { GivenName = "test", FamilyName = "test" }));
+            _mockDocumentDbProvider.Setup(m => m.GetCustomerContact(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(new Contact() { EmailAddress = "email@email.com" }));
 
             // Act
             var result = await RunFunction(httpRequest);
@@ -259,7 +267,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 _jsonHelper,
                 _validate,
                 _mockDocumentDbProvider.Object,
-                _mockDigitalIdentityServiceBusClient.Object
+                _mockDigitalIdentityServiceBusClient.Object,
+                _mapper
             ).ConfigureAwait(false);
         }
 

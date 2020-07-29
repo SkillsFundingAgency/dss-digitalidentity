@@ -1,3 +1,4 @@
+using AutoMapper;
 using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
@@ -7,8 +8,10 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
+using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Interfaces;
+using NCS.DSS.DigitalIdentity.Mappings;
 using NCS.DSS.DigitalIdentity.Models;
 using NCS.DSS.DigitalIdentity.Services;
 using NCS.DSS.DigitalIdentity.Validation;
@@ -45,6 +48,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private IHttpResponseMessageHelper _httpResponseMessageHelper;
         private IJsonHelper _jsonHelper;
         private IValidate _validate;
+        private IMapper _mapper;
 
         [SetUp]
         public void Setup()
@@ -66,6 +70,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _patchDigitalIdentityHttpTriggerService =
                 new DigitalIdentityService(_mockDocumentDbProvider.Object,
                     _mockDigitalIdentityServiceBusClient.Object);
+            _mapper = new Mapper(new MapperConfiguration(item => item.AddProfile<MappingProfile>()));
         }
 
         [Test]
@@ -289,11 +294,12 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 _httpRequestHelper,
                 _httpResponseMessageHelper,
                 _jsonHelper,
-                _validate
+                _validate,
+                _mapper
             ).ConfigureAwait(false);
         }
 
-        private DefaultHttpRequest GenerateDefaultHttpRequest(Models.DigitalIdentityPatch requestBody)
+        private DefaultHttpRequest GenerateDefaultHttpRequest(DigitalIdentityPatch requestBody)
         {
             var defaultRequest = new DefaultHttpRequest(new DefaultHttpContext());
 

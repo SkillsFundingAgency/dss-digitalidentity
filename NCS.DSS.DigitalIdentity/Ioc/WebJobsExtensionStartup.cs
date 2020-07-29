@@ -1,4 +1,5 @@
-﻿using DFC.Common.Standard.Logging;
+﻿using AutoMapper;
+using DFC.Common.Standard.Logging;
 using DFC.Functions.DI.Standard;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
@@ -10,6 +11,7 @@ using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Interfaces;
 using NCS.DSS.DigitalIdentity.Ioc;
+using NCS.DSS.DigitalIdentity.Mappings;
 using NCS.DSS.DigitalIdentity.Services;
 using NCS.DSS.DigitalIdentity.Validation;
 
@@ -37,7 +39,7 @@ namespace NCS.DSS.DigitalIdentity.Ioc
             builder.Services.AddTransient<IDigitalIdentityService, DigitalIdentityService>();
             builder.Services.AddLogging();
 
-
+            builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
             //builder.Services.AddScoped<IDeleteDigitalIdentityHttpTriggerService, DeleteDigitalIdentityHttpTriggerService>();
             //builder.Services.AddScoped<IDeleteDigitalIdentityByCustomerIdHttpTriggerService, DeleteDigitalIdentityByCustomerIdHttpTriggerService>();
