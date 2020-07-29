@@ -10,22 +10,22 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="DeleteDigitalIdentityByCustomerIdHttpTrigger\**" />
     <Compile Remove="DeleteDigitalIdentityHttpTrigger\**" />
-    <EmbeddedResource Remove="DeleteDigitalIdentityByCustomerIdHttpTrigger\**" />
     <EmbeddedResource Remove="DeleteDigitalIdentityHttpTrigger\**" />
-    <None Remove="DeleteDigitalIdentityByCustomerIdHttpTrigger\**" />
     <None Remove="DeleteDigitalIdentityHttpTrigger\**" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.0.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="DFC.Common.Standard" Version="0.1.4" />
     <PackageReference Include="DFC.HTTP.Standard" Version="0.1.11" />
     <PackageReference Include="DFC.Swagger.Standard" Version="0.1.20" />
     <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.10.3" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.16" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.ServiceBus" Version="3.0.0-beta8" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.6" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
-    <PackageReference Include="WindowsAzure.ServiceBus" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

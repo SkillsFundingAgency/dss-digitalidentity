@@ -5,11 +5,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
-using NCS.DSS.DigitalIdentity.Models;
-using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.Interfaces;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -18,7 +16,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using NCS.DSS.DigitalIdentity.ServiceBus;
 
 namespace NCS.DSS.DigitalIdentity.UnitTests
 {

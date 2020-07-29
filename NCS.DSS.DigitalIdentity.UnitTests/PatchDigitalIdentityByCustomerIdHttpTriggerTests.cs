@@ -1,3 +1,4 @@
+using AutoMapper;
 using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
@@ -7,9 +8,12 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
+using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.Interfaces;
+using NCS.DSS.DigitalIdentity.Mappings;
 using NCS.DSS.DigitalIdentity.Models;
-using NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Service;
+using NCS.DSS.DigitalIdentity.Services;
 using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -18,7 +22,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using NCS.DSS.DigitalIdentity.ServiceBus;
 
 namespace NCS.DSS.DigitalIdentity.UnitTests
 {
@@ -38,13 +41,14 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private Mock<IDigitalIdentityServiceBusClient> _mockDigitalIdentityServiceBusClient;
 
 
-        private IPatchDigitalIdentityHttpTriggerService _patchDigitalIdentityHttpTriggerService;
+        private IDigitalIdentityService _patchDigitalIdentityHttpTriggerService;
         private IResourceHelper _resourceHelper;
         private IGetDigitalIdentityHttpTriggerService _getDigitalIdentityByCustomerIdHttpTriggerService;
         private IHttpRequestHelper _httpRequestHelper;
         private IHttpResponseMessageHelper _httpResponseMessageHelper;
         private IJsonHelper _jsonHelper;
         private IValidate _validate;
+        private IMapper _mapper;
 
         [SetUp]
         public void Setup()
@@ -64,8 +68,9 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _jsonHelper = new JsonHelper();
             _getDigitalIdentityByCustomerIdHttpTriggerService = new GetDigitalIdentityHttpTriggerService(_mockDocumentDbProvider.Object);
             _patchDigitalIdentityHttpTriggerService =
-                new PatchDigitalIdentityHttpTriggerService(_mockDocumentDbProvider.Object,
+                new DigitalIdentityService(_mockDocumentDbProvider.Object,
                     _mockDigitalIdentityServiceBusClient.Object);
+            _mapper = new Mapper(new MapperConfiguration(item => item.AddProfile<MappingProfile>()));
         }
 
         [Test]
@@ -93,6 +98,9 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                                                                         .Returns(Task.FromResult<Models.DigitalIdentity>(responsHttpBody));
             _mockDocumentDbProvider.Setup(m => m.UpdateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
                                                                         .Returns(Task.FromResult(responsHttpBody));
+            _mockDocumentDbProvider.Setup(m => m.GetCustomer(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(new Customer()));
+
 
             // Act
             var result = await RunFunction(validCustomerId, httpRequest);
@@ -217,6 +225,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 .Returns(Task.FromResult<bool>(true));
             _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
                 .Returns(Task.FromResult<Models.DigitalIdentity>(null));
+            _mockDocumentDbProvider.Setup(m => m.GetCustomer(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(new Customer()));
 
             // Act
             var result = await RunFunction(validCustomerId, httpRequest);
@@ -284,11 +294,12 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 _httpRequestHelper,
                 _httpResponseMessageHelper,
                 _jsonHelper,
-                _validate
+                _validate,
+                _mapper
             ).ConfigureAwait(false);
         }
 
-        private DefaultHttpRequest GenerateDefaultHttpRequest(Models.DigitalIdentityPatch requestBody)
+        private DefaultHttpRequest GenerateDefaultHttpRequest(DigitalIdentityPatch requestBody)
         {
             var defaultRequest = new DefaultHttpRequest(new DefaultHttpContext());
 

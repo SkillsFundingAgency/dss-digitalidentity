@@ -1,9 +1,9 @@
 ﻿using DFC.Swagger.Standard.Annotations;
+using NCS.DSS.DigitalIdentity.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace NCS.DSS.DigitalIdentity.Models
+namespace NCS.DSS.DigitalIdentity.DTO
 {
     public class DigitalIdentityPatch : IDigitalIdentity
     {
@@ -39,13 +39,5 @@ namespace NCS.DSS.DigitalIdentity.Models
         [Display(Description = "Date and time the resource was terminated.")]
         [Example(Description = "2018-06-20T13:45:00")]
         public DateTime? DateOfTermination { get; set; }
-
-
-        public void SetDefaultValues()
-        {
-            if (!LastModifiedDate.HasValue)
-                LastModifiedDate = DateTime.UtcNow;
-
-        }
     }
 }
