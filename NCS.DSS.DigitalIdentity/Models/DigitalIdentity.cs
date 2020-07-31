@@ -10,9 +10,6 @@ namespace NCS.DSS.DigitalIdentity.Models
 {
     public class DigitalIdentity 
     {
-        public DigitalIdentity()
-        {
-        }
         [Newtonsoft.Json.JsonProperty(PropertyName = "id")]
         public Guid? IdentityID { get; set; }
 
