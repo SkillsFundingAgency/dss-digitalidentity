@@ -94,6 +94,7 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
             identity.DateOfClosure = DateTime.Now;
             identity.LastModifiedTouchpointId = touchpointId;
             await _identityDeleteService.UpdateASync(identity);
+            await _serviceBus.SendPatchMessageAsync(identity, apimUrl);
 
             _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Attempting to delete identity {0}", identity?.IdentityID.Value));
             var identityDeleted = await _identityDeleteService.DeleteIdentityAsync(identity.IdentityID.Value);
