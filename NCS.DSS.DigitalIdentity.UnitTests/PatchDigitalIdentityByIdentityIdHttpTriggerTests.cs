@@ -88,7 +88,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 LegacyIdentity = httpRequestBody.LegacyIdentity,
                 id_token = httpRequestBody.id_token,
                 LastModifiedTouchpointId = TouchpointIdHeaderParamValue,
-                DateOfTermination = null,
+                DateOfClosure = null,
             };
 
             _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
@@ -204,7 +204,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 LegacyIdentity = httpRequestBody.LegacyIdentity,
                 id_token = httpRequestBody.id_token,
                 LastModifiedTouchpointId = TouchpointIdHeaderParamValue,
-                DateOfTermination = null,
+                DateOfClosure = null,
             };
 
             _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
@@ -264,7 +264,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 LegacyIdentity = httpRequestBody.LegacyIdentity,
                 id_token = httpRequestBody.id_token,
                 LastModifiedTouchpointId = TouchpointIdHeaderParamValue,
-                DateOfTermination = DateTime.UtcNow.AddDays(-1), // Ensure resource is terminated
+                DateOfClosure = DateTime.UtcNow.AddDays(-1), // Ensure resource is terminated
             };
 
             _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))

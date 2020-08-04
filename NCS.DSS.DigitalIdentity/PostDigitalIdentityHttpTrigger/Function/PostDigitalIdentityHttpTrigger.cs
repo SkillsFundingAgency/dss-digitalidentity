@@ -102,7 +102,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             if (!identityRequest.CustomerId.HasValue)
                 return httpResponseMessageHelper.UnprocessableEntity($"CustomerId is mandatory");
 
-            if (identityRequest.DateOfTermination.HasValue)
+            if (identityRequest.DateOfClosure.HasValue)
                 return httpResponseMessageHelper.UnprocessableEntity($"Date of termination cannot be set in post request!");
 
             // Check if customer exists

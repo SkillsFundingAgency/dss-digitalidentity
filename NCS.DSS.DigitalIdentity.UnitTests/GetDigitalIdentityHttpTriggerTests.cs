@@ -145,7 +145,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 LegacyIdentity = Guid.NewGuid().ToString(),
                 id_token = "test_token",
                 LastModifiedTouchpointId = TouchpointIdHeaderParamValue,
-                DateOfTermination = null,
+                DateOfClosure = null,
             };
         }
 
