@@ -91,7 +91,7 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
             }
 
             //trigger change feed
-            identity.DateOfTermination = DateTime.Now;
+            identity.DateOfClosure = DateTime.Now;
             identity.LastModifiedTouchpointId = touchpointId;
             await _identityDeleteService.UpdateASync(identity);
 
