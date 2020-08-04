@@ -51,7 +51,8 @@ namespace NCS.DSS.DigitalIdentity.Services
                 CreateDigitalIdentity= digitalIdentity.CreateDigitalIdentity ?? false,
                 IsDigitalAccount = digitalIdentity.IsDigitalAccount ?? false,
                 DeleteDigitalIdentity = digitalIdentity.DeleteDigitalIdentity ?? false,
-                PatchDigitalIdentity = digitalIdentity.DeleteDigitalIdentity ?? false
+                IdentityStoreId = digitalIdentity.IdentityStoreId ?? null,
+                DoB = digitalIdentity.DoB ?? null
             };
             var msg = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(sbMessage)));
             await queueClient.SendAsync(msg);

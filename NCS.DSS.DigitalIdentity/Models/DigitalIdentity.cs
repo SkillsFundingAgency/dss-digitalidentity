@@ -10,9 +10,6 @@ namespace NCS.DSS.DigitalIdentity.Models
 {
     public class DigitalIdentity 
     {
-        public DigitalIdentity()
-        {
-        }
         [Newtonsoft.Json.JsonProperty(PropertyName = "id")]
         public Guid? IdentityID { get; set; }
 
@@ -53,7 +50,7 @@ namespace NCS.DSS.DigitalIdentity.Models
         public bool? DeleteDigitalIdentity { get; private set; }
         [IgnoreDataMember]
         [JsonIgnoreOnSerialize]
-        public bool? PatchDigitalIdentity { get; private set; }
+        public DateTime? DoB { get; private set; }
 
         public void SetDefaultValues()
         {
@@ -77,7 +74,6 @@ namespace NCS.DSS.DigitalIdentity.Models
         {
             DeleteDigitalIdentity = true;
             IsDigitalAccount = true;
-            PatchDigitalIdentity = false;
             CreateDigitalIdentity = false;
         }
 
@@ -109,11 +105,6 @@ namespace NCS.DSS.DigitalIdentity.Models
 
             LastModifiedTouchpointId = identityRequestPatch.LastModifiedTouchpointId;
             LastModifiedDate = DateTime.UtcNow;
-
-            CreateDigitalIdentity = false;
-            DeleteDigitalIdentity = false;
-            IsDigitalAccount = true;
-            PatchDigitalIdentity = true;
         }
     }
 }
