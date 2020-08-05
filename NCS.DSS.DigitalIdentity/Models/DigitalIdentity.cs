@@ -33,6 +33,9 @@ namespace NCS.DSS.DigitalIdentity.Models
         [JsonIgnoreOnSerialize]
         public string CreatedBy { get; set; }
 
+        [Newtonsoft.Json.JsonProperty(PropertyName = "ttl", NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? ttl { get; set; }
+
         [IgnoreDataMember]
         [JsonIgnoreOnSerialize]
         public string EmailAddress { get; private set; }

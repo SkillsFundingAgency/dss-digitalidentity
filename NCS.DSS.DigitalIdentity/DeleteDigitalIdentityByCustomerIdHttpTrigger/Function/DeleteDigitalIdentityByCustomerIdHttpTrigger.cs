@@ -93,22 +93,19 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
             //trigger change feed
             identity.DateOfClosure = DateTime.Now;
             identity.LastModifiedTouchpointId = touchpointId;
+            //Set ttl to delete record so that audit history has time to update tables
+            //TODO: Get devops to set ttl on collection in each environment
+            identity.ttl = 10; //ttl is in seconds
             await _identityDeleteService.UpdateASync(identity);
-            await _serviceBus.SendPatchMessageAsync(identity, apimUrl);
 
             _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Attempting to delete identity {0}", identity?.IdentityID.Value));
-            var identityDeleted = await _identityDeleteService.DeleteIdentityAsync(identity.IdentityID.Value);
-
-            if (identityDeleted)
-            {
-                identity.SetDeleted();
-                await _serviceBus.SendDeleteMessageAsync(identity, apimUrl);
-            }
 
 
-            return !identityDeleted ?
-                _httpResponseMessageHelper.BadRequest(customerGuid) :
-                _httpResponseMessageHelper.Ok();
+            //Do we just trust that ttl will delete the record?
+            identity.SetDeleted();
+            await _serviceBus.SendDeleteMessageAsync(identity, apimUrl);
+
+            return _httpResponseMessageHelper.Ok();
         }
     }
 }
