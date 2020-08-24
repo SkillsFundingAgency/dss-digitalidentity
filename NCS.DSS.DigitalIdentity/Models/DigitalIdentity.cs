@@ -27,7 +27,6 @@ namespace NCS.DSS.DigitalIdentity.Models
 
         public DateTime? DateOfClosure { get; set; }
 
-        [JsonIgnoreOnSerialize]
         public string CreatedBy { get; set; }
 
         [Newtonsoft.Json.JsonProperty(PropertyName = "ttl", NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
