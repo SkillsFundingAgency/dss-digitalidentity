@@ -6,7 +6,8 @@
           {
             "CollectionName": "digitalidentities",
             "OfferThroughput": 1000,
-            "StoredProcedures": []
+            "StoredProcedures": [],
+            "DefaultTimeToLive": -1
           }
         ]
       }
