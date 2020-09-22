@@ -308,7 +308,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 LegacyIdentity = httpRequestBody.LegacyIdentity,
                 id_token = httpRequestBody.id_token,
                 LastModifiedTouchpointId = TouchpointIdHeaderParamValue,
-                DateOfTermination = null,
+                DateOfClosure = null,
             };
         }
 

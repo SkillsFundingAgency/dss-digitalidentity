@@ -136,7 +136,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             }
 
             // Check if resource terminated
-            if (digitalIdentity.DateOfTermination.HasValue && digitalIdentity.DateOfTermination.Value  < DateTime.UtcNow)
+            if (digitalIdentity.DateOfClosure.HasValue && digitalIdentity.DateOfClosure.Value  < DateTime.UtcNow)
             {
                 loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Patch requested on terminated resource {0}", identityGuid));
                 return httpResponseMessageHelper.UnprocessableEntity();

@@ -25,10 +25,12 @@ namespace NCS.DSS.DigitalIdentity.Models
 
         public string LastModifiedTouchpointId { get; set; }
 
-        public DateTime? DateOfTermination { get; set; }
+        public DateTime? DateOfClosure { get; set; }
 
-        [JsonIgnoreOnSerialize]
         public string CreatedBy { get; set; }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "ttl", NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? ttl { get; set; }
 
         [IgnoreDataMember]
         [JsonIgnoreOnSerialize]
