@@ -1,5 +1,6 @@
 ﻿using NCS.DSS.DigitalIdentity.Models;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
@@ -22,5 +23,6 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
         Task<Contact> GetCustomerContact(Guid customerId);
         Task<Customer> GetCustomer(Guid customerId);
         Task<bool> DoesContactDetailsWithEmailExists(string emailAddressToCheck);
+        IList<NCS.DSS.DigitalIdentity.Models.DigitalIdentity> GetUnactivatedAccounts();
     }
 }

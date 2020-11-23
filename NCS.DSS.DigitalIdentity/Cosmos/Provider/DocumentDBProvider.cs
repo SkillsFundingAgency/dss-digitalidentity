@@ -5,6 +5,7 @@ using NCS.DSS.DigitalIdentity.Cosmos.Client;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -172,6 +173,20 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 
             var contactDetails = await contactDetailsForEmailQuery.ExecuteNextAsync<Contact>();
             return contactDetails.Any();
+        }
+
+        public IList<Models.DigitalIdentity> GetUnactivatedAccounts()
+        {
+            var collectionUri = DocumentDBHelper.CreateDocumentCollectionUri();
+
+            var client = DocumentDBClient.CreateDocumentClient();
+
+            var identityForCustomerQuery = client
+                ?.CreateDocumentQuery<Models.DigitalIdentity>(collectionUri, new FeedOptions { })
+                .Where(x => x.IdentityStoreId == null && x.LastModifiedDate < DateTime.Now.AddMonths(-1))
+                .ToList();
+
+            return identityForCustomerQuery;
         }
     }
 }
