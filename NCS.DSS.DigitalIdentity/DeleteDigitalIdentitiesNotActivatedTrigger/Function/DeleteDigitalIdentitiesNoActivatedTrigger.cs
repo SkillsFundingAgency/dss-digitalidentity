@@ -1,28 +1,22 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
-using NCS.DSS.DigitalIdentity.Interfaces;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentitiesNotActivatedTrigger.Function
 {
     public class DeleteDigitalIdentitiesNoActivatedTrigger
     {
-        private readonly IDigitalIdentityService _identityDeleteService;
-        private readonly ILogger<DeleteDigitalIdentitiesNoActivatedTrigger> _logger;
         private readonly IDocumentDBProvider _resourceHelper;
-        public DeleteDigitalIdentitiesNoActivatedTrigger(IDigitalIdentityService deleteService, ILogger<DeleteDigitalIdentitiesNoActivatedTrigger> logger, IDocumentDBProvider resourceHelper)
+        public DeleteDigitalIdentitiesNoActivatedTrigger( IDocumentDBProvider resourceHelper)
         {
-            _identityDeleteService = deleteService;
-            _logger = logger;
             _resourceHelper = resourceHelper;
         }
 
-
         [FunctionName("DeleteDigitalIdentitiesNoActivatedTrigger")]
-        public async Task Run([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("%DeleteDigitalIdentitiesNoActivatedTrigger%")] TimerInfo myTimer, ILogger log)
         {
             var unactivated = _resourceHelper.GetUnactivatedAccounts();
             foreach (var di in unactivated)
@@ -30,16 +24,19 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentitiesNotActivatedTrigger.Fun
                 try
                 {
                     di.DateOfClosure = DateTime.Now;
-                    //       di.LastModifiedTouchpointId = "Automatically deleted by DeleteDigitalIdentitiesNoActivatedTrigger";
-                    //       await _identityDeleteService.UpdateASync(identity);
+                    di.ttl = 10;
+                    //di.LastModifiedTouchpointId = "Automatically deleted by DeleteDigitalIdentitiesNoActivatedTrigger";
+                    //await _identityDeleteService.UpdateASync(di);
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError($"Error occurred when attempted to delete unactivated DigitalIdentity: {di.IdentityID} ");
+                    log.LogError($"Error occurred when attempted to delete unactivated DigitalIdentity: {di.IdentityID} - {e.InnerException}");
                 }
 
-                _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+                log.LogInformation($"Automatically removed {unactivated?.Count()}");
             }
+
+            log.LogInformation($"Automatically removed {unactivated?.Count()} old Digital Identities");
         }
     }
 }
