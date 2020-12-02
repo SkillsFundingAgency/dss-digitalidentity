@@ -183,7 +183,7 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 
             var identityForCustomerQuery = client
                 ?.CreateDocumentQuery<Models.DigitalIdentity>(collectionUri, new FeedOptions { })
-                .Where(x => x.IdentityStoreId == null && x.LastModifiedDate < DateTime.Now.AddMonths(-1))
+                .Where(x => x.IdentityStoreId == null && x.LastModifiedDate < DateTime.Now.AddMonths(-1) && x.DateOfClosure.HasValue)
                 .ToList();
 
             return identityForCustomerQuery;
