@@ -35,7 +35,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         [Response(HttpStatusCode = (int)422, Description = "Digital Identity resource validation error(s)", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Conflict, Description = "Duplicate Email Address", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
-        [PostRequestBody(typeof(Models.DigitalIdentity), "Digital Identity Request body")]
+        [PostRequestBody(typeof(DigitalIdentityPost), "Digital Identity Request body")]
         public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "identity")] HttpRequest req, ILogger log,
             [Inject] IDigitalIdentityService identityPostService,
             [Inject] ILoggerHelper loggerHelper,
