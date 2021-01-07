@@ -114,7 +114,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             }
 
             // Check if customer exists then validate
-            if (digitalPatchRequest.CustomerId.HasValue)
+            if (!(digitalPatchRequest.CustomerId.Equals(Guid.Empty)))
             {
                 var doesCustomerExists = await identityPatchService.DoesCustomerExists(digitalPatchRequest.CustomerId);
 

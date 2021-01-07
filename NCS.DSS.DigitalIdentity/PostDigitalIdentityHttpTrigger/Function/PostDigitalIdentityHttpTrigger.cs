@@ -35,6 +35,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         [Response(HttpStatusCode = (int)422, Description = "Digital Identity resource validation error(s)", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Conflict, Description = "Duplicate Email Address", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
+        [PostRequestBody(typeof(Models.DigitalIdentity), "Digital Identity Request body")]
         public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "identity")] HttpRequest req, ILogger log,
             [Inject] IDigitalIdentityService identityPostService,
             [Inject] ILoggerHelper loggerHelper,
@@ -99,7 +100,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.UnprocessableEntity();
             }
 
-            if (!identityRequest.CustomerId.HasValue)
+            if (identityRequest.CustomerId.Equals(Guid.Empty))
                 return httpResponseMessageHelper.UnprocessableEntity($"CustomerId is mandatory");
 
             if (identityRequest.DateOfClosure.HasValue)
@@ -112,8 +113,8 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
 
             var model = mapper.Map<Models.DigitalIdentity>(identityRequest);
 
-            var customer = await provider.GetCustomer(identityRequest.CustomerId.Value);
-            var contact = await provider.GetCustomerContact(identityRequest.CustomerId.Value);
+            var customer = await provider.GetCustomer(identityRequest.CustomerId);
+            var contact = await provider.GetCustomerContact(identityRequest.CustomerId);
             model.SetCreateDigitalIdentity(contact?.EmailAddress, customer?.GivenName, customer?.FamilyName);
 
             //Customer exists check
@@ -126,7 +127,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             }
 
             //only validate through posting a new digital identity 
-            var digitalIdentity = await provider.GetIdentityForCustomerAsync(model.CustomerId.GetValueOrDefault());
+            var digitalIdentity = await provider.GetIdentityForCustomerAsync(model.CustomerId);
             if (digitalIdentity != null)
                 return httpResponseMessageHelper.UnprocessableEntity($"Digital Identity for customer {model.CustomerId} already exists.");
 

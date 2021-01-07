@@ -13,7 +13,7 @@ namespace NCS.DSS.DigitalIdentity.Models
         [Newtonsoft.Json.JsonProperty(PropertyName = "id")]
         public Guid? IdentityID { get; set; }
 
-        public Guid? CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
 
         public Guid? IdentityStoreId { get; set; }
         public string LegacyIdentity { get; set; }
