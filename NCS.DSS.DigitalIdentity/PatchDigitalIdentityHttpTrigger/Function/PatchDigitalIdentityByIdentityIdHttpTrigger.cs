@@ -32,6 +32,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Response(HttpStatusCode = (int)422, Description = "Digital Identity resource validation error(s)", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
+        [PostRequestBody(typeof(DigitalIdentityPatch), "Digital Identity Request body")]
         public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "identity/{IdentityId}")] HttpRequest req, ILogger log,
             string IdentityId,
             [Inject]IDigitalIdentityService identityPatchService,
@@ -114,7 +115,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             }
 
             // Check if customer exists then validate
-            if (digitalPatchRequest.CustomerId.HasValue)
+            if (!(digitalPatchRequest.CustomerId.Equals(Guid.Empty)))
             {
                 var doesCustomerExists = await identityPatchService.DoesCustomerExists(digitalPatchRequest.CustomerId);
 
