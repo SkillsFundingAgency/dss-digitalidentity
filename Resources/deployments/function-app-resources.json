@@ -34,6 +34,9 @@
     },
     "storageAccountKey": {
       "type": "string"
+    },
+    "DeleteDigitalIdentitiesNotActivatedTrigger": {
+      "type": "string"
     }
   },
   "variables": {
@@ -130,6 +133,10 @@
             {
               "name": "ContactsDatabaseId",
               "value": "contacts"
+            },
+            {
+              "name": "DeleteDigitalIdentitiesNotActivatedTrigger",
+              "value": "[parameters('DeleteDigitalIdentitiesNotActivatedTrigger')]"
             }
           ]
         }
