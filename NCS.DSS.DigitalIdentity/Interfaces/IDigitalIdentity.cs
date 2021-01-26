@@ -9,6 +9,6 @@ namespace NCS.DSS.DigitalIdentity.Interfaces
         DateTime? LastLoggedInDateTime { get; set; }
         DateTime? LastModifiedDate { get; set; }
         string LastModifiedTouchpointId { get; set; }
-        Guid? CustomerId { get; set; }
+        Guid CustomerId { get; set; }
     }
 }

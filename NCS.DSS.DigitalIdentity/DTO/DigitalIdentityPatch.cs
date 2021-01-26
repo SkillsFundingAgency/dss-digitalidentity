@@ -11,9 +11,10 @@ namespace NCS.DSS.DigitalIdentity.DTO
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
         public Guid? IdentityStoreID { get; set; }
 
+        [Required]
         [Display(Description = "Unique identifier of a customer.")]
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
-        public Guid? CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
 
         [Display(Description = "Unique identifier as used by legacy live services.")]
         public string LegacyIdentity { get; set; }

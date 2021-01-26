@@ -40,6 +40,9 @@
     },
     "templateBaseUrl": {
       "type": "string"
+    },
+    "DeleteDigitalIdentitiesNotActivatedTrigger": {
+      "type": "string"
     }
   },
     "variables": {
@@ -90,6 +93,9 @@
                 },
                 "serviceBusQueueName": {
                   "value": "[parameters('serviceBusQueueName')]"
+                },
+                "DeleteDigitalIdentitiesNotActivatedTrigger": {
+                  "value": "[parameters('DeleteDigitalIdentitiesNotActivatedTrigger')]"
                 }
               }
             },

@@ -40,6 +40,9 @@
         },
         "templateBaseUrl": {
             "value": "__NestedArmTemplateBaseUrl__"
+        },
+        "DeleteDigitalIdentitiesNotActivatedTrigger": {
+            "value": "__DeleteDigitalIdentitiesNotActivatedTrigger__"
         }
     }
 }

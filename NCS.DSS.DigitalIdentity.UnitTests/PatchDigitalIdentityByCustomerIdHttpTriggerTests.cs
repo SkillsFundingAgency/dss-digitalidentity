@@ -199,7 +199,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
             Models.DigitalIdentity responsHttpBody = null;
 
-            _mockDocumentDbProvider.Setup(m => m.GetIdentityForCustomerAsync(httpRequestBody.CustomerId.Value))
+            _mockDocumentDbProvider.Setup(m => m.GetIdentityForCustomerAsync(httpRequestBody.CustomerId))
                                     .Returns(Task.FromResult(responsHttpBody));
             _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
                                     .Returns(Task.FromResult<bool>(false));
