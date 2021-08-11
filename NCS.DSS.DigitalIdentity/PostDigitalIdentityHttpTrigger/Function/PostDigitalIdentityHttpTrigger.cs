@@ -131,6 +131,12 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             if (digitalIdentity != null)
                 return httpResponseMessageHelper.UnprocessableEntity($"Digital Identity for customer {model.CustomerId} already exists.");
 
+            if (model.LastLoggedInDateTime.HasValue && (!touchpointId.Equals("0000000997") && !touchpointId.Equals("1000000000")))
+            {
+                //LastLoggedIn Patch can only happen from 0000000997 or 1000000000
+                return httpResponseMessageHelper.UnprocessableEntity($"LastLoggedInDateTime is readonly");
+            }
+
             //email address check
             if (!string.IsNullOrEmpty(model.EmailAddress))
             {

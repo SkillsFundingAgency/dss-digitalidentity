@@ -136,6 +136,11 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.NoContent(identityGuid);
             }
 
+            if (digitalIdentity.LastLoggedInDateTime.HasValue && (!touchpointId.Equals("0000000997") && !touchpointId.Equals("1000000000")))
+            {
+                return httpResponseMessageHelper.UnprocessableEntity($"LastLoggedInDateTime is readonly");
+            }
+
             // Check if resource terminated
             if (digitalIdentity.DateOfClosure.HasValue && digitalIdentity.DateOfClosure.Value  < DateTime.UtcNow)
             {

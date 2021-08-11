@@ -30,7 +30,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private const string ApimUrlHeaderParameterKey = "apimurl";
 
         private string ApimUrlHeaderParameterValue = "http://localhost:7071/";
-        private string TouchpointIdHeaderParamValue = "9000000000";
+        private string TouchpointIdHeaderParamValue = "1000000000";
+        private string NonFrontendTouchpointId = "9000000000";
 
         private Mock<ILogger> _mockLog;
         private Mock<IDocumentDBProvider> _mockDocumentDbProvider;
@@ -226,6 +227,33 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var httpRequestBody = GenerateDefaultPostRequestBody();
             var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
             Models.DigitalIdentity responsHttpBody = null;
+
+            _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
+                .Returns(Task.FromResult<bool>(true));
+            _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(responsHttpBody));
+            _mockDocumentDbProvider.Setup(m => m.CreateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
+                .Returns(Task.FromResult(responsHttpBody));
+            _mockDocumentDbProvider.Setup(m => m.GetIdentityForCustomerAsync(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(responsHttpBody));
+
+            // Act
+            var result = await RunFunction(httpRequest);
+
+            // Assert
+            Assert.IsInstanceOf<HttpResponseMessage>(result);
+            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
+        }
+
+        [Test]
+        public async Task GivenValidPostRequest_WhenNonFrontendTouchpointUpdatesLastLoggedInDate_ThenReturnError()
+        {
+            // Arrange
+            var httpRequestBody = GenerateDefaultPostRequestBody();
+            var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
+            Models.DigitalIdentity responsHttpBody = null;
+            httpRequest.Headers.Remove(TouchpointIdHeaderParamKey);
+            httpRequest.Headers.Add(TouchpointIdHeaderParamKey, NonFrontendTouchpointId);
 
             _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
                 .Returns(Task.FromResult<bool>(true));
