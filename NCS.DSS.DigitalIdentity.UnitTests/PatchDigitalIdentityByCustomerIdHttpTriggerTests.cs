@@ -4,6 +4,7 @@ using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
@@ -21,6 +22,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.UnitTests
@@ -50,6 +52,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private IJsonHelper _jsonHelper;
         private IValidate _validate;
         private IMapper _mapper;
+        private IConfiguration _config;
 
         [SetUp]
         public void Setup()
@@ -72,6 +75,47 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 new DigitalIdentityService(_mockDocumentDbProvider.Object,
                     _mockDigitalIdentityServiceBusClient.Object);
             _mapper = new Mapper(new MapperConfiguration(item => item.AddProfile<MappingProfile>()));
+            var json = "{ \"Values\": { \"TouchPointsPermittedToUpdateLastLoggedIn\": \"0000000997,1000000000\" }}";
+            _config = new ConfigurationBuilder().AddJsonStream(new MemoryStream(Encoding.ASCII.GetBytes(json))).Build();
+
+        }
+
+        [Test]
+        public async Task GivenIdentityResourceExists_NotPermittedToUpdateLastLoggedInDate_ThenResourceIsNoUpdated()
+        {
+            // Arrange
+            var json = "{ \"Values\": { \"TouchPointsPermittedToUpdateLastLoggedIn\": \"2222222222,1111111111\" }}";
+            _config = new ConfigurationBuilder().AddJsonStream(new MemoryStream(Encoding.ASCII.GetBytes(json))).Build();
+            var httpRequestBody = GenerateDefaultPatchRequestBody();
+            var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
+            var responsHttpBody = new Models.DigitalIdentity()
+            {
+                IdentityID = Guid.Parse(validCustomerId),
+                CustomerId = httpRequestBody.CustomerId,
+                IdentityStoreId = httpRequestBody.IdentityStoreID,
+                LastLoggedInDateTime = httpRequestBody.LastLoggedInDateTime,
+                LastModifiedDate = DateTime.UtcNow,
+                LegacyIdentity = httpRequestBody.LegacyIdentity,
+                id_token = httpRequestBody.id_token,
+                LastModifiedTouchpointId = TouchpointIdHeaderParamValue,
+                DateOfClosure = null,
+            };
+
+            _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
+                                                                        .Returns(Task.FromResult<bool>(true));
+            _mockDocumentDbProvider.Setup(m => m.GetIdentityForCustomerAsync(It.IsAny<Guid>()))
+                                                                        .Returns(Task.FromResult<Models.DigitalIdentity>(responsHttpBody));
+            _mockDocumentDbProvider.Setup(m => m.UpdateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
+                                                                        .Returns(Task.FromResult(responsHttpBody));
+            _mockDocumentDbProvider.Setup(m => m.GetCustomer(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(new Customer()));
+
+
+            // Act
+            var result = await RunFunction(validCustomerId, httpRequest);
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
         }
 
         [Test]
@@ -335,7 +379,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 _httpResponseMessageHelper,
                 _jsonHelper,
                 _validate,
-                _mapper
+                _mapper,
+                _config
             ).ConfigureAwait(false);
         }
 

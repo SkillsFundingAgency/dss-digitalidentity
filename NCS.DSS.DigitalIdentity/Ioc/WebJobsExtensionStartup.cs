@@ -6,6 +6,7 @@ using DFC.JSON.Standard;
 using DFC.Swagger.Standard;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
@@ -14,6 +15,8 @@ using NCS.DSS.DigitalIdentity.Ioc;
 using NCS.DSS.DigitalIdentity.Mappings;
 using NCS.DSS.DigitalIdentity.Services;
 using NCS.DSS.DigitalIdentity.Validation;
+using System.Configuration;
+using System.IO;
 
 [assembly: WebJobsStartup(typeof(WebJobsExtensionStartup), "Web Jobs Extension Startup")]
 
@@ -40,6 +43,12 @@ namespace NCS.DSS.DigitalIdentity.Ioc
             builder.Services.AddLogging();
 
             builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+            IConfiguration configuration = new ConfigurationBuilder()
+                            .SetBasePath(Directory.GetCurrentDirectory())
+                            .AddJsonFile("local.settings.json", optional: false, reloadOnChange: true)
+                            .AddEnvironmentVariables()
+                            .Build();
+            builder.Services.AddSingleton(configuration);
 
             //builder.Services.AddScoped<IDeleteDigitalIdentityHttpTriggerService, DeleteDigitalIdentityHttpTriggerService>();
             //builder.Services.AddScoped<IDeleteDigitalIdentityByCustomerIdHttpTriggerService, DeleteDigitalIdentityByCustomerIdHttpTriggerService>();

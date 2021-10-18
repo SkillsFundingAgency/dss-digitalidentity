@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
@@ -41,9 +42,11 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,
             [Inject]IJsonHelper jsonHelper,
             [Inject]IValidate validate,
-            [Inject] IMapper mapper)
+            [Inject] IMapper mapper,
+            [Inject] IConfiguration config)
         {
             loggerHelper.LogMethodEnter(log);
+            var touchPointsPermittedToUpdateLastLoggedIn = config.GetSection("Values")?.GetValue<string>("TouchPointsPermittedToUpdateLastLoggedIn")?.Split(",") ?? new string[0];
 
             // Get Correlation Id
             var correlationId = httpRequestHelper.GetDssCorrelationId(req);
@@ -134,7 +137,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.NoContent(customerGuid);
             }
 
-            if (digitalIdentity.LastLoggedInDateTime.HasValue && (!touchpointId.Equals("0000000997") && !touchpointId.Equals("1000000000")))
+            if (digitalPatchRequest.LastLoggedInDateTime.HasValue && !touchPointsPermittedToUpdateLastLoggedIn.Contains(touchpointId))
             {
                 return httpResponseMessageHelper.UnprocessableEntity($"LastLoggedInDateTime is readonly");
             }
