@@ -101,7 +101,7 @@
                   "value": "[parameters('DeleteDigitalIdentitiesNotActivatedTrigger')]"
                 },
                 "TouchPointsPermittedToUpdateLastLoggedIn": {
-                  "value": "[parameters(TouchPointsPermittedToUpdateLastLoggedIn')]"
+                  "value": "[parameters('TouchPointsPermittedToUpdateLastLoggedIn')]"
                 }
               }
             },
