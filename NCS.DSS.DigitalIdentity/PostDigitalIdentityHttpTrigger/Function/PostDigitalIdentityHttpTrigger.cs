@@ -52,7 +52,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         {
             DigitalIdentityPost identityRequest;
             loggerHelper.LogMethodEnter(log);
-            var touchPointsPermittedToUpdateLastLoggedIn = config.GetSection("Values")?.GetValue<string>("TouchPointsPermittedToUpdateLastLoggedIn")?.Split(",") ?? new string[0];
+            var touchPointsPermittedToUpdateLastLoggedIn = config["TouchPointsPermittedToUpdateLastLoggedIn"]?.Split(",") ?? new string[0];
 
             //Get Correlation Id
             var correlationId = httpRequestHelper.GetDssCorrelationId(req);

@@ -73,7 +73,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _jsonHelper = new JsonHelper();
             _getDigitalIdentityHttpTriggerService = new GetDigitalIdentityHttpTriggerService(_mockDocumentDbProvider.Object);
             _mapper = new Mapper(new MapperConfiguration(item => item.AddProfile<MappingProfile>()));
-            var json = "{ \"Values\": { \"TouchPointsPermittedToUpdateLastLoggedIn\": \"0000000997,1000000000\" }}";
+            var json = "{ \"TouchPointsPermittedToUpdateLastLoggedIn\": \"0000000997,1000000000\" }";
             _config = new ConfigurationBuilder().AddJsonStream(new MemoryStream(Encoding.ASCII.GetBytes(json))).Build();
 
         }

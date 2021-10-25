@@ -75,7 +75,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 new DigitalIdentityService(_mockDocumentDbProvider.Object,
                     _mockDigitalIdentityServiceBusClient.Object);
             _mapper = new Mapper(new MapperConfiguration(item => item.AddProfile<MappingProfile>()));
-            var json = "{ \"Values\": { \"TouchPointsPermittedToUpdateLastLoggedIn\": \"0000000997,1000000000\" }}";
+            var json = "{ \"TouchPointsPermittedToUpdateLastLoggedIn\": \"0000000997,1000000000\" }";
             _config = new ConfigurationBuilder().AddJsonStream(new MemoryStream(Encoding.ASCII.GetBytes(json))).Build();
 
         }
@@ -84,7 +84,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         public async Task GivenIdentityResourceExists_NotPermittedToUpdateLastLoggedInDate_ThenResourceIsNoUpdated()
         {
             // Arrange
-            var json = "{ \"Values\": { \"TouchPointsPermittedToUpdateLastLoggedIn\": \"2222222222,1111111111\" }}";
+            var json = "{ \"TouchPointsPermittedToUpdateLastLoggedIn\": \"2222222222,1111111111\" }";
             _config = new ConfigurationBuilder().AddJsonStream(new MemoryStream(Encoding.ASCII.GetBytes(json))).Build();
             var httpRequestBody = GenerateDefaultPatchRequestBody();
             var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
