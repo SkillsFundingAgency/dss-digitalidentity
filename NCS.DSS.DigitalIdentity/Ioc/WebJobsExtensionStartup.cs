@@ -45,7 +45,7 @@ namespace NCS.DSS.DigitalIdentity.Ioc
             builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
             IConfiguration configuration = new ConfigurationBuilder()
                             .SetBasePath(Directory.GetCurrentDirectory())
-                            .AddJsonFile("local.settings.json", optional: false, reloadOnChange: true)
+                            .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
                             .AddEnvironmentVariables()
                             .Build();
             builder.Services.AddSingleton(configuration);
