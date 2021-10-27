@@ -43,6 +43,9 @@
     },
     "DeleteDigitalIdentitiesNotActivatedTrigger": {
       "type": "string"
+    },
+    "TouchPointsPermittedToUpdateLastLoggedIn": {
+      "type": "string"
     }
   },
     "variables": {
@@ -96,6 +99,9 @@
                 },
                 "DeleteDigitalIdentitiesNotActivatedTrigger": {
                   "value": "[parameters('DeleteDigitalIdentitiesNotActivatedTrigger')]"
+                },
+                "TouchPointsPermittedToUpdateLastLoggedIn": {
+                  "value": "[parameters('TouchPointsPermittedToUpdateLastLoggedIn')]"
                 }
               }
             },

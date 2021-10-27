@@ -43,6 +43,9 @@
         },
         "DeleteDigitalIdentitiesNotActivatedTrigger": {
             "value": "__DeleteDigitalIdentitiesNotActivatedTrigger__"
+        },
+        "TouchPointsPermittedToUpdateLastLoggedIn": {
+            "value": "__TouchPointsPermittedToUpdateLastLoggedIn__"
         }
     }
 }

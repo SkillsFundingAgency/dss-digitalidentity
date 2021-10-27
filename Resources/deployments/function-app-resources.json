@@ -37,6 +37,9 @@
     },
     "DeleteDigitalIdentitiesNotActivatedTrigger": {
       "type": "string"
+    },
+     "TouchPointsPermittedToUpdateLastLoggedIn": {
+      "type": "string"
     }
   },
   "variables": {
@@ -133,6 +136,10 @@
             {
               "name": "ContactsDatabaseId",
               "value": "contacts"
+            },
+            {
+              "name": "TouchPointsPermittedToUpdateLastLoggedIn",
+              "value": "[parameters('TouchPointsPermittedToUpdateLastLoggedIn')]"
             },
             {
               "name": "DeleteDigitalIdentitiesNotActivatedTrigger",
