@@ -45,6 +45,8 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
             var apimUrl = _httpRequestHelper.GetDssApimUrl(req);
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
+            var subcontractorId = _httpRequestHelper.GetDssSubcontractorId(req);
+
 
             _loggerHelper.LogMethodEnter(_logger);
 
@@ -63,6 +65,12 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
             if (string.IsNullOrEmpty(touchpointId))
             {
                 _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Unable to locate 'TouchpointId' in request header");
+                return _httpResponseMessageHelper.BadRequest();
+            }
+
+            if (string.IsNullOrEmpty(subcontractorId))
+            {
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Unable to locate 'SubcontractorId' in request header");
                 return _httpResponseMessageHelper.BadRequest();
             }
 
