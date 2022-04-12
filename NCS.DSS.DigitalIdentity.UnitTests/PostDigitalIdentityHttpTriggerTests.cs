@@ -27,10 +27,12 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
     public class PostDigitalIdentityHttpTriggerTests
     {
         private const string TouchpointIdHeaderParamKey = "touchpointId";
+        private const string SubcontractorIdHeaderParamKey = "subcontractorId";
         private const string ApimUrlHeaderParameterKey = "apimurl";
 
         private string ApimUrlHeaderParameterValue = "http://localhost:7071/";
         private string TouchpointIdHeaderParamValue = "9000000000";
+        private string SubcontractorIdHeaderParamValue = "9999999999";
 
         private Mock<ILogger> _mockLog;
         private Mock<IDocumentDBProvider> _mockDocumentDbProvider;
@@ -105,6 +107,23 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var httpRequestBody = GenerateDefaultPostRequestBody();
             var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
             httpRequest.Headers.Remove(TouchpointIdHeaderParamKey);
+
+            // Act
+            var result = await RunFunction(httpRequest);
+
+            // Assert
+            Assert.IsInstanceOf<HttpResponseMessage>(result);
+            Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+            _loggerHelper.Verify(l => l.LogInformationMessage(_mockLog.Object, It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GivenValidPostRequest_WhenSubcontractorIdMissing_ThenReturnBadRequest()
+        {
+            // Arrange
+            var httpRequestBody = GenerateDefaultPostRequestBody();
+            var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
+            httpRequest.Headers.Remove(SubcontractorIdHeaderParamKey);
 
             // Act
             var result = await RunFunction(httpRequest);
@@ -277,6 +296,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var defaultRequest = new DefaultHttpRequest(new DefaultHttpContext());
 
             defaultRequest.Headers.Add(TouchpointIdHeaderParamKey, TouchpointIdHeaderParamValue);
+            defaultRequest.Headers.Add(SubcontractorIdHeaderParamKey, SubcontractorIdHeaderParamValue);
             defaultRequest.Headers.Add(ApimUrlHeaderParameterKey, ApimUrlHeaderParameterValue);
             defaultRequest.Body = GenerateStreamFromJson(JsonConvert.SerializeObject(requestBody));
 

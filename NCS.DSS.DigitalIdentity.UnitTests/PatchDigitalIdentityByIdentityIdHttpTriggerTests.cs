@@ -29,10 +29,12 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
     public class PatchDigitalIdentityByIdentityIdHttpTriggerTests
     {
         private const string TouchpointIdHeaderParamKey = "touchpointId";
+        private const string SubcontractorIdHeaderParamKey = "subcontractorId";
         private const string ApimUrlHeaderParameterKey = "apimurl";
 
         private string ApimUrlHeaderParameterValue = "http://localhost:7071/";
         private string TouchpointIdHeaderParamValue = "9000000000";
+        private string SubcontractorIdHeaderParamValue = "9000000000";
         private string validIdentityId = "7acfc365-dfa0-6f84-46f3-eb767420aaaa";
 
         private Mock<ILogger> _mockLog;
@@ -114,6 +116,26 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
         [Test]
         public async Task GivenIdentityResourceExists_WhenTouchPointIdMissing_ThenReturnBadRequest()
+        {
+            // Arrange
+            var httpRequestBody = GenerateDefaultPatchRequestBody();
+            var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
+            httpRequest.Headers.Remove(TouchpointIdHeaderParamKey);
+
+            _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
+                                                                        .Returns(Task.FromResult<bool>(true));
+
+            var result = await RunFunction(validIdentityId, httpRequest);
+            // Act
+
+            // Assert
+            Assert.IsInstanceOf<HttpResponseMessage>(result);
+            Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+            _loggerHelper.Verify(l => l.LogInformationMessage(_mockLog.Object, It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GivenIdentityResourceExists_WhenSubcontractorIdMissing_ThenReturnBadRequest()
         {
             // Arrange
             var httpRequestBody = GenerateDefaultPatchRequestBody();
@@ -314,6 +336,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var defaultRequest = new DefaultHttpRequest(new DefaultHttpContext());
 
             defaultRequest.Headers.Add(TouchpointIdHeaderParamKey, TouchpointIdHeaderParamValue);
+            defaultRequest.Headers.Add(SubcontractorIdHeaderParamKey, SubcontractorIdHeaderParamValue);
             defaultRequest.Headers.Add(ApimUrlHeaderParameterKey, ApimUrlHeaderParameterValue);
             defaultRequest.Body = GenerateStreamFromJson(JsonConvert.SerializeObject(requestBody));
 

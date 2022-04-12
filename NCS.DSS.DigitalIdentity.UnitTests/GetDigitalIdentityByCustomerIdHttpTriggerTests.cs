@@ -23,10 +23,12 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
     public class GetDigitalIdentityByCustomerIdHttpTriggerTests
     {
         private const string TouchpointIdHeaderParamKey = "touchpointId";
+        private const string SubcontractorIdHeaderParamKey = "subcontractorId";
         private const string ApimUrlHeaderParameterKey = "apimurl";
 
         private string ApimUrlHeaderParameterValue = "http://localhost:7071/";
         private string TouchpointIdHeaderParamValue = "9000000000";
+        private string SubcontractorIdHeaderParamValue = "9000000000";
         private string validCustomerId = "7acfc365-dfa0-6f84-46f3-eb767420aaaa";
         private string invalidCustomerId = "aabbcc";
 
@@ -87,6 +89,24 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             // Arrange
             var httpRequest = GenerateDefaultHttpRequest();
             httpRequest.Headers.Remove(TouchpointIdHeaderParamKey);
+
+            _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
+                .Returns(Task.FromResult<bool>(true));
+
+            // Act
+            var result = await RunFunction(validCustomerId, httpRequest);
+
+            // Assert
+            Assert.IsInstanceOf<HttpResponseMessage>(result);
+            Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        }
+
+        [Test]
+        public async Task GivenIdentityResourceExists_WhenSubcontractorIdMissing_ThenBadRequest()
+        {
+            // Arrange
+            var httpRequest = GenerateDefaultHttpRequest();
+            httpRequest.Headers.Remove(SubcontractorIdHeaderParamKey);
 
             _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
                 .Returns(Task.FromResult<bool>(true));
@@ -180,11 +200,12 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var defaultRequest = new DefaultHttpRequest(new DefaultHttpContext());
 
             defaultRequest.Headers.Add(TouchpointIdHeaderParamKey, TouchpointIdHeaderParamValue);
+            defaultRequest.Headers.Add(SubcontractorIdHeaderParamKey, SubcontractorIdHeaderParamValue);
             defaultRequest.Headers.Add(ApimUrlHeaderParameterKey, ApimUrlHeaderParameterValue);
 
             return defaultRequest;
         }
 
-        #endregion
+        #endregion  
     }
 }

@@ -20,9 +20,11 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
     {
         private const string TouchpointIdHeaderParamKey = "touchpointId";
         private const string ApimUrlHeaderParameterKey = "apimurl";
+        private const string SubcontractorIdHeaderParameterKey = "subcontractorid";
 
         private string ApimUrlHeaderParameterValue = "http://localhost:7071/";
         private string TouchpointIdHeaderParamValue = "9000000000";
+        private string SubcontractorIdHeaderParamValue = "9999999999";
 
         private Mock<ILogger> _mockLog;
         private Mock<IDocumentDBProvider> _mockDocumentDbProvider;
@@ -158,6 +160,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             defaultRequest.Headers.Add(TouchpointIdHeaderParamKey, TouchpointIdHeaderParamValue);
             defaultRequest.Headers.Add(ApimUrlHeaderParameterKey, ApimUrlHeaderParameterValue);
+            defaultRequest.Headers.Add(SubcontractorIdHeaderParameterKey, SubcontractorIdHeaderParamValue);
 
             return defaultRequest;
         }

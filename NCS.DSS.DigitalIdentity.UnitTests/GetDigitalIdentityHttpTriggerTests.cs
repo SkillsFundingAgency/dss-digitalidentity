@@ -23,10 +23,12 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
     public class GetDigitalIdentityHttpTriggerTests
     {
         private const string TouchpointIdHeaderParamKey = "touchpointId";
+        private const string SubcontractorIdHeaderParamKey = "subcontractorId";
         private const string ApimUrlHeaderParameterKey = "apimurl";
 
         private string ApimUrlHeaderParameterValue = "http://localhost:7071/";
         private string TouchpointIdHeaderParamValue = "9000000000";
+        private string SubcontractorIdHeaderParamValue = "9999999999";
         private string validIdentityId = "fb1cd730-720a-4f3a-b160-6ff8785c37f2";
         private string invalidIdentityId = "aabbcc";
 
@@ -179,6 +181,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             defaultRequest.Headers.Add(TouchpointIdHeaderParamKey, TouchpointIdHeaderParamValue);
             defaultRequest.Headers.Add(ApimUrlHeaderParameterKey, ApimUrlHeaderParameterValue);
+            defaultRequest.Headers.Add(SubcontractorIdHeaderParamKey, SubcontractorIdHeaderParamValue);
 
             return defaultRequest;
         }
