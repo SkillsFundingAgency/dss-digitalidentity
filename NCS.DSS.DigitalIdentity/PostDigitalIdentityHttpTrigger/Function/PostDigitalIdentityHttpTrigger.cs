@@ -71,6 +71,14 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.BadRequest();
             }
 
+            //  get subcontractor id
+            var subcontractorId = httpRequestHelper.GetDssSubcontractorId(req);
+            if (string.IsNullOrEmpty(subcontractorId))
+            {
+                loggerHelper.LogInformationMessage(log, correlationGuid, "Unable to locate 'subcontractorId' in request header");
+                return httpResponseMessageHelper.BadRequest();
+            }
+
             // Get Apim URL
             var apimUrl = httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(apimUrl))
