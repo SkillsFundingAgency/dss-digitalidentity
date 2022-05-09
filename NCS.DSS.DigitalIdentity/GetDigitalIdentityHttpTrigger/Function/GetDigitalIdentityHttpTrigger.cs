@@ -86,3 +86,4 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
         }
     }
 }
+
