@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
@@ -42,9 +43,11 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,
             [Inject]IJsonHelper jsonHelper,
             [Inject]IValidate validate,
-            [Inject]IMapper mapper)
+            [Inject]IMapper mapper,
+            [Inject] IConfiguration config)
         {
             loggerHelper.LogMethodEnter(log);
+            var touchPointsPermittedToUpdateLastLoggedIn = config["TouchPointsPermittedToUpdateLastLoggedIn"]?.Split(",") ?? new string[0];
 
             // Get Correlation Id
             var correlationId = httpRequestHelper.GetDssCorrelationId(req);
@@ -134,6 +137,11 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             {
                 loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Unable to get Digital Identity resource {0}", identityGuid));
                 return httpResponseMessageHelper.NoContent(identityGuid);
+            }
+
+            if (digitalPatchRequest.LastLoggedInDateTime.HasValue && !touchPointsPermittedToUpdateLastLoggedIn.Contains(touchpointId))
+            {
+                return httpResponseMessageHelper.UnprocessableEntity($"LastLoggedInDateTime is readonly");
             }
 
             // Check if resource terminated

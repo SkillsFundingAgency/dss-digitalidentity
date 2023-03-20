@@ -5,6 +5,7 @@
     <ProjectGuid>{29C870EE-DD3F-4877-977A-0F7BEC621798}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.20" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="Moq" Version="4.14.1" />
     <PackageReference Include="NUnit" Version="3.12.0" />

@@ -22,6 +22,8 @@ jobs:
 # Test the branch name, the output of this job will satisfy the condition of one or neither of the subsequent jobs
 - job: TestBranchName
   displayName: TestBranchName
+  workspace:
+    clean: all
       
   variables:
     TestBranchNameScriptUrl: https://raw.githubusercontent.com/SkillsFundingAgency/dss-devops/master/Scripts/Test-BranchName.ps1
@@ -47,7 +49,10 @@ jobs:
   displayName: Build-DotNetFramework
   dependsOn: TestBranchName
   condition: and(succeeded(), eq(dependencies.TestBranchName.outputs['ExecuteTestBranchNameScript.FunctionAppVersion'], 'Version1'))
-      
+
+  workspace:
+    clean: all
+
   steps:
   - template: AzureDevOpsTemplates\Build\StepTemplates\dss-dotnetframework-build.yml@dfc-devops
     parameters:
@@ -61,7 +66,10 @@ jobs:
   displayName: Build-DotNetStandard
   dependsOn: TestBranchName
   condition: and(succeeded(), eq(dependencies.TestBranchName.outputs['ExecuteTestBranchNameScript.FunctionAppVersion'], 'Version2+'))
-      
+
+  workspace:
+    clean: all
+  
   steps:
     - template: AzureDevOpsTemplates\Build\StepTemplates\dfc-dotnetcorefunctionapp-build-notests.yml@dfc-devops
       parameters:

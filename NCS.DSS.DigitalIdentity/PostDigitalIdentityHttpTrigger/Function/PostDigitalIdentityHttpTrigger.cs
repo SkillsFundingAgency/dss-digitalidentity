@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.DTO;
@@ -45,10 +46,13 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             [Inject] IValidate validate,
             [Inject] IDocumentDBProvider provider,
             [Inject] IDigitalIdentityServiceBusClient servicebus,
-            [Inject] IMapper mapper)
+            [Inject] IMapper mapper,
+            [Inject] IConfiguration config
+            )
         {
             DigitalIdentityPost identityRequest;
             loggerHelper.LogMethodEnter(log);
+            var touchPointsPermittedToUpdateLastLoggedIn = config["TouchPointsPermittedToUpdateLastLoggedIn"]?.Split(",") ?? new string[0];
 
             //Get Correlation Id
             var correlationId = httpRequestHelper.GetDssCorrelationId(req);
@@ -130,6 +134,12 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             var digitalIdentity = await provider.GetIdentityForCustomerAsync(model.CustomerId);
             if (digitalIdentity != null)
                 return httpResponseMessageHelper.UnprocessableEntity($"Digital Identity for customer {model.CustomerId} already exists.");
+
+            if (model.LastLoggedInDateTime.HasValue && !touchPointsPermittedToUpdateLastLoggedIn.Contains(touchpointId))
+            {
+                //LastLoggedIn Patch can only happen from 0000000997 or 1000000000
+                return httpResponseMessageHelper.UnprocessableEntity($"LastLoggedInDateTime is readonly");
+            }
 
             //email address check
             if (!string.IsNullOrEmpty(model.EmailAddress))

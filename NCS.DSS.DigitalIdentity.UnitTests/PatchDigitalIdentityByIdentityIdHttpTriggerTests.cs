@@ -4,6 +4,7 @@ using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
@@ -21,6 +22,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.UnitTests
@@ -32,7 +34,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private const string ApimUrlHeaderParameterKey = "apimurl";
 
         private string ApimUrlHeaderParameterValue = "http://localhost:7071/";
-        private string TouchpointIdHeaderParamValue = "9000000000";
+        private string TouchpointIdHeaderParamValue = "1000000000";
+        private string NonFrontendTouchpointId = "9000000000";
         private string validIdentityId = "7acfc365-dfa0-6f84-46f3-eb767420aaaa";
 
         private Mock<ILogger> _mockLog;
@@ -49,6 +52,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private IJsonHelper _jsonHelper;
         private IValidate _validate;
         private IMapper _mapper;
+        private IConfiguration _config;
 
         [SetUp]
         public void Setup()
@@ -69,6 +73,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             _jsonHelper = new JsonHelper();
             _getDigitalIdentityHttpTriggerService = new GetDigitalIdentityHttpTriggerService(_mockDocumentDbProvider.Object);
             _mapper = new Mapper(new MapperConfiguration(item => item.AddProfile<MappingProfile>()));
+            var json = "{ \"TouchPointsPermittedToUpdateLastLoggedIn\": \"0000000997,1000000000\" }";
+            _config = new ConfigurationBuilder().AddJsonStream(new MemoryStream(Encoding.ASCII.GetBytes(json))).Build();
 
         }
 
@@ -130,6 +136,43 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             Assert.IsInstanceOf<HttpResponseMessage>(result);
             Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
             _loggerHelper.Verify(l => l.LogInformationMessage(_mockLog.Object, It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+        }
+
+        public async Task GivenIdentityResourceExists_NotPermittedToUpdateLastLoggedInDate_ThenResourceIsNoUpdated()
+        {
+            // Arrange
+            var json = "{ \"Values\": { \"TouchPointsPermittedToUpdateLastLoggedIn\": \"2222222222,1111111111\" }}";
+            _config = new ConfigurationBuilder().AddJsonStream(new MemoryStream(Encoding.ASCII.GetBytes(json))).Build();
+            var httpRequestBody = GenerateDefaultPatchRequestBody();
+            var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
+            var responsHttpBody = new Models.DigitalIdentity()
+            {
+                IdentityID = Guid.Parse(validIdentityId),
+                CustomerId = httpRequestBody.CustomerId,
+                IdentityStoreId = httpRequestBody.IdentityStoreID,
+                LastLoggedInDateTime = httpRequestBody.LastLoggedInDateTime,
+                LastModifiedDate = DateTime.UtcNow,
+                LegacyIdentity = httpRequestBody.LegacyIdentity,
+                id_token = httpRequestBody.id_token,
+                LastModifiedTouchpointId = TouchpointIdHeaderParamValue,
+                DateOfClosure = null,
+            };
+
+            _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
+                                                                        .Returns(Task.FromResult<bool>(true));
+            _mockDocumentDbProvider.Setup(m => m.GetIdentityForCustomerAsync(It.IsAny<Guid>()))
+                                                                        .Returns(Task.FromResult<Models.DigitalIdentity>(responsHttpBody));
+            _mockDocumentDbProvider.Setup(m => m.UpdateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
+                                                                        .Returns(Task.FromResult(responsHttpBody));
+            _mockDocumentDbProvider.Setup(m => m.GetCustomer(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(new Customer()));
+
+
+            // Act
+            var result = await RunFunction(validIdentityId, httpRequest);
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
         }
 
         [Test]
@@ -280,6 +323,44 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
         }
 
+        [Test]
+        public async Task GivenValidPatchRequest_WhenNonFrontendTouchpointUpdatesLastLoggedInDate_ThenReturnError()
+        {
+            // Arrange
+            var httpRequestBody = GenerateDefaultPatchRequestBody();
+            var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
+            httpRequest.Headers.Remove(TouchpointIdHeaderParamKey);
+            httpRequest.Headers.Add(TouchpointIdHeaderParamKey, NonFrontendTouchpointId);
+            var responsHttpBody = new Models.DigitalIdentity()
+            {
+                IdentityID = Guid.Parse(validIdentityId),
+                CustomerId = httpRequestBody.CustomerId,
+                IdentityStoreId = httpRequestBody.IdentityStoreID,
+                LastLoggedInDateTime = httpRequestBody.LastLoggedInDateTime,
+                LastModifiedDate = DateTime.UtcNow,
+                LegacyIdentity = httpRequestBody.LegacyIdentity,
+                id_token = httpRequestBody.id_token,
+                LastModifiedTouchpointId = TouchpointIdHeaderParamValue,
+                DateOfClosure = null,
+            };
+
+            _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
+                                                                        .Returns(Task.FromResult<bool>(true));
+            _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
+                                                                        .Returns(Task.FromResult<Models.DigitalIdentity>(responsHttpBody));
+            _mockDocumentDbProvider.Setup(m => m.UpdateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
+                                                                        .Returns(Task.FromResult(responsHttpBody));
+            _mockDocumentDbProvider.Setup(m => m.GetCustomer(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(new Customer()));
+
+            // Act
+            var result = await RunFunction(validIdentityId, httpRequest);
+
+            // Assert
+            Assert.IsInstanceOf<HttpResponseMessage>(result);
+            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
+        }
+
         #region Helpers
 
         private Stream GenerateStreamFromJson(string requestBody)
@@ -305,7 +386,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 _httpResponseMessageHelper,
                 _jsonHelper,
                 _validate,
-                _mapper
+                _mapper,
+                _config
             ).ConfigureAwait(false);
         }
 
