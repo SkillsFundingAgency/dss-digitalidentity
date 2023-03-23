@@ -142,7 +142,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 IdentityID = Guid.NewGuid(),
                 CustomerId = Guid.Parse(validCustomerId),
                 IdentityStoreId = Guid.NewGuid(),
-                LastLoggedInDateTime = DateTime.UtcNow,
                 LastModifiedDate = DateTime.UtcNow,
                 LegacyIdentity = Guid.NewGuid().ToString(),
                 id_token = "test_token",

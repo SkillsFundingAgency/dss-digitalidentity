@@ -36,7 +36,7 @@ namespace NCS.DSS.DigitalIdentity.DTO
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time the customer last signed in through the digital service.")]
         [Example(Description = "2018-06-20T13:45:00")]
-        public DateTime? LastLoggedInDateTime { get; set; }
+        public DateTime? LastLoggedInDateTime { get;}
 
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time of the last modification to the record.")]

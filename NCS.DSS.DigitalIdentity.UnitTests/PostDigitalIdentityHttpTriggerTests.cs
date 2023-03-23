@@ -290,7 +290,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             {
                 CustomerId = Guid.NewGuid(),
                 IdentityStoreId = Guid.NewGuid(),
-                LastLoggedInDateTime = DateTime.UtcNow,
                 LegacyIdentity = Guid.NewGuid().ToString(),
                 id_token = "token",
             };
@@ -303,7 +302,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 IdentityID = Guid.NewGuid(),
                 CustomerId = httpRequestBody.CustomerId,
                 IdentityStoreId = httpRequestBody.IdentityStoreId,
-                LastLoggedInDateTime = httpRequestBody.LastLoggedInDateTime,
                 LastModifiedDate = DateTime.UtcNow,
                 LegacyIdentity = httpRequestBody.LegacyIdentity,
                 id_token = httpRequestBody.id_token,
