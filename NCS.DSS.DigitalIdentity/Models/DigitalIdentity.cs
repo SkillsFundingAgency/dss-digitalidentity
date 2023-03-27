@@ -31,6 +31,7 @@ namespace NCS.DSS.DigitalIdentity.Models
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time the customer last signed in through the digital service.")]
         [Example(Description = "2018-06-20T13:45:00")]
+        [IgnoreDataMember]
         public DateTime? LastLoggedInDateTime { get; set; }
 
         [DataType(DataType.DateTime)]
