@@ -113,7 +113,7 @@ namespace NCS.DSS.DigitalIdentity.Models
 
             if (identityRequestPatch.LastLoggedInDateTime.HasValue)
             {
-                LastLoggedInDateTime = identityRequestPatch.LastLoggedInDateTime;
+                LastLoggedInDateTime = DateTime.UtcNow;
             }
 
             if (!string.IsNullOrEmpty(identityRequestPatch.LegacyIdentity))
