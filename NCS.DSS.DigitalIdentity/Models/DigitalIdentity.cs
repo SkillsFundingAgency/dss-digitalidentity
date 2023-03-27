@@ -32,7 +32,8 @@ namespace NCS.DSS.DigitalIdentity.Models
         [Display(Description = "Date and time the customer last signed in through the digital service.")]
         [Example(Description = "2018-06-20T13:45:00")]
         [IgnoreDataMember]
-        public DateTime? LastLoggedInDateTime { get; set; }
+        [JsonIgnoreOnSerialize]
+        public DateTime? LastLoggedInDateTime { get; private set; }
 
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time of the last modification to the record.")]
@@ -112,10 +113,10 @@ namespace NCS.DSS.DigitalIdentity.Models
                 IdentityStoreId = identityRequestPatch.IdentityStoreID;
             }
 
-            if (identityRequestPatch.LastLoggedInDateTime.HasValue)
-            {
-                LastLoggedInDateTime = DateTime.UtcNow;
-            }
+            //if (identityRequestPatch.LastLoggedInDateTime.HasValue)
+            //{
+            //    LastLoggedInDateTime = DateTime.UtcNow;
+            //}
 
             if (!string.IsNullOrEmpty(identityRequestPatch.LegacyIdentity))
             {
@@ -129,6 +130,7 @@ namespace NCS.DSS.DigitalIdentity.Models
 
             LastModifiedTouchpointId = identityRequestPatch.LastModifiedTouchpointId;
             LastModifiedDate = DateTime.UtcNow;
+            LastLoggedInDateTime = DateTime.UtcNow;
         }
     }
 }
