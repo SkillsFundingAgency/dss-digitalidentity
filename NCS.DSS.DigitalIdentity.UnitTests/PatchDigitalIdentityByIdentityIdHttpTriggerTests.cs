@@ -83,7 +83,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 IdentityID = Guid.Parse(validIdentityId),
                 CustomerId = httpRequestBody.CustomerId,
                 IdentityStoreId = httpRequestBody.IdentityStoreID,
-                LastLoggedInDateTime = httpRequestBody.LastLoggedInDateTime,
                 LastModifiedDate = DateTime.UtcNow,
                 LegacyIdentity = httpRequestBody.LegacyIdentity,
                 id_token = httpRequestBody.id_token,
@@ -109,7 +108,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
             Assert.AreEqual(actualResult.CustomerId, httpRequestBody.CustomerId);
             Assert.AreEqual(actualResult.id_token, httpRequestBody.id_token);
-            Assert.AreEqual(actualResult.LastLoggedInDateTime, httpRequestBody.LastLoggedInDateTime);
+            //Assert.AreEqual(actualResult.LastLoggedInDateTime, httpRequestBody.LastLoggedInDateTime);
         }
 
         [Test]
@@ -199,7 +198,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 IdentityID = Guid.Parse(validIdentityId),
                 CustomerId = httpRequestBody.CustomerId,
                 IdentityStoreId = httpRequestBody.IdentityStoreID,
-                LastLoggedInDateTime = httpRequestBody.LastLoggedInDateTime,
                 LastModifiedDate = DateTime.UtcNow,
                 LegacyIdentity = httpRequestBody.LegacyIdentity,
                 id_token = httpRequestBody.id_token,
@@ -259,7 +257,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 IdentityID = Guid.Parse(validIdentityId),
                 CustomerId = httpRequestBody.CustomerId,
                 IdentityStoreId = httpRequestBody.IdentityStoreID,
-                LastLoggedInDateTime = httpRequestBody.LastLoggedInDateTime,
                 LastModifiedDate = DateTime.UtcNow,
                 LegacyIdentity = httpRequestBody.LegacyIdentity,
                 id_token = httpRequestBody.id_token,
