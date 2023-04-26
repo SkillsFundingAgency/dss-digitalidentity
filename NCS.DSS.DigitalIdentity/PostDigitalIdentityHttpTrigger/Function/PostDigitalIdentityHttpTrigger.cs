@@ -143,7 +143,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.UnprocessableEntity($"Email address is required for customer.");
             }
 
-            //Validate LastLoggedInDateTime
+            //Validate LastLoggedInDateTime, if not null return error message
             if (model.LastLoggedInDateTime is not null)
             {
                 return httpResponseMessageHelper.UnprocessableEntity($"LastLoggedInDateTime should be null value.");
