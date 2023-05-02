@@ -120,10 +120,14 @@ namespace NCS.DSS.DigitalIdentity.Models
             {
                 id_token = identityRequestPatch.id_token;
             }
+            if (identityRequestPatch.LastLoggedInDateTime.HasValue)
+            {
+                LastLoggedInDateTime = identityRequestPatch.LastLoggedInDateTime;
+            }
 
             LastModifiedTouchpointId = identityRequestPatch.LastModifiedTouchpointId;
             LastModifiedDate = DateTime.UtcNow;
-            LastLoggedInDateTime = DateTime.UtcNow;
+           
         }
     }
 }
