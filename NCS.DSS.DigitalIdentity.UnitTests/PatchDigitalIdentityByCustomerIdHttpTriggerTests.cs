@@ -315,7 +315,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             {
                 CustomerId = Guid.NewGuid(),
                 IdentityStoreID = Guid.NewGuid(),
-                LastLoggedInDateTime = DateTime.UtcNow,
+                //LastLoggedInDateTime = DateTime.UtcNow,
                 LegacyIdentity = Guid.NewGuid().ToString(),
                 id_token = "token",
             };
