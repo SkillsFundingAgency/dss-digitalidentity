@@ -138,6 +138,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
 
             if (digitalPatchRequest.LastLoggedInDateTime.HasValue && touchpointId != "0000000997")
             {
+                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("LastLoggedInDateTime should be null value {0} and touchpoint {1}", digitalPatchRequest.LastLoggedInDateTime, touchpointId));
                 return httpResponseMessageHelper.UnprocessableEntity($"LastLoggedInDateTime should be null value.");
             }
 
