@@ -136,7 +136,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
 
             //LastLoggedInDateTime should be only updated when the user logs in using his digitalaccount.
 
-            if (digitalIdentity.LastLoggedInDateTime is not null && touchpointId != "0000000997")
+            if (digitalIdentity.LastLoggedInDateTime.HasValue && touchpointId != "0000000997")
             {
                 return httpResponseMessageHelper.UnprocessableEntity($"LastLoggedInDateTime should be null value.");
             }
