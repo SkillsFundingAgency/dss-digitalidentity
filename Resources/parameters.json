@@ -46,6 +46,9 @@
         },
         "TouchPointsPermittedToUpdateLastLoggedIn": {
             "value": "__TouchPointsPermittedToUpdateLastLoggedIn__"
+        },
+        "appInsightsInstrumentationKey": {
+            "value": "__appInsightsInstrumentationKey__" 
         }
     }
 }
