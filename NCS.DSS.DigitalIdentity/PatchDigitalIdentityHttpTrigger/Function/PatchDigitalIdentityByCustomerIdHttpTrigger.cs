@@ -121,7 +121,6 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             if (!doesCustomerExists)
                     return httpResponseMessageHelper.UnprocessableEntity(
                         $"Customer with CustomerId  {digitalPatchRequest.CustomerId} does not exists.");
-                   
 
             // Check if identity resource exists for customer
 
@@ -134,7 +133,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.NoContent(customerGuid);
             }
 
-            //LastLoggedInDateTime should be only updated when the user logs in using his digitalaccount.
+            //LastLoggedInDateTime should be only updated when the user logs in using their digitalaccount.
 
             if (digitalPatchRequest.LastLoggedInDateTime.HasValue && touchpointId != "0000000997")
             {
