@@ -35,14 +35,14 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
         [PostRequestBody(typeof(DigitalIdentityPatch), "Digital Identity Request body")]
         public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "identity/{IdentityId}")] HttpRequest req, ILogger log,
             string IdentityId,
-            [Inject]IDigitalIdentityService identityPatchService,
-            [Inject]IGetDigitalIdentityHttpTriggerService identityGetService,
-            [Inject]ILoggerHelper loggerHelper,
-            [Inject]IHttpRequestHelper httpRequestHelper,
-            [Inject]IHttpResponseMessageHelper httpResponseMessageHelper,
-            [Inject]IJsonHelper jsonHelper,
-            [Inject]IValidate validate,
-            [Inject]IMapper mapper)
+            [Inject] IDigitalIdentityService identityPatchService,
+            [Inject] IGetDigitalIdentityHttpTriggerService identityGetService,
+            [Inject] ILoggerHelper loggerHelper,
+            [Inject] IHttpRequestHelper httpRequestHelper,
+            [Inject] IHttpResponseMessageHelper httpResponseMessageHelper,
+            [Inject] IJsonHelper jsonHelper,
+            [Inject] IValidate validate,
+            [Inject] IMapper mapper)
         {
             loggerHelper.LogMethodEnter(log);
 
@@ -136,8 +136,15 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
                 return httpResponseMessageHelper.NoContent(identityGuid);
             }
 
+            //LastLoggedInDateTime should be only updated when the user logs in using their digitalaccount.
+            if (digitalPatchRequest.LastLoggedInDateTime.HasValue && touchpointId != "0000000997")
+            {
+                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("LastLoggedInDateTime  {0} and touchpoint {1}", digitalPatchRequest.LastLoggedInDateTime, touchpointId));
+                return httpResponseMessageHelper.UnprocessableEntity($"LastLoggedInDateTime should be null value.");
+            }
+
             // Check if resource terminated
-            if (digitalIdentity.DateOfClosure.HasValue && digitalIdentity.DateOfClosure.Value  < DateTime.UtcNow)
+            if (digitalIdentity.DateOfClosure.HasValue && digitalIdentity.DateOfClosure.Value < DateTime.UtcNow)
             {
                 loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Patch requested on terminated resource {0}", identityGuid));
                 return httpResponseMessageHelper.UnprocessableEntity();
