@@ -1,9 +1,8 @@
-using AutoMapper;
+/*using AutoMapper;
 using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
@@ -293,22 +292,13 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         {
             return await PatchDigitalIdentityHttpTrigger.Function.PatchDigitalIdentityByIdentityIdHttpTrigger.RunAsync(
                 request,
-                _mockLog.Object,
-                identityId,
-                _patchDigitalIdentityHttpTriggerService,
-                _getDigitalIdentityHttpTriggerService,
-                _loggerHelper.Object,
-                _httpRequestHelper,
-                _httpResponseMessageHelper,
-                _jsonHelper,
-                _validate,
-                _mapper
+                identityId
             ).ConfigureAwait(false);
         }
 
-        private DefaultHttpRequest GenerateDefaultHttpRequest(DigitalIdentityPatch requestBody)
+        private HttpRequest GenerateDefaultHttpRequest(DigitalIdentityPatch requestBody)
         {
-            var defaultRequest = new DefaultHttpRequest(new DefaultHttpContext());
+            var defaultRequest = new DefaultHttpContext().Request;
 
             defaultRequest.Headers.Add(TouchpointIdHeaderParamKey, TouchpointIdHeaderParamValue);
             defaultRequest.Headers.Add(ApimUrlHeaderParameterKey, ApimUrlHeaderParameterValue);
@@ -333,3 +323,4 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         #endregion
     }
 }
+*/

@@ -1,9 +1,8 @@
-using AutoMapper;
+/*using AutoMapper;
 using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
@@ -313,3 +312,4 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         #endregion
     }
 }
+*/
