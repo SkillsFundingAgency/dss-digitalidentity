@@ -1,32 +1,61 @@
 ﻿using AutoMapper;
 using DFC.Common.Standard.Logging;
-using DFC.Common.Standard.ServiceBusClient.Interfaces;
-using DFC.Functions.DI.Standard.Attributes;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.Interfaces;
-using NCS.DSS.DigitalIdentity.Validation;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web.Http;
 
 
 namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
 {
-    public static class PostDigitalIdentityHttpTrigger
+    public class PostDigitalIdentityHttpTrigger
     {
-        [FunctionName("POST")]
+        private readonly IDigitalIdentityService _identityPostService;
+        private readonly IDigitalIdentityServiceBusClient _serviceBusClient;
+        private readonly IHttpRequestHelper _httpRequestHelper;
+        private readonly IDocumentDBProvider _provider;
+        private readonly ILoggerHelper _loggerHelper;
+        private readonly ILogger _logger;
+        private readonly IValidate _validate;
+        private readonly IMapper _mapper;
+        private readonly IDynamicHelper _dynamicHelper;
+        private static readonly string[] PropertyToExclude = {"TargetSite"};
+
+        public PostDigitalIdentityHttpTrigger(
+            IDigitalIdentityService identityPostService, 
+            IDigitalIdentityServiceBusClient serviceBusClient,
+            IHttpRequestHelper httpRequestHelper,
+            IDocumentDBProvider provider,
+            ILoggerHelper loggerHelper,
+            ILogger<PostDigitalIdentityHttpTrigger> logger,
+            IValidate validate,
+            IMapper mapper,
+            IDynamicHelper dynamicHelper)
+        {
+            _identityPostService = identityPostService;
+            _serviceBusClient = serviceBusClient;
+            _httpRequestHelper = httpRequestHelper;
+            _provider = provider;
+            _loggerHelper = loggerHelper;
+            _logger = logger;
+            _validate = validate;
+            _mapper = mapper;
+            _dynamicHelper = dynamicHelper;
+        }
+
+        [Function("POST")]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity Created", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Resource Does Not Exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Post request is malformed", ShowSchema = false)]
@@ -36,147 +65,137 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Conflict, Description = "Duplicate Email Address", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         [PostRequestBody(typeof(DigitalIdentityPost), "Digital Identity Request body")]
-        public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "identity")] HttpRequest req, ILogger log,
-            [Inject] IDigitalIdentityService identityPostService,
-            [Inject] ILoggerHelper loggerHelper,
-            [Inject] IHttpRequestHelper httpRequestHelper,
-            [Inject] IHttpResponseMessageHelper httpResponseMessageHelper,
-            [Inject] IJsonHelper jsonHelper,
-            [Inject] IValidate validate,
-            [Inject] IDocumentDBProvider provider,
-            [Inject] IDigitalIdentityServiceBusClient servicebus,
-            [Inject] IMapper mapper)
+        public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "identity")] HttpRequest req)
         {
             DigitalIdentityPost identityRequest;
-            loggerHelper.LogMethodEnter(log);
+            _loggerHelper.LogMethodEnter(_logger);
 
             //Get Correlation Id
-            var correlationId = httpRequestHelper.GetDssCorrelationId(req);
+            var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
             if (string.IsNullOrEmpty(correlationId))
             {
-                log.LogInformation("Unable to locate 'DssCorrelationId' in request header");
+                _logger.LogInformation("Unable to locate 'DssCorrelationId' in request header");
             }
 
             if (!Guid.TryParse(correlationId, out var correlationGuid))
             {
-                log.LogInformation("Unable to parse 'DssCorrelationId' to a Guid");
+                _logger.LogInformation("Unable to parse 'DssCorrelationId' to a Guid");
                 correlationGuid = Guid.NewGuid();
             }
 
             // Get Touch point Id
-            var touchpointId = httpRequestHelper.GetDssTouchpointId(req);
+            var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, "Unable to locate 'TouchpointId' in request header");
-                return httpResponseMessageHelper.BadRequest();
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Unable to locate 'TouchpointId' in request header");
+                return new BadRequestResult();
             }
 
             // Get Apim URL
-            var apimUrl = httpRequestHelper.GetDssApimUrl(req);
+            var apimUrl = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(apimUrl))
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, "Unable to locate 'apimurl' in request header");
-                return httpResponseMessageHelper.BadRequest();
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Unable to locate 'apimurl' in request header");
+                return new BadRequestResult();
             }
 
-            loggerHelper.LogInformationMessage(log, correlationGuid, "Apimurl:  " + apimUrl);
+            _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Apimurl:  " + apimUrl);
 
-            loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Post Digital Identity C# HTTP trigger function requested by Touchpoint: {0}", touchpointId));
+            _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Post Digital Identity C# HTTP trigger function requested by Touchpoint: {0}", touchpointId));
 
             // Get request body
             try
             {
-                identityRequest = await httpRequestHelper.GetResourceFromRequest<DigitalIdentityPost>(req);
+                identityRequest = await _httpRequestHelper.GetResourceFromRequest<DigitalIdentityPost>(req);
             }
             catch (JsonException ex)
             {
-                loggerHelper.LogError(log, correlationGuid, "Apimurl:  " + apimUrl, ex);
-                return httpResponseMessageHelper.UnprocessableEntity(ex);
+                _loggerHelper.LogError(_logger, correlationGuid, "Apimurl:  " + apimUrl, ex);
+                return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
             }
 
             if (identityRequest == null)
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, "digital identity post request is null");
-                return httpResponseMessageHelper.UnprocessableEntity();
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "digital identity post request is null");
+                return new UnprocessableEntityResult();
             }
 
             if (identityRequest.CustomerId.Equals(Guid.Empty))
-                return httpResponseMessageHelper.UnprocessableEntity($"CustomerId is mandatory");
+                return new UnprocessableEntityObjectResult("CustomerId is mandatory");
 
             if (identityRequest.DateOfClosure.HasValue)
-                return httpResponseMessageHelper.UnprocessableEntity($"Date of termination cannot be set in post request!");
+                return new UnprocessableEntityObjectResult("Date of termination cannot be set in post request!");
 
             // Check if customer exists
-            var doesCustomerExists = await identityPostService.DoesCustomerExists(identityRequest.CustomerId);
+            var doesCustomerExists = await _identityPostService.DoesCustomerExists(identityRequest.CustomerId);
             if (!doesCustomerExists)
-                return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
+                return new UnprocessableEntityObjectResult(
+                    $"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
 
-            var model = mapper.Map<Models.DigitalIdentity>(identityRequest);
+            var model = _mapper.Map<Models.DigitalIdentity>(identityRequest);
 
-            var customer = await provider.GetCustomer(identityRequest.CustomerId);
-            var contact = await provider.GetCustomerContact(identityRequest.CustomerId);
+            var customer = await _provider.GetCustomer(identityRequest.CustomerId);
+            var contact = await _provider.GetCustomerContact(identityRequest.CustomerId);
             model.SetCreateDigitalIdentity(contact?.EmailAddress, customer?.GivenName, customer?.FamilyName);
 
             //Customer exists check
             if (customer == null)
-                return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {model.CustomerId} does not exists.");
-            else
-            {
-                if (customer.DateOfTermination.HasValue)
-                    return httpResponseMessageHelper.UnprocessableEntity($"Customer with CustomerId  {model.CustomerId} is readonly");
-            }
+                return new UnprocessableEntityObjectResult(
+                    $"Customer with CustomerId  {model.CustomerId} does not exists.");
+            if (customer.DateOfTermination.HasValue)
+                return new UnprocessableEntityObjectResult($"Customer with CustomerId  {model.CustomerId} is readonly");
 
             //only validate through posting a new digital identity 
-            var digitalIdentity = await provider.GetIdentityForCustomerAsync(model.CustomerId);
+            var digitalIdentity = await _provider.GetIdentityForCustomerAsync(model.CustomerId);
             if (digitalIdentity != null)
-                return httpResponseMessageHelper.UnprocessableEntity($"Digital Identity for customer {model.CustomerId} already exists.");
+                return new UnprocessableEntityObjectResult(
+                    $"Digital Identity for customer {model.CustomerId} already exists.");
 
             //email address check
             if (!string.IsNullOrEmpty(model.EmailAddress))
             {
-                var doesContactWithEmailExists = await provider.DoesContactDetailsWithEmailExists(model.EmailAddress);
+                var doesContactWithEmailExists = await _provider.DoesContactDetailsWithEmailExists(model.EmailAddress);
                 if (doesContactWithEmailExists)
-                    return httpResponseMessageHelper.UnprocessableEntity($"Email address is already in use  {model.EmailAddress}.");
+                    return new UnprocessableEntityObjectResult(
+                        $"Email address is already in use  {model.EmailAddress}.");
             }
             else
             {
-                return httpResponseMessageHelper.UnprocessableEntity($"Email address is required for customer.");
+                return new UnprocessableEntityObjectResult("Email address is required for customer.");
             }
 
             //Validate LastLoggedInDateTime, if not null return error message
             if (model.LastLoggedInDateTime is not null)
             {
-                return httpResponseMessageHelper.UnprocessableEntity($"LastLoggedInDateTime should be null value.");
+                return new UnprocessableEntityObjectResult("LastLoggedInDateTime should be null value.");
             }
 
             // Validate request body
-            var errors = await validate.ValidateResource(identityRequest, true);
+            var errors = await _validate.ValidateResource(identityRequest, true);
 
             if (errors != null && errors.Any())
-                return httpResponseMessageHelper.UnprocessableEntity(errors);
+                return new UnprocessableEntityObjectResult(errors);
 
             //Create digital Identity
             model.CreatedBy = touchpointId;
             model.LastModifiedTouchpointId = touchpointId;
-            var createdIdentity = await identityPostService.CreateAsync(model);
-            var resp = mapper.Map<DigitalIdentity.DTO.DigitalIdentityPost>(createdIdentity);
+            var createdIdentity = await _identityPostService.CreateAsync(model);
+            var resp = _mapper.Map<DigitalIdentityPost>(createdIdentity);
 
             // Notify service bus
             if (createdIdentity != null)
             {
                 if (model.IsDigitalAccount == true)
                 {
-                    await servicebus.SendPostMessageAsync(model, apimUrl);
+                    await _serviceBusClient.SendPostMessageAsync(model, apimUrl);
                 }
 
                 // return response
-                return httpResponseMessageHelper.Created(jsonHelper.SerializeObjectAndRenameIdProperty(resp, "id", "IdentityID"));
+                return new CreatedResult();
             }
-            else
-            {
-                loggerHelper.LogError(log, correlationGuid, $"Error creating resource.", null);
-                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
-            }
+
+            _loggerHelper.LogError(_logger, correlationGuid, $"Error creating resource.", null);
+            return new InternalServerErrorResult();
         }
     }
 }
