@@ -14,7 +14,7 @@ namespace NCS.DSS.DigitalIdentity.APIDefinition
         public const string ApiDescription = "Internal API that connects Accounts, DSS and DfE signin";
 
         private readonly ISwaggerDocumentGenerator _swaggerDocumentGenerator;
-        public const string ApiVersion = "2.0.0";
+        public const string ApiVersion = "3.0.0";
 
         public GenerateOutcomeSwaggerDoc(ISwaggerDocumentGenerator swaggerDocumentGenerator)
         {
