@@ -75,7 +75,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var resp = await RunFunction(request, customerId);
 
             // Assert
-            Assert.That(resp, Is.InstanceOf<BadRequestResult>());
+            Assert.That(resp, Is.InstanceOf<BadRequestObjectResult>());
         }
 
         [Test]
