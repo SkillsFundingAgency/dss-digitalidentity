@@ -80,12 +80,12 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
 
             _loggerHelper.LogMethodExit(_logger);
 
-            return identity == null
-                ? new ObjectResult(identityGuid.ToString())
+            if (identity == null)
+                return new ObjectResult(identityGuid.ToString())
                 {
                     StatusCode = (int)HttpStatusCode.NoContent
-                }
-                : new OkResult();
+                };
+            return new OkResult();
         }
     }
 }

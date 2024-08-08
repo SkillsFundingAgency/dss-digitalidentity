@@ -14,16 +14,18 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 {
     public class DeleteDigitalIdentityByCustomerIdHttpTriggerTests
     {
-        private string TouchpointIdHeaderParamKey = "touchpointId";
-        private string ApimUrlHeaderParameterKey = "apimurl";
-        private string ApimUrlHeaderParameterValue = "http://localhost:7071/";
-        private string TouchpointIdHeaderParamValue = "9000000000";
+        private const string TouchpointIdHeaderParamKey = "touchpointId";
+        private const string ApimUrlHeaderParameterKey = "apimurl";
+        private const string ApimUrlHeaderParameterValue = "http://localhost:7071/";
+        private const string TouchpointIdHeaderParamValue = "9000000000";
 
         private Mock<IDigitalIdentityService> _digitalIdentityService;
         private Mock<IDigitalIdentityServiceBusClient> _serviceBus;
-        private IHttpRequestHelper _httpRequestHelper;
         private Mock<ILoggerHelper> _loggerHelper;
         private Mock<ILogger<DeleteDigitalIdentityByCustomerIdHttpTrigger.Function.DeleteDigitalIdentityByCustomerIdHttpTrigger>> _logger;
+
+        private IHttpRequestHelper _httpRequestHelper;
+
         private DeleteDigitalIdentityByCustomerIdHttpTrigger.Function.DeleteDigitalIdentityByCustomerIdHttpTrigger _trigger;
 
         [SetUp]
@@ -42,12 +44,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 _httpRequestHelper, 
                 _loggerHelper.Object, 
                 _logger.Object);
-        }
-
-
-        private async Task<IActionResult> RunFunction(HttpRequest request, string customerId)
-        {
-            return await _trigger.Run(request, customerId);
         }
 
         [Test]
@@ -101,7 +97,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             // Arrange
             var customerId = Guid.NewGuid().ToString();
             var request = GenerateDefaultHttpRequest();
-            _digitalIdentityService.Setup(x => x.GetIdentityForCustomerAsync(It.IsAny<Guid>())).Returns(Task.FromResult(new Models.DigitalIdentity() { IdentityID = new Guid() }));
+            _digitalIdentityService.Setup(x => x.GetIdentityForCustomerAsync(It.IsAny<Guid>())).Returns(Task.FromResult(new Models.DigitalIdentity { IdentityID = new Guid() }));
             _digitalIdentityService.Setup(x => x.DeleteIdentityAsync(It.IsAny<Guid>())).Returns(Task.FromResult(true));
             _digitalIdentityService.Setup(x => x.DoesCustomerExists(It.IsAny<Guid>())).Returns(Task.FromResult(true));
 
@@ -119,7 +115,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             // Arrange
             var customerId = Guid.NewGuid().ToString();
             var request = GenerateDefaultHttpRequest();
-            _digitalIdentityService.Setup(x => x.GetIdentityForCustomerAsync(It.IsAny<Guid>())).Returns(Task.FromResult(new Models.DigitalIdentity() { IdentityID = new Guid() }));
+            _digitalIdentityService.Setup(x => x.GetIdentityForCustomerAsync(It.IsAny<Guid>())).Returns(Task.FromResult(new Models.DigitalIdentity { IdentityID = new Guid() }));
             _digitalIdentityService.Setup(x => x.DeleteIdentityAsync(It.IsAny<Guid>())).Returns(Task.FromResult(false));
 
             // Act
@@ -143,9 +139,13 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             // Assert
             Assert.That(resp, Is.InstanceOf<BadRequestResult>());
         }
+                
+        private async Task<IActionResult> RunFunction(HttpRequest request, string customerId)
+        {
+            return await _trigger.Run(request, customerId);
+        }
 
-        #region helpers
-        private HttpRequest GenerateDefaultHttpRequest()
+        private static HttpRequest GenerateDefaultHttpRequest()
         {
             var defaultRequest = new DefaultHttpContext().Request;
 
@@ -154,6 +154,5 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             return defaultRequest;
         }
-        #endregion
     }
 }

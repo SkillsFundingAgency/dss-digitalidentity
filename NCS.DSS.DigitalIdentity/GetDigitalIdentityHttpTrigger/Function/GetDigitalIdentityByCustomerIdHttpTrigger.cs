@@ -91,12 +91,12 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
 
             _loggerHelper.LogMethodExit(_logger);
 
-            return identity == null
-                ? new ObjectResult(customerGuid.ToString())
+            if (identity == null)
+                return new ObjectResult(customerGuid.ToString())
                 {
                     StatusCode = (int)HttpStatusCode.NoContent
-                }
-                : new OkResult();
+                };
+            return new OkResult();
         }
     }
 }
