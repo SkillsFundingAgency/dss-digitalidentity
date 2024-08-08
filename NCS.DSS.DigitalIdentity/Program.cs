@@ -1,19 +1,17 @@
-using System.Linq;
 using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using DFC.Swagger.Standard;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Interfaces;
 using NCS.DSS.DigitalIdentity.Mappings;
 using NCS.DSS.DigitalIdentity.Services;
 using NCS.DSS.DigitalIdentity.Validation;
+using System.Linq;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -24,11 +22,9 @@ var host = new HostBuilder()
         services.AddLogging();
         services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
         services.AddSingleton<IValidate, Validate>();
-        services.AddSingleton<IResourceHelper, ResourceHelper>();
         services.AddSingleton<ILoggerHelper, LoggerHelper>();
         services.AddSingleton<IHttpRequestHelper, HttpRequestHelper>();
         services.AddSingleton<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
-        services.AddSingleton<IJsonHelper, JsonHelper>();
         services.AddSingleton<IDocumentDBProvider, DocumentDbProvider>();
         services.AddSingleton<IDigitalIdentityServiceBusClient, DigitalIdentityServiceBusClient>();
         services.AddScoped<ISwaggerDocumentGenerator, SwaggerDocumentGenerator>();
