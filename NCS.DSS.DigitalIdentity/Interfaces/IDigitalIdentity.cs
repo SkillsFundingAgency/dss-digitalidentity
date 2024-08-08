@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace NCS.DSS.DigitalIdentity.Interfaces
 {

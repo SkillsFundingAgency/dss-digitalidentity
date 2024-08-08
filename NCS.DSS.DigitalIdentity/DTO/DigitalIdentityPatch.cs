@@ -2,7 +2,6 @@
 using NCS.DSS.DigitalIdentity.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.Serialization;
 
 namespace NCS.DSS.DigitalIdentity.DTO
 {

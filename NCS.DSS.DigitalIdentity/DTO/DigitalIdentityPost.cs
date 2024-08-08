@@ -1,10 +1,7 @@
-﻿using DFC.JSON.Standard.Attributes;
-using DFC.Swagger.Standard.Annotations;
+﻿using DFC.Swagger.Standard.Annotations;
 using NCS.DSS.DigitalIdentity.Interfaces;
-using NCS.DSS.DigitalIdentity.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.Serialization;
 
 namespace NCS.DSS.DigitalIdentity.DTO
 {

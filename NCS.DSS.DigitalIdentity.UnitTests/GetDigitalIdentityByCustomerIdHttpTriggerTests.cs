@@ -9,7 +9,6 @@ using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NUnit.Framework;
 using System;
-using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
