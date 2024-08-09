@@ -115,11 +115,9 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             // Act
             var result = await RunFunction(ValidIdentityId, httpRequest);
-            var resultResponse = result as ObjectResult;
-
+            
             // Assert
-            Assert.That(result, Is.InstanceOf<ObjectResult>());
-            Assert.That(resultResponse.StatusCode, Is.EqualTo((int)HttpStatusCode.NoContent));
+            Assert.That(result, Is.InstanceOf<NoContentResult>());
         }
 
         private async Task<IActionResult> RunFunction(string customerId, HttpRequest request)

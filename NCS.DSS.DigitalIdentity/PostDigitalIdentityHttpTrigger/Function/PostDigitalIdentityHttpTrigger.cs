@@ -97,7 +97,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             if (string.IsNullOrEmpty(apimUrl))
             {
                 _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Unable to locate 'apimurl' in request header");
-                //return new BadRequestResult();
+                return new BadRequestResult();
             }
 
             _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Apimurl:  " + apimUrl);
