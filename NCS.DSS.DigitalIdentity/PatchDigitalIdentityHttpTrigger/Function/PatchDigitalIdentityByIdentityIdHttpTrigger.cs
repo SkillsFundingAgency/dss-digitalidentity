@@ -10,11 +10,12 @@ using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Interfaces;
-using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
+using JsonException = Newtonsoft.Json.JsonException;
 
 namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
 {
@@ -172,9 +173,12 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             var model = _mapper.Map<Models.DigitalIdentity>(digitalIdentity);
             _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Attempting to patch identity resource {0}", identityGuid));
 
-            await _identityPatchService.PatchAsync(model, digitalPatchRequest);
+            var patchedCustomer = await _identityPatchService.PatchAsync(model, digitalPatchRequest);
 
-            return new OkResult();
+            return new JsonResult(patchedCustomer, new JsonSerializerOptions())
+            {
+                StatusCode = (int)HttpStatusCode.OK
+            };
         }
     }
 }

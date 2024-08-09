@@ -10,12 +10,13 @@ using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.Interfaces;
-using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web.Http;
+using JsonException = Newtonsoft.Json.JsonException;
 
 
 namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
@@ -180,7 +181,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             model.CreatedBy = touchpointId;
             model.LastModifiedTouchpointId = touchpointId;
             var createdIdentity = await _identityPostService.CreateAsync(model);
-            var resp = _mapper.Map<DigitalIdentityPost>(createdIdentity);
+            var mappedIdentity = _mapper.Map<DigitalIdentityPost>(createdIdentity);
 
             // Notify service bus
             if (createdIdentity != null)
@@ -191,7 +192,10 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
                 }
 
                 // return response
-                return new CreatedResult();
+                return new JsonResult(mappedIdentity, new JsonSerializerOptions())
+                {
+                    StatusCode = (int)HttpStatusCode.Created
+                };
             }
 
             _loggerHelper.LogError(_logger, correlationGuid, $"Error creating resource.", null);

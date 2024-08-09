@@ -65,10 +65,12 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                                                                         .Returns(Task.FromResult(httpResponse));
 
             // Act
-            var result = await RunFunction(ValidCustomerId, httpRequest);
+            var response = await RunFunction(ValidCustomerId, httpRequest);
+            var responseResult = response as JsonResult;
 
             // Assert
-            Assert.That(result, Is.InstanceOf<OkResult>());
+            Assert.That(response, Is.InstanceOf<JsonResult>());
+            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.OK));
         }
 
         [Test]

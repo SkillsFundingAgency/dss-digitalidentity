@@ -9,6 +9,7 @@ using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
@@ -21,8 +22,8 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
         private readonly ILogger _logger;
 
         public GetDigitalIdentityHttpTrigger(
-            IGetDigitalIdentityHttpTriggerService identityGetService, 
-            IHttpRequestHelper httpRequestHelper, 
+            IGetDigitalIdentityHttpTriggerService identityGetService,
+            IHttpRequestHelper httpRequestHelper,
             ILoggerHelper loggerHelper,
             ILogger<GetDigitalIdentityHttpTrigger> logger)
         {
@@ -40,7 +41,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Display(Name = "Get", Description = "Ability to retrieve an individual digital identity")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "identities/{identityId}")]HttpRequest req, string identityId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "identities/{identityId}")] HttpRequest req, string identityId)
         {
 
             _loggerHelper.LogMethodEnter(_logger);
@@ -80,11 +81,17 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
             _loggerHelper.LogMethodExit(_logger);
 
             if (identity == null)
+            {
                 return new ObjectResult(identityGuid.ToString())
                 {
                     StatusCode = (int)HttpStatusCode.NoContent
                 };
-            return new OkResult();
+            }
+
+            return new JsonResult(identity, new JsonSerializerOptions())
+            {
+                StatusCode = (int)HttpStatusCode.OK
+            };
         }
     }
 }

@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -90,10 +91,12 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 .Returns(Task.FromResult(new Contact() { EmailAddress = "email@email.com" }));
 
             // Act
-            var result = await RunFunction(httpRequest);
+            var response = await RunFunction(httpRequest);
+            var responseResult = response as JsonResult;
 
             // Assert
-            Assert.That(result, Is.InstanceOf<CreatedResult>());
+            Assert.That(response, Is.InstanceOf<JsonResult>());
+            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.Created));
         }
 
         [Test]
