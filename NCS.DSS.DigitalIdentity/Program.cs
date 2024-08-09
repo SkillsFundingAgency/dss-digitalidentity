@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Interfaces;
@@ -21,6 +22,7 @@ var host = new HostBuilder()
         services.ConfigureFunctionsApplicationInsights();
         services.AddLogging();
         services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+        services.AddSingleton<IDynamicHelper, DynamicHelper>();
         services.AddSingleton<IValidate, Validate>();
         services.AddSingleton<ILoggerHelper, LoggerHelper>();
         services.AddSingleton<IHttpRequestHelper, HttpRequestHelper>();
