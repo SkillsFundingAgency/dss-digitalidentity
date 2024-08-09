@@ -220,7 +220,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             // Assert
             Assert.That(result, Is.InstanceOf<UnprocessableEntityObjectResult>());
-            Assert.IsNotEmpty(resultResponse.Value.ToString());
+            Assert.That(resultResponse.Value.ToString(), Is.Not.Empty);
         }
 
         [Test]
