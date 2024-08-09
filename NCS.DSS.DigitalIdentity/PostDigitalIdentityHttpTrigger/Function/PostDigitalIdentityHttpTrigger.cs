@@ -35,7 +35,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         private static readonly string[] PropertyToExclude = {"TargetSite", "InnerException"};
 
         public PostDigitalIdentityHttpTrigger(
-            IDigitalIdentityService identityPostService, 
+            IDigitalIdentityService identityPostService,
             IDigitalIdentityServiceBusClient serviceBusClient,
             IHttpRequestHelper httpRequestHelper,
             IDocumentDBProvider provider,

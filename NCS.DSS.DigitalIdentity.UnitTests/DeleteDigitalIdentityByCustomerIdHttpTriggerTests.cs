@@ -39,10 +39,10 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             _httpRequestHelper = new HttpRequestHelper();
             _trigger = new DeleteDigitalIdentityByCustomerIdHttpTrigger.Function.DeleteDigitalIdentityByCustomerIdHttpTrigger(
-                _digitalIdentityService.Object, 
-                _serviceBus.Object, 
-                _httpRequestHelper, 
-                _loggerHelper.Object, 
+                _digitalIdentityService.Object,
+                _serviceBus.Object,
+                _httpRequestHelper,
+                _loggerHelper.Object,
                 _logger.Object);
         }
 
@@ -139,7 +139,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             // Assert
             Assert.That(resp, Is.InstanceOf<BadRequestResult>());
         }
-                
+
         private async Task<IActionResult> RunFunction(HttpRequest request, string customerId)
         {
             return await _trigger.Run(request, customerId);

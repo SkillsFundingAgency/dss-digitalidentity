@@ -44,7 +44,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         private IHttpRequestHelper _httpRequestHelper;
         private IValidate _validate;
         private IMapper _mapper;
-        
+
 
         private PatchDigitalIdentityByIdentityIdHttpTrigger _function;
 

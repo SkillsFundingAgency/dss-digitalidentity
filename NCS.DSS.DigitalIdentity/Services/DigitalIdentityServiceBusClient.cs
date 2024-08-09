@@ -48,7 +48,7 @@ namespace NCS.DSS.DigitalIdentity.Services
                 digitalIdentity.LastName,
                 digitalIdentity.EmailAddress,
                 digitalIdentity.CustomerId,
-                CreateDigitalIdentity= digitalIdentity.CreateDigitalIdentity ?? false,
+                CreateDigitalIdentity = digitalIdentity.CreateDigitalIdentity ?? false,
                 IsDigitalAccount = digitalIdentity.IsDigitalAccount ?? false,
                 DeleteDigitalIdentity = digitalIdentity.DeleteDigitalIdentity ?? false,
                 IdentityStoreId = digitalIdentity.IdentityStoreId ?? null,

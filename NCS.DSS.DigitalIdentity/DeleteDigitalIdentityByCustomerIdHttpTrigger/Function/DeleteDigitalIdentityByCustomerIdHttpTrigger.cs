@@ -22,9 +22,9 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
         private readonly ILogger _logger;
 
         public DeleteDigitalIdentityByCustomerIdHttpTrigger(
-            IDigitalIdentityService deleteService, 
-            IDigitalIdentityServiceBusClient serviceBus, 
-            IHttpRequestHelper httpRequestHelper, 
+            IDigitalIdentityService deleteService,
+            IDigitalIdentityServiceBusClient serviceBus,
+            IHttpRequestHelper httpRequestHelper,
             ILoggerHelper loggerHelper,
             ILogger<DeleteDigitalIdentityByCustomerIdHttpTrigger> logger)
         {
