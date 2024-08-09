@@ -43,7 +43,6 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
         [Display(Name = "GetById", Description = "Ability to retrieve an individual digital identity for the given customer")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "customers/{customerId}")] HttpRequest req, string customerId)
         {
-
             _loggerHelper.LogMethodEnter(_logger);
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
@@ -81,10 +80,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
             if (!doesCustomerExist)
             {
                 _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Customer does not exist {0}", customerGuid));
-                return new ObjectResult(customerGuid.ToString())
-                {
-                    StatusCode = (int)HttpStatusCode.NoContent
-                };
+                return new NoContentResult();
             }
 
             _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Attempting to get identity for customer {0}", customerGuid));
@@ -94,10 +90,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
 
             if (identity == null)
             {
-                return new ObjectResult(customerGuid.ToString())
-                {
-                    StatusCode = (int)HttpStatusCode.NoContent
-                };
+                return new NoContentResult();
 
             }
 

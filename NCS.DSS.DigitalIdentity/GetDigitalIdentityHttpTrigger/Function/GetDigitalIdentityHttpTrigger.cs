@@ -82,10 +82,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
 
             if (identity == null)
             {
-                return new ObjectResult(identityGuid.ToString())
-                {
-                    StatusCode = (int)HttpStatusCode.NoContent
-                };
+                return new NoContentResult();
             }
 
             return new JsonResult(identity, new JsonSerializerOptions())

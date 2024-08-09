@@ -89,10 +89,7 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
             if (identity == null)
             {
                 _loggerHelper.LogInformationMessage(_logger, correlationGuid, $"Cannot delete digital identity for customer: {customerId} , customer does not have a digital identity");
-                return new ObjectResult($"{customerId} does not have a digital identity")
-                {
-                    StatusCode = (int)HttpStatusCode.NoContent
-                };
+                return new NoContentResult();
             }
 
             //trigger change feed

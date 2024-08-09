@@ -151,10 +151,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
             if (digitalIdentity == null)
             {
                 _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Unable to get Digital Identity resource {0}", identityGuid));
-                return new ObjectResult(identityGuid.ToString())
-                {
-                    StatusCode = (int)HttpStatusCode.NoContent
-                };
+                return new NoContentResult();
             }
 
             //LastLoggedInDateTime should be only updated when the user logs in using their digitalaccount.
