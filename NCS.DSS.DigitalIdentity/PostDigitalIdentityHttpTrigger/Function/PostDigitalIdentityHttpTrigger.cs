@@ -32,10 +32,10 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         private readonly IValidate _validate;
         private readonly IMapper _mapper;
         private readonly IDynamicHelper _dynamicHelper;
-        private static readonly string[] PropertyToExclude = {"TargetSite"};
+        private static readonly string[] PropertyToExclude = { "TargetSite" };
 
         public PostDigitalIdentityHttpTrigger(
-            IDigitalIdentityService identityPostService, 
+            IDigitalIdentityService identityPostService,
             IDigitalIdentityServiceBusClient serviceBusClient,
             IHttpRequestHelper httpRequestHelper,
             IDocumentDBProvider provider,

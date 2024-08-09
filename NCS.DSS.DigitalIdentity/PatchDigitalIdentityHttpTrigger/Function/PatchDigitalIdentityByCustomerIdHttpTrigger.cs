@@ -29,10 +29,10 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
         private readonly IDynamicHelper _dynamicHelper;
-        private static readonly string[] PropertyToExclude = {"TargetSite"};
+        private static readonly string[] PropertyToExclude = { "TargetSite" };
 
         public PatchDigitalIdentityByCustomerIdHttpTrigger(
-            IDigitalIdentityService identityPatchService, 
+            IDigitalIdentityService identityPatchService,
             IGetDigitalIdentityHttpTriggerService identityGetService,
             IHttpRequestHelper httpRequestHelper,
             IValidate validate,

@@ -22,7 +22,7 @@ namespace NCS.DSS.DigitalIdentity.APIDefinition
         }
 
         [Function(ApiDefinitionName)]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = ApiDefRoute)]HttpRequest req)
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = ApiDefRoute)] HttpRequest req)
         {
             var swaggerDoc = _swaggerDocumentGenerator.GenerateSwaggerDocument(req, ApiTitle, ApiDescription,
                 ApiDefinitionName, ApiVersion, Assembly.GetExecutingAssembly());

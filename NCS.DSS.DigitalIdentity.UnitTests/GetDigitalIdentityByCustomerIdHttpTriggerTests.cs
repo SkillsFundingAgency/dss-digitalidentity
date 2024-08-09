@@ -123,7 +123,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             Assert.That(result, Is.InstanceOf<ObjectResult>());
             Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.NoContent));
         }
-        
+
         private async Task<IActionResult> RunFunction(string customerId, HttpRequest request)
         {
             return await _function.Run(request, customerId).ConfigureAwait(false);
