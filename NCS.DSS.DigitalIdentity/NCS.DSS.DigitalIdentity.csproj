@@ -4,7 +4,7 @@
 		<AzureFunctionsVersion>v4</AzureFunctionsVersion>
 		<ProjectGuid>{B229004F-C6B1-4962-AC89-748972990912}</ProjectGuid>
 		<OutputType>Exe</OutputType>
-		<ImplicitUsings>enabled</ImplicitUsings>
+		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DebugType>full</DebugType>
