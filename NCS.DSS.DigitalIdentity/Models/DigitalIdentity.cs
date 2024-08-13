@@ -1,14 +1,13 @@
-﻿using DFC.JSON.Standard.Attributes;
-using DFC.Swagger.Standard.Annotations;
+﻿using DFC.Swagger.Standard.Annotations;
 using NCS.DSS.DigitalIdentity.DTO;
-using NCS.DSS.DigitalIdentity.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace NCS.DSS.DigitalIdentity.Models
 {
-    public class DigitalIdentity 
+    public class DigitalIdentity
     {
         [Display(Description = "Unique identifier of a identity store.")]
         [Example(Description = "2730af9c-fc34-4c2b-a905-c4b584b0f379")]
@@ -22,7 +21,6 @@ namespace NCS.DSS.DigitalIdentity.Models
 
         public Guid? IdentityStoreId { get; set; }
 
-
         [Display(Description = "Unique identifier as used by legacy live services.")]
         public string LegacyIdentity { get; set; }
 
@@ -31,7 +29,7 @@ namespace NCS.DSS.DigitalIdentity.Models
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time the customer last signed in through the digital service.")]
         [Example(Description = "2018-06-20T13:45:00")]
-         public DateTime? LastLoggedInDateTime { get; set; }
+        public DateTime? LastLoggedInDateTime { get; set; }
 
         [DataType(DataType.DateTime)]
         [Display(Description = "Date and time of the last modification to the record.")]
@@ -54,25 +52,31 @@ namespace NCS.DSS.DigitalIdentity.Models
         public int? ttl { get; set; }
 
         [IgnoreDataMember]
-        [JsonIgnoreOnSerialize]
+        [JsonIgnore]
         public string EmailAddress { get; private set; }
+
         [IgnoreDataMember]
-        [JsonIgnoreOnSerialize]
+        [JsonIgnore]
         public string FirstName { get; private set; }
+
         [IgnoreDataMember]
-        [JsonIgnoreOnSerialize]
+        [JsonIgnore]
         public string LastName { get; private set; }
+
         [IgnoreDataMember]
-        [JsonIgnoreOnSerialize]
+        [JsonIgnore]
         public bool? CreateDigitalIdentity { get; private set; }
+
         [IgnoreDataMember]
-        [JsonIgnoreOnSerialize]
+        [JsonIgnore]
         public bool? IsDigitalAccount { get; private set; }
+
         [IgnoreDataMember]
-        [JsonIgnoreOnSerialize]
+        [JsonIgnore]
         public bool? DeleteDigitalIdentity { get; private set; }
+
         [IgnoreDataMember]
-        [JsonIgnoreOnSerialize]
+        [JsonIgnore]
         public DateTime? DoB { get; private set; }
 
         public void SetDefaultValues()
@@ -111,7 +115,7 @@ namespace NCS.DSS.DigitalIdentity.Models
                 IdentityStoreId = identityRequestPatch.IdentityStoreID;
             }
 
-           if (!string.IsNullOrEmpty(identityRequestPatch.LegacyIdentity))
+            if (!string.IsNullOrEmpty(identityRequestPatch.LegacyIdentity))
             {
                 LegacyIdentity = identityRequestPatch.LegacyIdentity;
             }
@@ -127,7 +131,7 @@ namespace NCS.DSS.DigitalIdentity.Models
 
             LastModifiedTouchpointId = identityRequestPatch.LastModifiedTouchpointId;
             LastModifiedDate = DateTime.UtcNow;
-           
+
         }
     }
 }

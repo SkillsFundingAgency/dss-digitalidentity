@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace NCS.DSS.DigitalIdentity.Interfaces
 {
@@ -7,7 +6,7 @@ namespace NCS.DSS.DigitalIdentity.Interfaces
     {
         string LegacyIdentity { get; set; }
         string id_token { get; set; }
-        DateTime? LastLoggedInDateTime { get;  set; }
+        DateTime? LastLoggedInDateTime { get; set; }
         DateTime? LastModifiedDate { get; set; }
         string LastModifiedTouchpointId { get; set; }
         Guid CustomerId { get; set; }

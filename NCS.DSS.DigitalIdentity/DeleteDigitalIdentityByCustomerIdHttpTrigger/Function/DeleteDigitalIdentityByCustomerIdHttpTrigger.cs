@@ -1,17 +1,14 @@
 ﻿using DFC.Common.Standard.Logging;
-using DFC.Functions.DI.Standard.Attributes;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NCS.DSS.DigitalIdentity.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.Function
@@ -20,27 +17,32 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
     {
         private readonly IDigitalIdentityService _identityDeleteService;
         private readonly IDigitalIdentityServiceBusClient _serviceBus;
-        private readonly ILoggerHelper _loggerHelper;
         private readonly IHttpRequestHelper _httpRequestHelper;
-        private readonly IHttpResponseMessageHelper _httpResponseMessageHelper;
+        private readonly ILoggerHelper _loggerHelper;
+        private readonly ILogger _logger;
 
-        public DeleteDigitalIdentityByCustomerIdHttpTrigger(IDigitalIdentityService deleteService, IDigitalIdentityServiceBusClient serviceBus, ILoggerHelper loggerHelper, IHttpRequestHelper httpRequestHelper, IHttpResponseMessageHelper httpResponseMessageHelper)
+        public DeleteDigitalIdentityByCustomerIdHttpTrigger(
+            IDigitalIdentityService deleteService,
+            IDigitalIdentityServiceBusClient serviceBus,
+            IHttpRequestHelper httpRequestHelper,
+            ILoggerHelper loggerHelper,
+            ILogger<DeleteDigitalIdentityByCustomerIdHttpTrigger> logger)
         {
             _identityDeleteService = deleteService;
             _serviceBus = serviceBus;
-            _loggerHelper = loggerHelper;
             _httpRequestHelper = httpRequestHelper;
-            _httpResponseMessageHelper = httpResponseMessageHelper;
+            _loggerHelper = loggerHelper;
+            _logger = logger;
         }
 
-        [FunctionName("DeleteById")]
+        [Function("DeleteById")]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity found", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Digital Identity does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request was malformed", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
         [Display(Name = "DeleteById", Description = "Ability to delete an individual digital identity by customer id")]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "customer/{customerId}")] HttpRequest req, ILogger _logger, string customerId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "customer/{customerId}")] HttpRequest req, string customerId)
         {
             var apimUrl = _httpRequestHelper.GetDssApimUrl(req);
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
@@ -63,7 +65,7 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
             if (string.IsNullOrEmpty(touchpointId))
             {
                 _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Unable to locate 'TouchpointId' in request header");
-                return _httpResponseMessageHelper.BadRequest();
+                return new BadRequestResult();
             }
 
             _loggerHelper.LogInformationMessage(_logger, correlationGuid,
@@ -73,12 +75,12 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
                 _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Unable to parse 'customerId' to a Guid: {0}", customerId));
-                return _httpResponseMessageHelper.BadRequest(customerGuid);
+                return new BadRequestObjectResult(customerGuid.ToString());
             }
 
             var customerExists = await _identityDeleteService.DoesCustomerExists(customerGuid);
-            if(!customerExists)
-                return _httpResponseMessageHelper.BadRequest();
+            if (!customerExists)
+                return new BadRequestResult();
 
             //First get the identity from the customer id
             _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Attempting to get identity for customer {0}", customerGuid));
@@ -87,7 +89,7 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
             if (identity == null)
             {
                 _loggerHelper.LogInformationMessage(_logger, correlationGuid, $"Cannot delete digital identity for customer: {customerId} , customer does not have a digital identity");
-                return _httpResponseMessageHelper.NoContent($"{customerId} does not have a digital identity");
+                return new NoContentResult();
             }
 
             //trigger change feed
@@ -105,7 +107,7 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
             identity.SetDeleted();
             await _serviceBus.SendDeleteMessageAsync(identity, apimUrl);
 
-            return _httpResponseMessageHelper.Ok();
+            return new OkResult();
         }
     }
 }
