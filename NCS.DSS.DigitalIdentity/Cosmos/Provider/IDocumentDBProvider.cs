@@ -1,6 +1,4 @@
 ﻿using NCS.DSS.DigitalIdentity.Models;
-using System;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 {

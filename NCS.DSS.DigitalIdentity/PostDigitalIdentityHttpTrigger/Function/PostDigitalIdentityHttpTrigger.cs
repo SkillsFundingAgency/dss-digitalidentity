@@ -10,11 +10,8 @@ using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.Interfaces;
-using System;
-using System.Linq;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Web.Http;
 using JsonException = Newtonsoft.Json.JsonException;
 
@@ -32,7 +29,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         private readonly IValidate _validate;
         private readonly IMapper _mapper;
         private readonly IDynamicHelper _dynamicHelper;
-        private static readonly string[] PropertyToExclude = {"TargetSite", "InnerException"};
+        private static readonly string[] PropertyToExclude = { "TargetSite", "InnerException" };
 
         public PostDigitalIdentityHttpTrigger(
             IDigitalIdentityService identityPostService,

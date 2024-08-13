@@ -19,7 +19,6 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.UnitTests
@@ -239,7 +238,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             // Act
             var result = await RunFunction(ValidIdentityId, httpRequest);
-            
+
             // Assert
             Assert.That(result, Is.InstanceOf<NoContentResult>());
         }

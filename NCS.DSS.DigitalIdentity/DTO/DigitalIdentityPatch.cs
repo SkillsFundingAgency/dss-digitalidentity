@@ -1,6 +1,5 @@
 ﻿using DFC.Swagger.Standard.Annotations;
 using NCS.DSS.DigitalIdentity.Interfaces;
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace NCS.DSS.DigitalIdentity.DTO

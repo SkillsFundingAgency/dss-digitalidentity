@@ -7,7 +7,6 @@ using Moq;
 using NCS.DSS.DigitalIdentity.Interfaces;
 using NUnit.Framework;
 using System;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.UnitTests

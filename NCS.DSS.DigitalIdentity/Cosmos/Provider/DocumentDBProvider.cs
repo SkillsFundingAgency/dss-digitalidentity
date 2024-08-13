@@ -4,10 +4,7 @@ using Microsoft.Azure.Documents.Linq;
 using NCS.DSS.DigitalIdentity.Cosmos.Client;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.Models;
-using System;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 {
