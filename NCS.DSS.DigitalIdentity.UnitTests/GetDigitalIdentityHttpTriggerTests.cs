@@ -115,7 +115,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             // Act
             var result = await RunFunction(ValidIdentityId, httpRequest);
-            
+
             // Assert
             Assert.That(result, Is.InstanceOf<NoContentResult>());
         }

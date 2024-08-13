@@ -12,7 +12,6 @@ using NCS.DSS.DigitalIdentity.Interfaces;
 using NCS.DSS.DigitalIdentity.Mappings;
 using NCS.DSS.DigitalIdentity.Services;
 using NCS.DSS.DigitalIdentity.Validation;
-using System.Linq;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()

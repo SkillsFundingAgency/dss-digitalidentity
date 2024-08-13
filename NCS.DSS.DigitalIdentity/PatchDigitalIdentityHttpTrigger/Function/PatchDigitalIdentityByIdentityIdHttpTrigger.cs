@@ -10,11 +10,8 @@ using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Interfaces;
-using System;
-using System.Linq;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 using JsonException = Newtonsoft.Json.JsonException;
 
 namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function

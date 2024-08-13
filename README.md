@@ -1,7 +1,7 @@
 # DSS Digital Identity
 
 > [!NOTE]  
-> The latest version of this API is `v2`
+> The latest version of this API is `v3`
 
 [ADO Pipeline](https://sfa-gov-uk.visualstudio.com/CDS%202.0/_build?definitionId=2127)
 

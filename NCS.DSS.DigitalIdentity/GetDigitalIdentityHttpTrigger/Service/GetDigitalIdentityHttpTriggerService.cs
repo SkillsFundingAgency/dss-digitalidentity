@@ -1,6 +1,4 @@
 ﻿using NCS.DSS.DigitalIdentity.Cosmos.Provider;
-using System;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service
 {

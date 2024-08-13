@@ -1,6 +1,5 @@
 ﻿using DFC.Swagger.Standard.Annotations;
 using NCS.DSS.DigitalIdentity.DTO;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;

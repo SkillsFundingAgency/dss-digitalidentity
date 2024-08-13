@@ -1,6 +1,4 @@
 ﻿using NCS.DSS.DigitalIdentity.DTO;
-using System;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.Interfaces
 {
