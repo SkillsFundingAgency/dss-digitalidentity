@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +14,6 @@ using System.Text.Json;
 using System.Web.Http;
 using JsonException = Newtonsoft.Json.JsonException;
 
-
 namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
 {
     public class PostDigitalIdentityHttpTrigger
@@ -24,8 +22,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         private readonly IDigitalIdentityServiceBusClient _serviceBusClient;
         private readonly IHttpRequestHelper _httpRequestHelper;
         private readonly IDocumentDBProvider _provider;
-        private readonly ILoggerHelper _loggerHelper;
-        private readonly ILogger _logger;
+        private readonly ILogger<PostDigitalIdentityHttpTrigger> _logger;
         private readonly IValidate _validate;
         private readonly IMapper _mapper;
         private readonly IDynamicHelper _dynamicHelper;
@@ -36,7 +33,6 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             IDigitalIdentityServiceBusClient serviceBusClient,
             IHttpRequestHelper httpRequestHelper,
             IDocumentDBProvider provider,
-            ILoggerHelper loggerHelper,
             ILogger<PostDigitalIdentityHttpTrigger> logger,
             IValidate validate,
             IMapper mapper,
@@ -46,14 +42,13 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             _serviceBusClient = serviceBusClient;
             _httpRequestHelper = httpRequestHelper;
             _provider = provider;
-            _loggerHelper = loggerHelper;
             _logger = logger;
             _validate = validate;
             _mapper = mapper;
             _dynamicHelper = dynamicHelper;
         }
 
-        [Function("POST")]
+        [Function("Post")]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity Created", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Resource Does Not Exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Post request is malformed", ShowSchema = false)]
@@ -63,10 +58,12 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
         [Response(HttpStatusCode = (int)HttpStatusCode.Conflict, Description = "Duplicate Email Address", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         [PostRequestBody(typeof(DigitalIdentityPost), "Digital Identity Request body")]
+        //[Display(Name = "Post", Description = "Lorum ipsum - what do I do?")] --> should I have this?
         public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "identity")] HttpRequest req)
         {
+            _logger.LogInformation($"Function {nameof(PostDigitalIdentityHttpTrigger)} has been invoked");
+
             DigitalIdentityPost identityRequest;
-            _loggerHelper.LogMethodEnter(_logger);
 
             //Get Correlation Id
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
@@ -85,7 +82,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Unable to locate 'TouchpointId' in request header");
+                _logger.LogInformation($"Unable to locate 'TouchpointId' in request header. Correlation GUID: {correlationGuid}");
                 return new BadRequestResult();
             }
 
@@ -93,13 +90,13 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             var apimUrl = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(apimUrl))
             {
-                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Unable to locate 'apimurl' in request header");
+                _logger.LogInformation($"Unable to locate 'apimurl' in request header. Correlation GUID: {correlationGuid}");
                 return new BadRequestResult();
             }
 
-            _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Apimurl:  " + apimUrl);
-
-            _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Post Digital Identity C# HTTP trigger function requested by Touchpoint: {0}", touchpointId));
+            _logger.LogInformation($"APIM URL: {apimUrl}");
+            _logger.LogInformation($"Header validation has succeeded. Touchpoint ID: {touchpointId}. Correlation GUID: {correlationGuid}");
+            _logger.LogInformation($"Attempting to get resource from request body. Correlation GUID: {correlationGuid}");
 
             // Get request body
             try
@@ -108,94 +105,138 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             }
             catch (JsonException ex)
             {
-                _loggerHelper.LogError(_logger, correlationGuid, "Apimurl:  " + apimUrl, ex);
+                _logger.LogError($"Unable to parse DigitalIdentityPost from request body. Correlation GUID: {correlationGuid}. Exception: {ex.Message}");
                 return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
             }
 
             if (identityRequest == null)
             {
-                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "digital identity post request is null");
+                _logger.LogError($"DigitalIdentityPost object is NULL. Correlation GUID: {correlationGuid}");
                 return new UnprocessableEntityResult();
             }
 
             if (identityRequest.CustomerId.Equals(Guid.Empty))
+            {
+                _logger.LogError("CustomerId is missing from the DigitalIdentityPost object - it is mandatory.");
                 return new UnprocessableEntityObjectResult("CustomerId is mandatory");
-
+            }
+                
             if (identityRequest.DateOfClosure.HasValue)
+            {
+                _logger.LogError("Cannot create a DIGITAL IDENTITY with a termination date - remove it from the DigitalIdentityPost object.");
                 return new UnprocessableEntityObjectResult("Date of termination cannot be set in post request!");
-
+            }
+                
             // Check if customer exists
             var doesCustomerExists = await _identityPostService.DoesCustomerExists(identityRequest.CustomerId);
-            if (!doesCustomerExists)
-                return new UnprocessableEntityObjectResult(
-                    $"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
-
-            var model = _mapper.Map<Models.DigitalIdentity>(identityRequest);
-
-            var customer = await _provider.GetCustomer(identityRequest.CustomerId);
-            var contact = await _provider.GetCustomerContact(identityRequest.CustomerId);
-            model.SetCreateDigitalIdentity(contact?.EmailAddress, customer?.GivenName, customer?.FamilyName);
-
-            //Customer exists check
-            if (customer == null)
-                return new UnprocessableEntityObjectResult(
-                    $"Customer with CustomerId  {model.CustomerId} does not exists.");
-            if (customer.DateOfTermination.HasValue)
-                return new UnprocessableEntityObjectResult($"Customer with CustomerId  {model.CustomerId} is readonly");
-
-            //only validate through posting a new digital identity 
-            var digitalIdentity = await _provider.GetIdentityForCustomerAsync(model.CustomerId);
-            if (digitalIdentity != null)
-                return new UnprocessableEntityObjectResult(
-                    $"Digital Identity for customer {model.CustomerId} already exists.");
-
-            //email address check
-            if (!string.IsNullOrEmpty(model.EmailAddress))
+            
+            if (doesCustomerExists)
             {
-                var doesContactWithEmailExists = await _provider.DoesContactDetailsWithEmailExists(model.EmailAddress);
-                if (doesContactWithEmailExists)
-                    return new UnprocessableEntityObjectResult(
-                        $"Email address is already in use  {model.EmailAddress}.");
+                _logger.LogInformation($"Customer exists. Customer ID: {identityRequest.CustomerId}");
             }
             else
             {
+                _logger.LogError($"Customer does not exist. Customer ID: {identityRequest.CustomerId}");
+                return new UnprocessableEntityObjectResult($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
+            }
+
+            _logger.LogInformation($"Attempting to retrieve Customer. Customer ID: {identityRequest.CustomerId}");
+
+            var customer = await _provider.GetCustomer(identityRequest.CustomerId);
+
+            if (customer == null)
+            {
+                _logger.LogError($"Failed to retrieve customer information. Customer ID: {identityRequest.CustomerId}");
+                return new UnprocessableEntityObjectResult($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
+            } 
+            
+            if (customer.DateOfTermination.HasValue)
+            {
+                _logger.LogError($"Cannot POST a DIGITAL IDENTITY for a Customer which is terminated. Customer ID: {identityRequest.CustomerId}");
+                return new UnprocessableEntityObjectResult($"Customer with CustomerId  {identityRequest.CustomerId} is readonly");
+            }
+
+            _logger.LogInformation($"Attempting to retrieve Contact Details for a Customer. Customer ID: {identityRequest.CustomerId}");
+
+            var contact = await _provider.GetCustomerContact(identityRequest.CustomerId);
+
+            if (contact == null)
+            {
+                _logger.LogInformation($"No Contact Details exist for Customer ID: {identityRequest.CustomerId}");
+            }
+
+            var model = _mapper.Map<Models.DigitalIdentity>(identityRequest);
+            model.SetCreateDigitalIdentity(contact?.EmailAddress, customer?.GivenName, customer?.FamilyName);
+
+            _logger.LogInformation($"Attempting to retrieve an existing DIGITAL IDENTITY for a Customer. Customer ID: {model.CustomerId}");
+            var digitalIdentity = await _provider.GetIdentityForCustomerAsync(model.CustomerId);
+
+            if (digitalIdentity != null)
+            {
+                _logger.LogError($"A DIGITAL IDENTITY for Customer ID '{model.CustomerId}' already exists. Digital Identity ID: {digitalIdentity.IdentityID.Value}");
+                return new UnprocessableEntityObjectResult($"Digital Identity for customer {model.CustomerId} already exists.");
+            }
+
+            if (!string.IsNullOrEmpty(model.EmailAddress))
+            {
+                var digitalIdentityWithEmailAddressAlreadyExists = await _provider.GetDigitalIdentityForAnEmailAddress(model.EmailAddress);
+                if (digitalIdentityWithEmailAddressAlreadyExists)
+                {
+                    _logger.LogError($"A DIGITAL IDENTITY for email address '{model.EmailAddress}' already exists");
+                    return new UnprocessableEntityObjectResult($"Email address is already in use {model.EmailAddress}.");
+                }
+            }
+            else
+            {
+                _logger.LogError("An email address is required for a Customer.");
                 return new UnprocessableEntityObjectResult("Email address is required for customer.");
             }
 
-            //Validate LastLoggedInDateTime, if not null return error message
+            // Validate LastLoggedInDateTime, if not null return error message
             if (model.LastLoggedInDateTime is not null)
             {
+                _logger.LogError($"LastLoggedInDateTime value should be NULL. LastLoggedInDateTime: {model.LastLoggedInDateTime}. Touchpoint ID: {touchpointId}");
                 return new UnprocessableEntityObjectResult("LastLoggedInDateTime should be null value.");
             }
 
             // Validate request body
+            _logger.LogInformation($"Attempting to validate DigitalIdentityPost object. Correlation GUID: {correlationGuid}");
             var errors = await _validate.ValidateResource(identityRequest, true);
 
             if (errors != null && errors.Any())
+            {
+                _logger.LogError($"Validation for DigitalIdentityPost object failed. Correlation GUID: {correlationGuid}");
                 return new UnprocessableEntityObjectResult(errors);
+            }
 
-            //Create digital Identity
+            // Create digital Identity
             model.CreatedBy = touchpointId;
             model.LastModifiedTouchpointId = touchpointId;
-            var createdIdentity = await _identityPostService.CreateAsync(model);
-            var mappedIdentity = _mapper.Map<DigitalIdentityPost>(createdIdentity);
 
-            // Notify service bus
+            _logger.LogInformation("Attempting to POST a DIGITAL IDENTITY");
+            var createdIdentity = await _identityPostService.CreateAsync(model);
+            
             if (createdIdentity != null)
             {
+                _logger.LogInformation($"POST to DIGITAL IDENTITY was successful. Digital Identity ID: {createdIdentity.IdentityID.Value}");
+
                 if (model.IsDigitalAccount == true)
                 {
+                    _logger.LogInformation($"Attempting to send creation notification to Service Bus Namespace (Digital Account)");
                     await _serviceBusClient.SendPostMessageAsync(model, apimUrl);
                 }
 
-                // return response
-                return new JsonResult(mappedIdentity, new JsonSerializerOptions())
+                _logger.LogInformation($"Function {nameof(PostDigitalIdentityHttpTrigger)} has finished invoking");
+
+                return new JsonResult(_mapper.Map<DigitalIdentityPost>(createdIdentity), new JsonSerializerOptions())
                 {
                     StatusCode = (int)HttpStatusCode.Created
                 };
             }
 
-            _loggerHelper.LogError(_logger, correlationGuid, $"Error creating resource.", null);
+            _logger.LogError("Unable to create new DIGITAL IDENTITY");
+            _logger.LogInformation($"Function {nameof(PostDigitalIdentityHttpTrigger)} has finished invoking");
+
             return new InternalServerErrorResult();
         }
     }

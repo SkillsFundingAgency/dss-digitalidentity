@@ -1,5 +1,4 @@
-﻿using DFC.Common.Standard.Logging;
-using DFC.HTTP.Standard;
+﻿using DFC.HTTP.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,32 +15,29 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
     {
         private readonly IGetDigitalIdentityHttpTriggerService _identityGetService;
         private readonly IHttpRequestHelper _httpRequestHelper;
-        private readonly ILoggerHelper _loggerHelper;
-        private readonly ILogger _logger;
+        private readonly ILogger<GetDigitalIdentityByCustomerIdHttpTrigger> _logger;
 
         public GetDigitalIdentityByCustomerIdHttpTrigger(
             IGetDigitalIdentityHttpTriggerService identityGetService,
             IHttpRequestHelper httpRequestHelper,
-            ILoggerHelper loggerHelper,
             ILogger<GetDigitalIdentityByCustomerIdHttpTrigger> logger)
         {
             _identityGetService = identityGetService;
             _httpRequestHelper = httpRequestHelper;
-            _loggerHelper = loggerHelper;
             _logger = logger;
         }
 
-        [Function("GetById")]
+        [Function("GetByCustomerId")]
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity found", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Digital Identity does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request was malformed", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
-        [Display(Name = "GetById", Description = "Ability to retrieve an individual digital identity for the given customer")]
+        [Display(Name = "GetByCustomerId", Description = "Ability to retrieve an individual digital identity for the given customer")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "customers/{customerId}")] HttpRequest req, string customerId)
         {
-            _loggerHelper.LogMethodEnter(_logger);
+            _logger.LogInformation($"Function {nameof(GetDigitalIdentityByCustomerIdHttpTrigger)} has been invoked");
 
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
             if (string.IsNullOrEmpty(correlationId))
@@ -58,44 +54,51 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Unable to locate 'TouchpointId' in request header");
+                _logger.LogInformation($"Unable to locate 'TouchpointId' in request header. Correlation GUID: {correlationGuid}");
                 return new BadRequestResult();
             }
 
-            _loggerHelper.LogInformationMessage(_logger, correlationGuid,
-                string.Format("Get Digital Identity By Id C# HTTP trigger function  processed a request. By Touchpoint: {0}",
-                    touchpointId));
-
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Unable to parse 'customerId' to a Guid: {0}", customerId));
+                _logger.LogInformation($"Unable to parse 'customerId' to a GUID. Customer ID: {customerId}. Correlation GUID: {correlationGuid}");
                 return new BadRequestObjectResult(customerGuid.ToString());
             }
 
-            _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Attempting to see if customer exists {0}", customerGuid));
+            _logger.LogInformation($"Header validation has succeeded. Touchpoint ID: {touchpointId}. Correlation GUID: {correlationGuid}");
+            _logger.LogInformation($"Attempting to see if customer exists. Customer GUID: {customerGuid}");
+
             var doesCustomerExist = await _identityGetService.DoesCustomerExists(customerGuid);
 
             if (!doesCustomerExist)
             {
-                _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Customer does not exist {0}", customerGuid));
+                _logger.LogInformation($"Customer does not exist. Customer GUID: {customerGuid}");
                 return new NoContentResult();
             }
+            else
+            {
+                _logger.LogInformation($"Customer does exist. Customer GUID: {customerGuid}");
+            }
 
-            _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Attempting to get identity for customer {0}", customerGuid));
+            _logger.LogInformation($"Attempting to retrieve DIGITAL IDENTITY for Customer. Customer GUID: {customerGuid}");
             var identity = await _identityGetService.GetIdentityForCustomerAsync(customerGuid);
 
-            _loggerHelper.LogMethodExit(_logger);
-
-            if (identity == null)
+            if (identity != null)
             {
-                return new NoContentResult();
-
+                _logger.LogInformation($"DIGITAL IDENTITY successfully retrieved. Digital Identity ID: {identity.IdentityID.Value}");
+                _logger.LogInformation($"Function {nameof(GetDigitalIdentityByCustomerIdHttpTrigger)} has finished invoking");
+                
+                return new JsonResult(identity, new JsonSerializerOptions())
+                {
+                    StatusCode = (int)HttpStatusCode.OK
+                };
             }
-
-            return new JsonResult(identity, new JsonSerializerOptions())
+            else
             {
-                StatusCode = (int)HttpStatusCode.OK
-            };
+                _logger.LogInformation($"DIGITAL IDENTITY does not exist for Customer. Customer GUID: {customerGuid}");
+                _logger.LogInformation($"Function {nameof(GetDigitalIdentityByCustomerIdHttpTrigger)} has finished invoking");
+                
+                return new NoContentResult();
+            }
         }
     }
 }

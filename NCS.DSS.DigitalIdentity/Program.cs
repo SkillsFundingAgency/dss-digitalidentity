@@ -23,7 +23,6 @@ var host = new HostBuilder()
         services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
         services.AddSingleton<IDynamicHelper, DynamicHelper>();
         services.AddSingleton<IValidate, Validate>();
-        services.AddSingleton<ILoggerHelper, LoggerHelper>();
         services.AddSingleton<IHttpRequestHelper, HttpRequestHelper>();
         services.AddSingleton<IHttpResponseMessageHelper, HttpResponseMessageHelper>();
         services.AddSingleton<IDocumentDBProvider, DocumentDbProvider>();

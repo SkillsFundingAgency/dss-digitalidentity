@@ -156,19 +156,19 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
             return null;
         }
 
-        public async Task<bool> DoesContactDetailsWithEmailExists(string emailAddressToCheck)
+        public async Task<bool> GetDigitalIdentityForAnEmailAddress(string emailAddressToCheck)
         {
             var collectionUri = DocumentDBHelper.CreateDocumentCollectionUri();
             var client = DocumentDBClient.CreateDocumentClient();
-            var contactDetailsForEmailQuery = client
+            var digitalIdentityForEmailQuery = client
                 ?.CreateDocumentQuery<Contact>(collectionUri, new FeedOptions { MaxItemCount = 1 })
                 .Where(x => x.EmailAddress == emailAddressToCheck)
                 .AsDocumentQuery();
-            if (contactDetailsForEmailQuery == null)
+            if (digitalIdentityForEmailQuery == null)
                 return false;
 
-            var contactDetails = await contactDetailsForEmailQuery.ExecuteNextAsync<Contact>();
-            return contactDetails.Any();
+            var digitalIdentity = await digitalIdentityForEmailQuery.ExecuteNextAsync<Contact>();
+            return digitalIdentity.Any();
         }
     }
 }

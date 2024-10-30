@@ -19,12 +19,6 @@ namespace NCS.DSS.DigitalIdentity.Services
             await SendMessageAsync(digitalIdentity, reqUrl, titleMessage);
         }
 
-        public async Task SendPatchMessageAsync(Models.DigitalIdentity updatedDigitalIdentity, string reqUrl)
-        {
-            string titleMessage = $"Digital Identity record modified for {updatedDigitalIdentity.IdentityID} at {DateTime.UtcNow}";
-            await SendMessageAsync(updatedDigitalIdentity, reqUrl, titleMessage);
-        }
-
         public async Task SendDeleteMessageAsync(Models.DigitalIdentity updatedDigitalIdentity, string reqUrl)
         {
             string titleMessage = $"Digital Identity deleted for {updatedDigitalIdentity.IdentityID} at {DateTime.UtcNow}";

@@ -1,5 +1,4 @@
-﻿using DFC.Common.Standard.Logging;
-using DFC.HTTP.Standard;
+﻿using DFC.HTTP.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,38 +15,34 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
         private readonly IDigitalIdentityService _identityDeleteService;
         private readonly IDigitalIdentityServiceBusClient _serviceBus;
         private readonly IHttpRequestHelper _httpRequestHelper;
-        private readonly ILoggerHelper _loggerHelper;
-        private readonly ILogger _logger;
+        private readonly ILogger<DeleteDigitalIdentityByCustomerIdHttpTrigger> _logger;
 
         public DeleteDigitalIdentityByCustomerIdHttpTrigger(
             IDigitalIdentityService deleteService,
             IDigitalIdentityServiceBusClient serviceBus,
             IHttpRequestHelper httpRequestHelper,
-            ILoggerHelper loggerHelper,
             ILogger<DeleteDigitalIdentityByCustomerIdHttpTrigger> logger)
         {
             _identityDeleteService = deleteService;
             _serviceBus = serviceBus;
             _httpRequestHelper = httpRequestHelper;
-            _loggerHelper = loggerHelper;
             _logger = logger;
         }
 
-        [Function("DeleteById")]
+        [Function("DeleteByCustomerId")]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity found", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Digital Identity does not exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Request was malformed", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Unauthorized, Description = "API key is unknown or invalid", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.Forbidden, Description = "Insufficient access", ShowSchema = false)]
-        [Display(Name = "DeleteById", Description = "Ability to delete an individual digital identity by customer id")]
+        [Display(Name = "DeleteByCustomerId", Description = "Ability to delete an individual digital identity by customer id")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "customer/{customerId}")] HttpRequest req, string customerId)
         {
+            _logger.LogInformation($"Function {nameof(DeleteDigitalIdentityByCustomerIdHttpTrigger)} has been invoked");
+
             var apimUrl = _httpRequestHelper.GetDssApimUrl(req);
             var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
-
-            _loggerHelper.LogMethodEnter(_logger);
-
 
             if (string.IsNullOrEmpty(correlationId))
             {
@@ -62,48 +57,60 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
 
             if (string.IsNullOrEmpty(touchpointId))
             {
-                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Unable to locate 'TouchpointId' in request header");
+                _logger.LogInformation($"Unable to locate 'TouchpointId' in request header. Correlation GUID: {correlationGuid}");
                 return new BadRequestResult();
             }
-
-            _loggerHelper.LogInformationMessage(_logger, correlationGuid,
-                string.Format("Get Digital Identity By Id C# HTTP trigger function  processed a request. By Touchpoint: {0}",
-                    touchpointId));
 
             if (!Guid.TryParse(customerId, out var customerGuid))
             {
-                _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Unable to parse 'customerId' to a Guid: {0}", customerId));
+                _logger.LogInformation($"Unable to parse 'customerId' to a GUID. Customer ID: {customerId}. Correlation GUID: {correlationGuid}");
                 return new BadRequestObjectResult(customerGuid.ToString());
             }
 
-            var customerExists = await _identityDeleteService.DoesCustomerExists(customerGuid);
-            if (!customerExists)
-                return new BadRequestResult();
+            _logger.LogInformation($"Header validation has succeeded. Touchpoint ID: {touchpointId}. Correlation GUID: {correlationGuid}");
 
-            //First get the identity from the customer id
-            _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Attempting to get identity for customer {0}", customerGuid));
+            var customerExists = await _identityDeleteService.DoesCustomerExists(customerGuid);
+            
+            if (!customerExists)
+            {
+                _logger.LogInformation($"Customer does not exist. Customer GUID: {customerGuid}");
+                return new BadRequestResult();
+            }
+
+            // First get the identity from the customer id
+            _logger.LogInformation($"Attempting to retrieve DIGITAL IDENTITY for Customer. Customer GUID: {customerGuid}. Correlation GUID: {correlationGuid}");
             var identity = await _identityDeleteService.GetIdentityForCustomerAsync(customerGuid);
 
             if (identity == null)
             {
-                _loggerHelper.LogInformationMessage(_logger, correlationGuid, $"Cannot delete digital identity for customer: {customerId} , customer does not have a digital identity");
+                _logger.LogInformation($"DIGITAL IDENTITY does not exist for Customer. Customer GUID: {customerGuid}. Customer ID: {customerId}");
                 return new NoContentResult();
             }
 
-            //trigger change feed
+            _logger.LogInformation($"Attempting to update DIGITAL IDENTITY. Digital Identity ID: {identity?.IdentityID.Value}");
+
+            // Trigger change feed
             identity.DateOfClosure = DateTime.Now;
             identity.LastModifiedTouchpointId = touchpointId;
-            //Set ttl to delete record so that audit history has time to update tables
-            //TODO: Get devops to set ttl on collection in each environment
-            identity.ttl = 10; //ttl is in seconds
-            await _identityDeleteService.UpdateASync(identity);
+            identity.ttl = 10; //stored in seconds
+            var deleteRequest = await _identityDeleteService.UpdateASync(identity);
 
-            _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Attempting to delete identity {0}", identity?.IdentityID.Value));
+            if (deleteRequest != null)
+            {
+                _logger.LogInformation($"Successfully updated DIGITAL IDENTITY. Digital Identity ID: {identity?.IdentityID.Value}");
+            } 
+            else
+            {
+                _logger.LogInformation($"Failed to updated DIGITAL IDENTITY. Digital Identity ID: {identity?.IdentityID.Value}"); // should this be an ERROR?
+            }
 
-
-            //Do we just trust that ttl will delete the record?
+            _logger.LogInformation($"Setting DIGITAL IDENTITY as deleted. Digital Identity ID: {identity?.IdentityID.Value}");
             identity.SetDeleted();
-            await _serviceBus.SendDeleteMessageAsync(identity, apimUrl);
+
+            _logger.LogInformation($"Attempting to send deletion notification to Service Bus Namespace");
+            await _serviceBus.SendDeleteMessageAsync(identity, apimUrl); // convert this to return a success/failure status. Then add corresponding success and failure logs
+
+            _logger.LogInformation($"Function {nameof(DeleteDigitalIdentityByCustomerIdHttpTrigger)} has finished invoking");
 
             return new OkResult();
         }

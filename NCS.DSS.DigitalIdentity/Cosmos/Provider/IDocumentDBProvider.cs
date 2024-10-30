@@ -4,12 +4,8 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
 {
     public interface IDocumentDBProvider
     {
-        //Task<bool> DoesCustomerResourceExist(Guid customerId);
-        //bool DoesIdentityResourceExistAndBelongToCustomer(Guid identityId, Guid customerId);
         Task<Models.DigitalIdentity> GetIdentityForCustomerAsync(Guid customerId);
         Task<bool> DeleteIdentityAsync(Guid identityId);
-        //Task<ResourceResponse<Document>> CreateIdentityAsync(Models.DigitalIdentity action);
-        //Task<ResourceResponse<Document>> UpdateIdentityAsync(string action, Guid actionId);
 
         Task<Models.DigitalIdentity> CreateIdentityAsync(Models.DigitalIdentity digitalIdentity);
 
@@ -19,6 +15,6 @@ namespace NCS.DSS.DigitalIdentity.Cosmos.Provider
         Task<Models.DigitalIdentity> GetIdentityByIdentityIdAsync(Guid identityGuid);
         Task<Contact> GetCustomerContact(Guid customerId);
         Task<Customer> GetCustomer(Guid customerId);
-        Task<bool> DoesContactDetailsWithEmailExists(string emailAddressToCheck);
+        Task<bool> GetDigitalIdentityForAnEmailAddress(string emailAddressToCheck);
     }
 }
