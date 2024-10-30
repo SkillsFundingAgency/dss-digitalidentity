@@ -1,5 +1,4 @@
-﻿using DFC.Common.Standard.Logging;
-using DFC.HTTP.Standard;
+﻿using DFC.HTTP.Standard;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -20,7 +19,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
         private Mock<IDigitalIdentityService> _digitalIdentityService;
         private Mock<IDigitalIdentityServiceBusClient> _serviceBus;
-        private Mock<ILoggerHelper> _loggerHelper;
         private Mock<ILogger<DeleteDigitalIdentityByCustomerIdHttpTrigger.Function.DeleteDigitalIdentityByCustomerIdHttpTrigger>> _logger;
 
         private IHttpRequestHelper _httpRequestHelper;
@@ -32,7 +30,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         {
             // Mocks
             _logger = new Mock<ILogger<DeleteDigitalIdentityByCustomerIdHttpTrigger.Function.DeleteDigitalIdentityByCustomerIdHttpTrigger>>();
-            _loggerHelper = new Mock<ILoggerHelper>();
             _digitalIdentityService = new Mock<IDigitalIdentityService>();
             _serviceBus = new Mock<IDigitalIdentityServiceBusClient>();
 
@@ -41,7 +38,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 _digitalIdentityService.Object,
                 _serviceBus.Object,
                 _httpRequestHelper,
-                _loggerHelper.Object,
                 _logger.Object);
         }
 
@@ -146,8 +142,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         {
             var defaultRequest = new DefaultHttpContext().Request;
 
-            defaultRequest.Headers.Add(TouchpointIdHeaderParamKey, TouchpointIdHeaderParamValue);
-            defaultRequest.Headers.Add(ApimUrlHeaderParameterKey, ApimUrlHeaderParameterValue);
+            defaultRequest.Headers.Append(TouchpointIdHeaderParamKey, TouchpointIdHeaderParamValue);
+            defaultRequest.Headers.Append(ApimUrlHeaderParameterKey, ApimUrlHeaderParameterValue);
 
             return defaultRequest;
         }

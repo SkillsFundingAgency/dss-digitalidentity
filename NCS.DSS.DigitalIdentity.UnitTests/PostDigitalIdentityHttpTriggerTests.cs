@@ -1,5 +1,4 @@
 using AutoMapper;
-using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +31,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
         private Mock<IDigitalIdentityServiceBusClient> _mockDigitalIdentityServiceBusClient;
         private Mock<IDocumentDBProvider> _mockDocumentDbProvider;
-        private Mock<ILoggerHelper> _loggerHelper;
         private Mock<ILogger<PostDigitalIdentityHttpTrigger.Function.PostDigitalIdentityHttpTrigger>> _logger;
         private Mock<IDynamicHelper> _dynamicHelper;
 
@@ -49,7 +47,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             // Mocks
             _mockDigitalIdentityServiceBusClient = new Mock<IDigitalIdentityServiceBusClient>();
             _mockDocumentDbProvider = new Mock<IDocumentDBProvider>();
-            _loggerHelper = new Mock<ILoggerHelper>();
             _logger = new Mock<ILogger<PostDigitalIdentityHttpTrigger.Function.PostDigitalIdentityHttpTrigger>>();
             _dynamicHelper = new Mock<IDynamicHelper>();
 
@@ -64,7 +61,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 _mockDigitalIdentityServiceBusClient.Object,
                 _httpRequestHelper,
                 _mockDocumentDbProvider.Object,
-                _loggerHelper.Object,
                 _logger.Object,
                 _validate,
                 _mapper,
@@ -112,7 +108,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             // Assert
             Assert.That(result, Is.InstanceOf<BadRequestResult>());
-            _loggerHelper.Verify(l => l.LogInformationMessage(_logger.Object, It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
         }
 
         [Test]
@@ -128,7 +123,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             // Assert
             Assert.That(result, Is.InstanceOf<BadRequestResult>());
-            _loggerHelper.Verify(l => l.LogInformationMessage(_logger.Object, It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
         }
 
         [Test]
@@ -142,7 +136,6 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
 
             // Assert
             Assert.That(result, Is.InstanceOf<UnprocessableEntityResult>());
-            _loggerHelper.Verify(l => l.LogInformationMessage(_logger.Object, It.IsAny<Guid>(), It.IsAny<string>()), Times.AtLeastOnce);
         }
 
         [Test]
@@ -257,8 +250,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
         {
             var defaultRequest = new DefaultHttpContext().Request;
 
-            defaultRequest.Headers.Add(TouchpointIdHeaderParamKey, TouchpointIdHeaderParamValue);
-            defaultRequest.Headers.Add(ApimUrlHeaderParameterKey, ApimUrlHeaderParameterValue);
+            defaultRequest.Headers.Append(TouchpointIdHeaderParamKey, TouchpointIdHeaderParamValue);
+            defaultRequest.Headers.Append(ApimUrlHeaderParameterKey, ApimUrlHeaderParameterValue);
             defaultRequest.Body = GenerateStreamFromJson(JsonConvert.SerializeObject(requestBody));
 
             return defaultRequest;
