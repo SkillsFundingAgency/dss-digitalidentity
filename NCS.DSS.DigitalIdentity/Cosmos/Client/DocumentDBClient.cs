@@ -1,7 +1,4 @@
 ﻿using Microsoft.Azure.Documents.Client;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NCS.DSS.DigitalIdentity.Cosmos.Client
 {

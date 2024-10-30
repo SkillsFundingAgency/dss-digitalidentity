@@ -1,30 +1,54 @@
 ﻿using AutoMapper;
 using DFC.Common.Standard.Logging;
-using DFC.Functions.DI.Standard.Attributes;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using DFC.Swagger.Standard.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using NCS.DSS.DigitalIdentity.Cosmos.Helper;
 using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Service;
 using NCS.DSS.DigitalIdentity.Interfaces;
-using NCS.DSS.DigitalIdentity.Validation;
-using Newtonsoft.Json;
-using System;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
+using System.Text.Json;
+using JsonException = Newtonsoft.Json.JsonException;
 
 namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
 {
-    public static class PatchDigitalIdentityByIdentityIdHttpTrigger
+    public class PatchDigitalIdentityByIdentityIdHttpTrigger
     {
-        [FunctionName("PatchByIdentityId")]
+        private readonly IDigitalIdentityService _identityPatchService;
+        private readonly IGetDigitalIdentityHttpTriggerService _identityGetService;
+        private readonly IHttpRequestHelper _httpRequestHelper;
+        private readonly IValidate _validate;
+        private readonly ILoggerHelper _loggerHelper;
+        private readonly ILogger _logger;
+        private readonly IMapper _mapper;
+        private readonly IDynamicHelper _dynamicHelper;
+        private static readonly string[] PropertyToExclude = { "TargetSite" };
+
+        public PatchDigitalIdentityByIdentityIdHttpTrigger(
+            IDigitalIdentityService identityPatchService,
+            IGetDigitalIdentityHttpTriggerService identityGetService,
+            IHttpRequestHelper httpRequestHelper,
+            IValidate validate,
+            ILoggerHelper loggerHelper,
+            ILogger<PatchDigitalIdentityByIdentityIdHttpTrigger> logger,
+            IMapper mapper,
+            IDynamicHelper dynamicHelper)
+        {
+            _identityPatchService = identityPatchService;
+            _identityGetService = identityGetService;
+            _httpRequestHelper = httpRequestHelper;
+            _validate = validate;
+            _loggerHelper = loggerHelper;
+            _logger = logger;
+            _mapper = mapper;
+            _dynamicHelper = dynamicHelper;
+        }
+
+        [Function("PatchByIdentityId")]
         [Response(HttpStatusCode = (int)HttpStatusCode.OK, Description = "Digital Identity Patched", ShowSchema = true)]
         [Response(HttpStatusCode = (int)HttpStatusCode.NoContent, Description = "Resource Does Not Exist", ShowSchema = false)]
         [Response(HttpStatusCode = (int)HttpStatusCode.BadRequest, Description = "Patch request is malformed", ShowSchema = false)]
@@ -33,127 +57,122 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
         [Response(HttpStatusCode = (int)422, Description = "Digital Identity resource validation error(s)", ShowSchema = false)]
         [ProducesResponseType(typeof(Models.DigitalIdentity), (int)HttpStatusCode.OK)]
         [PostRequestBody(typeof(DigitalIdentityPatch), "Digital Identity Request body")]
-        public static async Task<HttpResponseMessage> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "identity/{IdentityId}")] HttpRequest req, ILogger log,
-            string IdentityId,
-            [Inject] IDigitalIdentityService identityPatchService,
-            [Inject] IGetDigitalIdentityHttpTriggerService identityGetService,
-            [Inject] ILoggerHelper loggerHelper,
-            [Inject] IHttpRequestHelper httpRequestHelper,
-            [Inject] IHttpResponseMessageHelper httpResponseMessageHelper,
-            [Inject] IJsonHelper jsonHelper,
-            [Inject] IValidate validate,
-            [Inject] IMapper mapper)
+        public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "identity/{IdentityId}")] HttpRequest req, string IdentityId)
         {
-            loggerHelper.LogMethodEnter(log);
+            _loggerHelper.LogMethodEnter(_logger);
 
             // Get Correlation Id
-            var correlationId = httpRequestHelper.GetDssCorrelationId(req);
+            var correlationId = _httpRequestHelper.GetDssCorrelationId(req);
             if (string.IsNullOrEmpty(correlationId))
             {
-                log.LogInformation("Unable to locate 'DssCorrelationId' in request header");
+                _logger.LogInformation("Unable to locate 'DssCorrelationId' in request header");
             }
 
             if (!Guid.TryParse(correlationId, out var correlationGuid))
             {
-                log.LogInformation("Unable to parse 'DssCorrelationId' to a Guid");
+                _logger.LogInformation("Unable to parse 'DssCorrelationId' to a Guid");
                 correlationGuid = Guid.NewGuid();
             }
 
             // Get Touch point Id
-            var touchpointId = httpRequestHelper.GetDssTouchpointId(req);
+            var touchpointId = _httpRequestHelper.GetDssTouchpointId(req);
             if (string.IsNullOrEmpty(touchpointId))
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, "Unable to locate 'TouchpointId' in request header");
-                return httpResponseMessageHelper.BadRequest();
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Unable to locate 'TouchpointId' in request header");
+                return new BadRequestResult();
             }
 
             // Get Apim URL
-            var apimUrl = httpRequestHelper.GetDssApimUrl(req);
+            var apimUrl = _httpRequestHelper.GetDssApimUrl(req);
             if (string.IsNullOrEmpty(apimUrl))
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, "Unable to locate 'apimurl' in request header");
-                return httpResponseMessageHelper.BadRequest();
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Unable to locate 'apimurl' in request header");
+                return new BadRequestResult();
             }
 
-            loggerHelper.LogInformationMessage(log, correlationGuid, "Apimurl:  " + apimUrl);
+            _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Apimurl:  " + apimUrl);
 
-            loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Patch Digital Identity C# HTTP trigger function requested by Touchpoint: {0}", touchpointId));
+            _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Patch Digital Identity C# HTTP trigger function requested by Touchpoint: {0}", touchpointId));
 
             if (!Guid.TryParse(IdentityId, out var identityGuid))
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Unable to parse 'IdentityId' to a Guid: {0}", IdentityId));
-                return httpResponseMessageHelper.BadRequest(identityGuid);
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Unable to parse 'IdentityId' to a Guid: {0}", IdentityId));
+                return new BadRequestObjectResult(identityGuid.ToString());
             }
 
             // Get patch body
             DigitalIdentityPatch digitalPatchRequest;
             try
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, "Attempt to get resource from body of the request");
-                digitalPatchRequest = await httpRequestHelper.GetResourceFromRequest<DigitalIdentityPatch>(req);
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Attempt to get resource from body of the request");
+                digitalPatchRequest = await _httpRequestHelper.GetResourceFromRequest<DigitalIdentityPatch>(req);
             }
             catch (JsonException ex)
             {
-                loggerHelper.LogError(log, correlationGuid, "Unable to retrieve body from req", ex);
-                return httpResponseMessageHelper.UnprocessableEntity(ex);
+                _loggerHelper.LogError(_logger, correlationGuid, "Unable to retrieve body from req", ex);
+                return new UnprocessableEntityObjectResult(_dynamicHelper.ExcludeProperty(ex, PropertyToExclude));
             }
 
             if (digitalPatchRequest == null)
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, "digital identity patch request is null");
-                return httpResponseMessageHelper.UnprocessableEntity();
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "digital identity patch request is null");
+                return new UnprocessableEntityResult();
             }
 
             // Validate patch body
-            loggerHelper.LogInformationMessage(log, correlationGuid, "Attempt to validate resource");
-            var errors = await validate.ValidateResource(digitalPatchRequest, false);
+            _loggerHelper.LogInformationMessage(_logger, correlationGuid, "Attempt to validate resource");
+            var errors = await _validate.ValidateResource(digitalPatchRequest, false);
 
             if (errors != null && errors.Any())
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, "validation errors with resource");
-                return httpResponseMessageHelper.UnprocessableEntity(errors);
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, "validation errors with resource");
+                return new UnprocessableEntityObjectResult(errors);
             }
 
             // Check if customer exists then validate
             if (!(digitalPatchRequest.CustomerId.Equals(Guid.Empty)))
             {
-                var doesCustomerExists = await identityPatchService.DoesCustomerExists(digitalPatchRequest.CustomerId);
+                var doesCustomerExists = await _identityPatchService.DoesCustomerExists(digitalPatchRequest.CustomerId);
 
                 if (!doesCustomerExists)
-                    return httpResponseMessageHelper.UnprocessableEntity(
+                    return new UnprocessableEntityObjectResult(
                         $"Customer with CustomerId  {digitalPatchRequest.CustomerId} does not exists.");
             }
 
             digitalPatchRequest.LastModifiedTouchpointId = touchpointId;
 
             // Check if resource exists
-            loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to get Digital Identity by Identity Id {0}", identityGuid));
-            var digitalIdentity = await identityGetService.GetIdentityAsync(identityGuid);
+            _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Attempting to get Digital Identity by Identity Id {0}", identityGuid));
+            var digitalIdentity = await _identityGetService.GetIdentityAsync(identityGuid);
 
             if (digitalIdentity == null)
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Unable to get Digital Identity resource {0}", identityGuid));
-                return httpResponseMessageHelper.NoContent(identityGuid);
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Unable to get Digital Identity resource {0}", identityGuid));
+                return new NoContentResult();
             }
 
             //LastLoggedInDateTime should be only updated when the user logs in using their digitalaccount.
             if (digitalPatchRequest.LastLoggedInDateTime.HasValue && touchpointId != "0000000997")
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("LastLoggedInDateTime  {0} and touchpoint {1}", digitalPatchRequest.LastLoggedInDateTime, touchpointId));
-                return httpResponseMessageHelper.UnprocessableEntity($"LastLoggedInDateTime should be null value.");
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("LastLoggedInDateTime  {0} and touchpoint {1}", digitalPatchRequest.LastLoggedInDateTime, touchpointId));
+                return new UnprocessableEntityObjectResult("LastLoggedInDateTime should be null value.");
             }
 
             // Check if resource terminated
             if (digitalIdentity.DateOfClosure.HasValue && digitalIdentity.DateOfClosure.Value < DateTime.UtcNow)
             {
-                loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Patch requested on terminated resource {0}", identityGuid));
-                return httpResponseMessageHelper.UnprocessableEntity();
+                _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Patch requested on terminated resource {0}", identityGuid));
+                return new UnprocessableEntityResult();
             }
-            var model = mapper.Map<Models.DigitalIdentity>(digitalIdentity);
-            loggerHelper.LogInformationMessage(log, correlationGuid, string.Format("Attempting to patch identity resource {0}", identityGuid));
-            var patchedCustomer = await identityPatchService.PatchAsync(model, digitalPatchRequest);
+            var model = _mapper.Map<Models.DigitalIdentity>(digitalIdentity);
+            _loggerHelper.LogInformationMessage(_logger, correlationGuid, string.Format("Attempting to patch identity resource {0}", identityGuid));
 
-            return httpResponseMessageHelper.Ok(jsonHelper.SerializeObjectAndRenameIdProperty(patchedCustomer, "id", "IdentityID"));
+            var patchedCustomer = await _identityPatchService.PatchAsync(model, digitalPatchRequest);
+
+            return new JsonResult(patchedCustomer, new JsonSerializerOptions())
+            {
+                StatusCode = (int)HttpStatusCode.OK
+            };
         }
     }
 }

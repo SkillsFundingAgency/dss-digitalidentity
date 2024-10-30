@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NCS.DSS.DigitalIdentity.Models
+﻿namespace NCS.DSS.DigitalIdentity.Models
 {
     public class Customer
     {

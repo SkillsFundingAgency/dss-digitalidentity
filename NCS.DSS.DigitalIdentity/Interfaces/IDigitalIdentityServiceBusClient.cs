@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace NCS.DSS.DigitalIdentity.Interfaces
+﻿namespace NCS.DSS.DigitalIdentity.Interfaces
 {
     public interface IDigitalIdentityServiceBusClient
     {

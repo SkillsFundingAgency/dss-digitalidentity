@@ -1,13 +1,11 @@
 ﻿using Microsoft.Azure.ServiceBus;
 using NCS.DSS.DigitalIdentity.Interfaces;
 using Newtonsoft.Json;
-using System;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.Services
 {
-    public class DigitalIdentitServiceBusClient : IDigitalIdentityServiceBusClient
+    public class DigitalIdentityServiceBusClient : IDigitalIdentityServiceBusClient
     {
         public static readonly string KeyName = Environment.GetEnvironmentVariable("KeyName");
         public static readonly string AccessKey = Environment.GetEnvironmentVariable("AccessKey");
@@ -48,7 +46,7 @@ namespace NCS.DSS.DigitalIdentity.Services
                 digitalIdentity.LastName,
                 digitalIdentity.EmailAddress,
                 digitalIdentity.CustomerId,
-                CreateDigitalIdentity= digitalIdentity.CreateDigitalIdentity ?? false,
+                CreateDigitalIdentity = digitalIdentity.CreateDigitalIdentity ?? false,
                 IsDigitalAccount = digitalIdentity.IsDigitalAccount ?? false,
                 DeleteDigitalIdentity = digitalIdentity.DeleteDigitalIdentity ?? false,
                 IdentityStoreId = digitalIdentity.IdentityStoreId ?? null,

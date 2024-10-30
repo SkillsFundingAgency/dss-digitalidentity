@@ -1,8 +1,6 @@
 ﻿using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.Interfaces;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.Validation
 {

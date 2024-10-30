@@ -1,8 +1,6 @@
 ﻿using NCS.DSS.DigitalIdentity.Cosmos.Provider;
 using NCS.DSS.DigitalIdentity.DTO;
 using NCS.DSS.DigitalIdentity.Interfaces;
-using System;
-using System.Threading.Tasks;
 
 namespace NCS.DSS.DigitalIdentity.Services
 {

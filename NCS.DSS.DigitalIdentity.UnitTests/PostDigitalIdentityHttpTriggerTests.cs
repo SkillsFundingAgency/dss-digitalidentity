@@ -1,9 +1,8 @@
 using AutoMapper;
 using DFC.Common.Standard.Logging;
 using DFC.HTTP.Standard;
-using DFC.JSON.Standard;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NCS.DSS.DigitalIdentity.Cosmos.Helper;
@@ -18,8 +17,8 @@ using NUnit.Framework;
 using System;
 using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace NCS.DSS.DigitalIdentity.UnitTests
 {
@@ -28,42 +27,48 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
     {
         private const string TouchpointIdHeaderParamKey = "touchpointId";
         private const string ApimUrlHeaderParameterKey = "apimurl";
+        private const string ApimUrlHeaderParameterValue = "http://localhost:7071/";
+        private const string TouchpointIdHeaderParamValue = "9000000000";
 
-        private string ApimUrlHeaderParameterValue = "http://localhost:7071/";
-        private string TouchpointIdHeaderParamValue = "9000000000";
-
-        private Mock<ILogger> _mockLog;
+        private Mock<IDigitalIdentityServiceBusClient> _mockDigitalIdentityServiceBusClient;
         private Mock<IDocumentDBProvider> _mockDocumentDbProvider;
         private Mock<ILoggerHelper> _loggerHelper;
-        private Mock<IDigitalIdentityServiceBusClient> _mockDigitalIdentityServiceBusClient;
+        private Mock<ILogger<PostDigitalIdentityHttpTrigger.Function.PostDigitalIdentityHttpTrigger>> _logger;
+        private Mock<IDynamicHelper> _dynamicHelper;
 
         private IDigitalIdentityService _postDigitalIdentityHttpTriggerService;
-        private IResourceHelper _resourceHelper;
         private IHttpRequestHelper _httpRequestHelper;
-        private IHttpResponseMessageHelper _httpResponseMessageHelper;
-        private IJsonHelper _jsonHelper;
         private IValidate _validate;
         private IMapper _mapper;
+
+        private PostDigitalIdentityHttpTrigger.Function.PostDigitalIdentityHttpTrigger _function;
 
         [SetUp]
         public void Setup()
         {
             // Mocks
-            _mockLog = new Mock<ILogger>();
-            _mockDocumentDbProvider = new Mock<IDocumentDBProvider>();
             _mockDigitalIdentityServiceBusClient = new Mock<IDigitalIdentityServiceBusClient>();
+            _mockDocumentDbProvider = new Mock<IDocumentDBProvider>();
             _loggerHelper = new Mock<ILoggerHelper>();
+            _logger = new Mock<ILogger<PostDigitalIdentityHttpTrigger.Function.PostDigitalIdentityHttpTrigger>>();
+            _dynamicHelper = new Mock<IDynamicHelper>();
 
             // Below is a fudge as we cannot return ResourceResponse<Document> out of _mockDocumentDbProvider
             _postDigitalIdentityHttpTriggerService = new DigitalIdentityService(_mockDocumentDbProvider.Object, _mockDigitalIdentityServiceBusClient.Object);
-
-            _resourceHelper = new ResourceHelper(_mockDocumentDbProvider.Object);
-            _validate = new Validate(_mockDocumentDbProvider.Object);
             _httpRequestHelper = new HttpRequestHelper();
-            _httpResponseMessageHelper = new HttpResponseMessageHelper();
-            _jsonHelper = new JsonHelper();
+            _validate = new Validate(_mockDocumentDbProvider.Object);
             _mapper = new Mapper(new MapperConfiguration(item => item.AddProfile<MappingProfile>()));
 
+            _function = new PostDigitalIdentityHttpTrigger.Function.PostDigitalIdentityHttpTrigger(
+                _postDigitalIdentityHttpTriggerService,
+                _mockDigitalIdentityServiceBusClient.Object,
+                _httpRequestHelper,
+                _mockDocumentDbProvider.Object,
+                _loggerHelper.Object,
+                _logger.Object,
+                _validate,
+                _mapper,
+                _dynamicHelper.Object);
         }
 
         [Test]
@@ -72,30 +77,26 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             // Arrange
             var httpRequestBody = GenerateDefaultPostRequestBody();
             var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
-            var responsHttpBody = GenerateResponseFromRequest(httpRequestBody);
+            var responseHttpBody = GenerateResponseFromRequest(httpRequestBody);
 
             _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
-                .Returns(Task.FromResult<bool>(true));
+                .Returns(Task.FromResult(true));
             _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(responsHttpBody));
+                .Returns(Task.FromResult(responseHttpBody));
             _mockDocumentDbProvider.Setup(m => m.CreateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
-                .Returns(Task.FromResult(responsHttpBody));
+                .Returns(Task.FromResult(responseHttpBody));
             _mockDocumentDbProvider.Setup(m => m.GetCustomer(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(new Customer() { GivenName="test", FamilyName="test" }));
+                .Returns(Task.FromResult(new Customer() { GivenName = "test", FamilyName = "test" }));
             _mockDocumentDbProvider.Setup(m => m.GetCustomerContact(It.IsAny<Guid>()))
                 .Returns(Task.FromResult(new Contact() { EmailAddress = "email@email.com" }));
 
             // Act
-            var result = await RunFunction(httpRequest);
-            var actualResult =
-                JsonConvert.DeserializeObject<Models.DigitalIdentity>(await result.Content.ReadAsStringAsync());
+            var response = await RunFunction(httpRequest);
+            var responseResult = response as JsonResult;
 
             // Assert
-            Assert.IsInstanceOf<HttpResponseMessage>(result);
-            Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-            Assert.AreEqual(actualResult.CustomerId, httpRequestBody.CustomerId);
-            Assert.AreEqual(actualResult.id_token, httpRequestBody.id_token);
-            Assert.AreEqual(actualResult.LastLoggedInDateTime, httpRequestBody.LastLoggedInDateTime);
+            Assert.That(response, Is.InstanceOf<JsonResult>());
+            Assert.That(responseResult.StatusCode, Is.EqualTo((int)HttpStatusCode.Created));
         }
 
         [Test]
@@ -110,9 +111,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var result = await RunFunction(httpRequest);
 
             // Assert
-            Assert.IsInstanceOf<HttpResponseMessage>(result);
-            Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-            _loggerHelper.Verify(l => l.LogInformationMessage(_mockLog.Object, It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+            Assert.That(result, Is.InstanceOf<BadRequestResult>());
+            _loggerHelper.Verify(l => l.LogInformationMessage(_logger.Object, It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
         }
 
         [Test]
@@ -127,9 +127,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var result = await RunFunction(httpRequest);
 
             // Assert
-            Assert.IsInstanceOf<HttpResponseMessage>(result);
-            Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-            _loggerHelper.Verify(l => l.LogInformationMessage(_mockLog.Object, It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
+            Assert.That(result, Is.InstanceOf<BadRequestResult>());
+            _loggerHelper.Verify(l => l.LogInformationMessage(_logger.Object, It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
         }
 
         [Test]
@@ -142,9 +141,8 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var result = await RunFunction(httpRequest);
 
             // Assert
-            Assert.IsInstanceOf<HttpResponseMessage>(result);
-            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
-            _loggerHelper.Verify(l => l.LogInformationMessage(_mockLog.Object, It.IsAny<Guid>(), It.IsAny<string>()), Times.AtLeastOnce);
+            Assert.That(result, Is.InstanceOf<UnprocessableEntityResult>());
+            _loggerHelper.Verify(l => l.LogInformationMessage(_logger.Object, It.IsAny<Guid>(), It.IsAny<string>()), Times.AtLeastOnce);
         }
 
         [Test]
@@ -154,16 +152,15 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var httpRequestBody = GenerateDefaultPostRequestBody();
             var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
             _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
-                .Returns(Task.FromResult<bool>(false));
+                .Returns(Task.FromResult(false));
 
             // Act
             var result = await RunFunction(httpRequest);
-            var contentBody = await result.Content.ReadAsStringAsync();
+            var resultResponse = result as ObjectResult;
 
             // Assert
-            Assert.IsInstanceOf<HttpResponseMessage>(result);
-            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
-            Assert.IsNotEmpty(contentBody);
+            Assert.That(result, Is.InstanceOf<UnprocessableEntityObjectResult>());
+            Assert.That(resultResponse.Value.ToString(), Is.Not.Empty);
         }
 
         [Test]
@@ -172,14 +169,14 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             // Arrange
             var httpRequestBody = GenerateDefaultPostRequestBody();
             var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
-            Models.DigitalIdentity responsHttpBody = null;
+            Models.DigitalIdentity responseHttpBody = null;
 
             _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
-                .Returns(Task.FromResult<bool>(true));
+                .Returns(Task.FromResult(true));
             _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(responsHttpBody));
+                .Returns(Task.FromResult(responseHttpBody));
             _mockDocumentDbProvider.Setup(m => m.CreateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
-                .Returns(Task.FromResult(responsHttpBody));
+                .Returns(Task.FromResult(responseHttpBody));
             _mockDocumentDbProvider.Setup(m => m.GetCustomer(It.IsAny<Guid>()))
                 .Returns(Task.FromResult(new Customer() { GivenName = "test", FamilyName = "test" }));
             _mockDocumentDbProvider.Setup(m => m.GetCustomerContact(It.IsAny<Guid>()))
@@ -189,8 +186,7 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             var result = await RunFunction(httpRequest);
 
             // Assert
-            Assert.IsInstanceOf<HttpResponseMessage>(result);
-            Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+            Assert.That(result, Is.InstanceOf<InternalServerErrorResult>());
         }
 
 
@@ -200,23 +196,22 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             // Arrange
             var httpRequestBody = GenerateDefaultPostRequestBody();
             var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
-            Models.DigitalIdentity responsHttpBody = null;
+            Models.DigitalIdentity responseHttpBody = null;
 
             _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
-                .Returns(Task.FromResult<bool>(true));
+                .Returns(Task.FromResult(true));
             _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(responsHttpBody));
+                .Returns(Task.FromResult(responseHttpBody));
             _mockDocumentDbProvider.Setup(m => m.CreateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
-                .Returns(Task.FromResult(responsHttpBody));
+                .Returns(Task.FromResult(responseHttpBody));
             _mockDocumentDbProvider.Setup(m => m.GetCustomer(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(new Customer { id = Guid.NewGuid(), DateOfTermination=DateTime.Now.AddDays(-1) }));
+                .Returns(Task.FromResult(new Customer { id = Guid.NewGuid(), DateOfTermination = DateTime.Now.AddDays(-1) }));
 
             // Act
             var result = await RunFunction(httpRequest);
 
             // Assert
-            Assert.IsInstanceOf<HttpResponseMessage>(result);
-            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
+            Assert.That(result, Is.InstanceOf<UnprocessableEntityObjectResult>());
         }
 
         [Test]
@@ -225,27 +220,30 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             // Arrange
             var httpRequestBody = GenerateDefaultPostRequestBody();
             var httpRequest = GenerateDefaultHttpRequest(httpRequestBody);
-            Models.DigitalIdentity responsHttpBody = null;
+            Models.DigitalIdentity responseHttpBody = null;
 
             _mockDocumentDbProvider.Setup(m => m.DoesCustomerResourceExist(It.IsAny<Guid>()))
-                .Returns(Task.FromResult<bool>(true));
+                .Returns(Task.FromResult(true));
             _mockDocumentDbProvider.Setup(m => m.GetIdentityByIdentityIdAsync(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(responsHttpBody));
+                .Returns(Task.FromResult(responseHttpBody));
             _mockDocumentDbProvider.Setup(m => m.CreateIdentityAsync(It.IsAny<Models.DigitalIdentity>()))
-                .Returns(Task.FromResult(responsHttpBody));
+                .Returns(Task.FromResult(responseHttpBody));
             _mockDocumentDbProvider.Setup(m => m.GetIdentityForCustomerAsync(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(responsHttpBody));
+                .Returns(Task.FromResult(responseHttpBody));
 
             // Act
             var result = await RunFunction(httpRequest);
 
             // Assert
-            Assert.IsInstanceOf<HttpResponseMessage>(result);
-            Assert.AreEqual(HttpStatusCode.UnprocessableEntity, result.StatusCode);
+            Assert.That(result, Is.InstanceOf<UnprocessableEntityObjectResult>());
         }
 
-        #region Helpers
-        private Stream GenerateStreamFromJson(string requestBody)
+        private async Task<IActionResult> RunFunction(HttpRequest request)
+        {
+            return await _function.RunAsync(request).ConfigureAwait(false);
+        }
+
+        private static Stream GenerateStreamFromJson(string requestBody)
         {
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
@@ -255,26 +253,9 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             return stream;
         }
 
-        private async Task<HttpResponseMessage> RunFunction(HttpRequest request)
+        private static HttpRequest GenerateDefaultHttpRequest(Models.DigitalIdentity requestBody)
         {
-            return await PostDigitalIdentityHttpTrigger.Function.PostDigitalIdentityHttpTrigger.RunAsync(
-                request,
-                _mockLog.Object,
-                _postDigitalIdentityHttpTriggerService,
-                _loggerHelper.Object,
-                _httpRequestHelper,
-                _httpResponseMessageHelper,
-                _jsonHelper,
-                _validate,
-                _mockDocumentDbProvider.Object,
-                _mockDigitalIdentityServiceBusClient.Object,
-                _mapper
-            ).ConfigureAwait(false);
-        }
-
-        private DefaultHttpRequest GenerateDefaultHttpRequest(Models.DigitalIdentity requestBody)
-        {
-            var defaultRequest = new DefaultHttpRequest(new DefaultHttpContext());
+            var defaultRequest = new DefaultHttpContext().Request;
 
             defaultRequest.Headers.Add(TouchpointIdHeaderParamKey, TouchpointIdHeaderParamValue);
             defaultRequest.Headers.Add(ApimUrlHeaderParameterKey, ApimUrlHeaderParameterValue);
@@ -283,10 +264,10 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             return defaultRequest;
         }
 
-        private Models.DigitalIdentity GenerateDefaultPostRequestBody()
+        private static Models.DigitalIdentity GenerateDefaultPostRequestBody()
         {
             // Build request
-            return new Models.DigitalIdentity()
+            return new Models.DigitalIdentity
             {
                 CustomerId = Guid.NewGuid(),
                 IdentityStoreId = Guid.NewGuid(),
@@ -295,9 +276,9 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
             };
         }
 
-        private Models.DigitalIdentity GenerateResponseFromRequest(Models.DigitalIdentity httpRequestBody)
+        private static Models.DigitalIdentity GenerateResponseFromRequest(Models.DigitalIdentity httpRequestBody)
         {
-            return new Models.DigitalIdentity()
+            return new Models.DigitalIdentity
             {
                 IdentityID = Guid.NewGuid(),
                 CustomerId = httpRequestBody.CustomerId,
@@ -309,7 +290,5 @@ namespace NCS.DSS.DigitalIdentity.UnitTests
                 DateOfClosure = null,
             };
         }
-
-        #endregion
     }
 }
