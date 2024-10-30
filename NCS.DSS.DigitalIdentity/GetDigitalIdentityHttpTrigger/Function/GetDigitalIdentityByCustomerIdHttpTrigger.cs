@@ -86,7 +86,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
             {
                 _logger.LogInformation($"DIGITAL IDENTITY successfully retrieved. Digital Identity ID: {identity.IdentityID.Value}");
                 _logger.LogInformation($"Function {nameof(GetDigitalIdentityByCustomerIdHttpTrigger)} has finished invoking");
-                
+
                 return new JsonResult(identity, new JsonSerializerOptions())
                 {
                     StatusCode = (int)HttpStatusCode.OK
@@ -96,7 +96,7 @@ namespace NCS.DSS.DigitalIdentity.GetDigitalIdentityHttpTrigger.Function
             {
                 _logger.LogInformation($"DIGITAL IDENTITY does not exist for Customer. Customer GUID: {customerGuid}");
                 _logger.LogInformation($"Function {nameof(GetDigitalIdentityByCustomerIdHttpTrigger)} has finished invoking");
-                
+
                 return new NoContentResult();
             }
         }

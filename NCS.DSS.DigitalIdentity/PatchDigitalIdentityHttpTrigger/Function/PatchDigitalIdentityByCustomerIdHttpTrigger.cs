@@ -181,7 +181,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
                 {
                     StatusCode = (int)HttpStatusCode.OK
                 };
-            } 
+            }
             else
             {
                 _logger.LogError($"PATCH request unsuccessful. Digital Identity ID: {digitalIdentity.IdentityID.Value}");

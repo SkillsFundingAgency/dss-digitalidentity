@@ -137,7 +137,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
                 if (customerExists)
                 {
                     _logger.LogInformation($"Customer exists. Customer ID: {digitalPatchRequest.CustomerId}");
-                } 
+                }
                 else
                 {
                     _logger.LogError($"Customer does not exist. Customer ID: {digitalPatchRequest.CustomerId}");
@@ -174,7 +174,7 @@ namespace NCS.DSS.DigitalIdentity.PatchDigitalIdentityHttpTrigger.Function
                 _logger.LogError($"Cannot PATCH a DIGITAL IDENTITY which is terminated. Digital Identity GUID: {identityGuid}");
                 return new UnprocessableEntityResult();
             }
-            
+
             var model = _mapper.Map<Models.DigitalIdentity>(digitalIdentity);
 
             _logger.LogInformation($"Attempting to PATCH a DIGITAL IDENTITY. Digital Identity GUID: {identityGuid}");

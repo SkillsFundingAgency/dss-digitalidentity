@@ -120,16 +120,16 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
                 _logger.LogError("CustomerId is missing from the DigitalIdentityPost object - it is mandatory.");
                 return new UnprocessableEntityObjectResult("CustomerId is mandatory");
             }
-                
+
             if (identityRequest.DateOfClosure.HasValue)
             {
                 _logger.LogError("Cannot create a DIGITAL IDENTITY with a termination date - remove it from the DigitalIdentityPost object.");
                 return new UnprocessableEntityObjectResult("Date of termination cannot be set in post request!");
             }
-                
+
             // Check if customer exists
             var doesCustomerExists = await _identityPostService.DoesCustomerExists(identityRequest.CustomerId);
-            
+
             if (doesCustomerExists)
             {
                 _logger.LogInformation($"Customer exists. Customer ID: {identityRequest.CustomerId}");
@@ -148,8 +148,8 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
             {
                 _logger.LogError($"Failed to retrieve customer information. Customer ID: {identityRequest.CustomerId}");
                 return new UnprocessableEntityObjectResult($"Customer with CustomerId  {identityRequest.CustomerId} does not exists.");
-            } 
-            
+            }
+
             if (customer.DateOfTermination.HasValue)
             {
                 _logger.LogError($"Cannot POST a DIGITAL IDENTITY for a Customer which is terminated. Customer ID: {identityRequest.CustomerId}");
@@ -215,7 +215,7 @@ namespace NCS.DSS.DigitalIdentity.PostDigitalIdentityHttpTrigger.Function
 
             _logger.LogInformation("Attempting to POST a DIGITAL IDENTITY");
             var createdIdentity = await _identityPostService.CreateAsync(model);
-            
+
             if (createdIdentity != null)
             {
                 _logger.LogInformation($"POST to DIGITAL IDENTITY was successful. Digital Identity ID: {createdIdentity.IdentityID.Value}");

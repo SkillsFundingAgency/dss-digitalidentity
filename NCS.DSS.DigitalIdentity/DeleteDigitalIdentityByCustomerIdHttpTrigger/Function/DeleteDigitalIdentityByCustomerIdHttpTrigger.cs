@@ -70,7 +70,7 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
             _logger.LogInformation($"Header validation has succeeded. Touchpoint ID: {touchpointId}. Correlation GUID: {correlationGuid}");
 
             var customerExists = await _identityDeleteService.DoesCustomerExists(customerGuid);
-            
+
             if (!customerExists)
             {
                 _logger.LogInformation($"Customer does not exist. Customer GUID: {customerGuid}");
@@ -98,7 +98,7 @@ namespace NCS.DSS.DigitalIdentity.DeleteDigitalIdentityByCustomerIdHttpTrigger.F
             if (deleteRequest != null)
             {
                 _logger.LogInformation($"Successfully updated DIGITAL IDENTITY. Digital Identity ID: {identity?.IdentityID.Value}");
-            } 
+            }
             else
             {
                 _logger.LogInformation($"Failed to updated DIGITAL IDENTITY. Digital Identity ID: {identity?.IdentityID.Value}"); // should this be an ERROR?
